@@ -1,11 +1,11 @@
 {
-  "name": "SAO Workplace for Office & Home V2.2",
+  "name": "SAO Workplace \u2014 50 Years AI Vision",
   "short_name": "SAO Workplace",
   "description": "Four focused workspaces for Home, Clinic/Office, Study, and App Development & AI, with smart task planning.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f5f7fa",
-  "theme_color": "#26364a",
+  "background_color": "#050817",
+  "theme_color": "#060b1a",
   "icons": [
     {
       "src": "icon.svg",
