@@ -1,11 +1,11 @@
 {
-  "name": "SAO Workplace \u2014 50 Years AI Vision",
+  "name": "SAO Workplace V4 \u2014 AI Copilot Soft Blue",
   "short_name": "SAO Workplace",
   "description": "Four focused workspaces for Home, Clinic/Office, Study, and App Development & AI, with smart task planning.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#050817",
-  "theme_color": "#060b1a",
+  "background_color": "#eef6fb",
+  "theme_color": "#eaf4fb",
   "icons": [
     {
       "src": "icon.svg",

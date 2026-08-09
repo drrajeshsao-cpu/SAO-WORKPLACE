@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#060b1a">
-  <title>SAO Workplace V3 • 50 Years AI Vision</title>
+  <meta name="theme-color" content="#eaf4fb">
+  <title>SAO Workplace V4 • AI Copilot Soft Blue</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css?v=3.0.0">
+  <link rel="stylesheet" href="styles.css?v=4.0.0">
 </head>
 <body>
 <div class="app">
@@ -29,7 +29,7 @@
     <div class="side-note"><b>SAO AI Future Mode</b><br>Human-centered planning • privacy • clarity • long-term impact.</div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Your work, study, health, family and life responsibilities in one place.</p></div><div class="top-actions"><input id="globalSearch" placeholder="Search anything…"><button id="quickAddBtn">+ Quick Add</button></div></header>
+    <header class="topbar"><div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Your work, study, health, family and life responsibilities in one place.</p></div><div class="top-actions"><input id="globalSearch" placeholder="Search anything…"><button id="voiceQuickBtn" class="voice-top-btn" title="Voice capture">🎙 Voice</button><button id="quickAddBtn">+ Quick Add</button></div></header>
     <section id="view"></section>
   </main>
 </div>
@@ -53,7 +53,57 @@
 <template id="wellnessTpl"><div class="card"><div class="cardhead"><div><span class="eyebrow">BODY • MIND • SADHANA • SEVA</span><h3>Wellness & Spiritual Tracker</h3><p class="muted">Daily habits, Radha Naam japa, mala, pooja, vrata, yoga, exercise, sleep, diet and dana.</p></div><input id="wellnessDate" type="date"></div><div id="wellnessForm"></div></div><div class="grid2"><div class="card"><h3>Monthly Totals</h3><div id="wellnessTotals"></div></div><div class="card"><h3>Recent Logs</h3><div id="wellnessHistory"></div></div></div></template>
 <template id="travelTpl"><div class="grid2"><div class="card"><div class="cardhead"><div><span class="eyebrow">SEMINAR • YATRA • TOUR</span><h3>Travel & Seminar Planner</h3><p class="muted">Purpose, tickets, companions, nearby places, timing and budget.</p></div><button id="newTravelBtn">+ New Plan</button></div><div id="travelEditor"></div></div><div class="card"><div class="cardhead"><h3>Upcoming Plans</h3><select id="travelStatusFilter"><option value="">All Status</option></select></div><div id="travelList"></div></div></div></template>
 
-<template id="aiTpl"><section class="future-command-hero compact-ai-hero"><div class="future-intro"><span class="eyebrow future-eyebrow">SAO INTELLIGENCE LAYER</span><h2>AI Insights & Decision Support</h2><p>This version analyses your stored planner data locally and does not send it to an external AI service.</p></div><div class="future-orb-card"><div class="future-orb">AI</div><b>Private Local Intelligence</b><span>Future secure AI connector ready</span></div></section><div id="aiKpis" class="future-kpis"></div><div class="grid2"><div class="card future-card"><h3>What Needs Your Attention?</h3><div id="aiAttention"></div></div><div class="card future-card"><h3>Suggested Focus Strategy</h3><div id="aiStrategy"></div></div></div><div class="grid2"><div class="card future-card"><h3>Workload Balance</h3><div id="aiBalance"></div></div><div class="card future-card"><h3>Long-Term Risk Scanner</h3><div id="aiRisks"></div></div></div><div class="card future-card vision-reference-card"><h3>50-Year Product Vision</h3><p class="muted">Visual direction for the evolving SAO Workplace ecosystem.</p><img src="vision-50-years.png" alt="SAO Workplace 50 years AI vision" class="vision-reference-image"></div></template><template id="mydayTpl">
+<template id="aiTpl">
+  <section class="ai-soft-hero">
+    <div>
+      <span class="eyebrow">SAO INTELLIGENCE LAYER • PRIVATE-FIRST</span>
+      <h2>AI Copilot & Smart Decision Center</h2>
+      <p>Useful intelligence from your own planner data: daily brief, voice capture, natural-language task entry, workload analysis, focus planning and risk detection.</p>
+      <div class="ai-capability-row"><span>✓ Local Smart Insights</span><span>✓ Natural Language Capture</span><span>✓ Voice Input</span><span>✓ Focus Planning</span><span>✓ Privacy First</span></div>
+    </div>
+    <div class="ai-copilot-badge"><div class="soft-orb">AI</div><b>SAO Copilot</b><span>No external AI upload in this version</span></div>
+  </section>
+
+  <div id="aiKpis" class="future-kpis"></div>
+
+  <div class="grid2 ai-command-grid">
+    <div class="card command-card">
+      <div class="cardhead"><div><span class="eyebrow">NATURAL LANGUAGE INPUT</span><h3>Tell SAO What You Need To Do</h3></div><button id="aiVoiceBtn" class="voice-action">🎙 Speak</button></div>
+      <textarea id="aiCommandInput" placeholder="Example: Tomorrow remind me to call clinic electrician, high priority, 30 minutes"></textarea>
+      <div id="voiceState" class="note">Type normally or use Voice. The local parser can understand common words such as today, tomorrow, next week, clinic, study, home, urgent, 30 minutes.</div>
+      <div class="actionrow"><button id="interpretCommandBtn">✨ Interpret & Preview</button><button id="saveInterpretedBtn" class="ghost">Save Suggested Task</button><button id="clearCommandBtn" class="ghost">Clear</button></div>
+      <div id="commandPreview" class="command-preview"></div>
+    </div>
+    <div class="card smart-brief-card">
+      <div class="cardhead"><div><span class="eyebrow">TODAY'S INTELLIGENT BRIEF</span><h3>What Should I Focus On?</h3></div><button id="prepareDayBtn" class="gold-button">Prepare My Day</button></div>
+      <div id="smartDailyBrief"></div>
+      <button id="speakBriefBtn" class="ghost">🔊 Read Brief Aloud</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><h3>What Needs Your Attention?</h3><div id="aiAttention"></div></div>
+    <div class="card"><h3>Suggested Focus Strategy</h3><div id="aiStrategy"></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>Workload Balance</h3><div id="aiBalance"></div></div>
+    <div class="card"><h3>Long-Term Risk Scanner</h3><div id="aiRisks"></div></div>
+  </div>
+
+  <div class="card advanced-tools-card">
+    <div class="cardhead"><div><span class="eyebrow">ADVANCED GENERATION TOOLS</span><h3>Useful Now vs Future Expansion</h3></div></div>
+    <div class="advanced-tools-grid">
+      <div class="advanced-tool active-tool"><b>🎙 Voice Capture</b><span>Working when browser speech recognition is supported.</span></div>
+      <div class="advanced-tool active-tool"><b>🧠 Smart Local Insights</b><span>Working from your tasks, priorities, due dates and status.</span></div>
+      <div class="advanced-tool active-tool"><b>⌨ Natural Language Capture</b><span>Working local parser for common planning phrases.</span></div>
+      <div class="advanced-tool active-tool"><b>🔊 Read Aloud</b><span>Uses browser text-to-speech for your daily brief.</span></div>
+      <div class="advanced-tool future-tool"><b>☁ Universal Sync</b><span>Needs secure cloud backend before true cross-device sync.</span></div>
+      <div class="advanced-tool future-tool"><b>✨ External AI Reasoning</b><span>Can later connect securely to an AI API with user permission.</span></div>
+    </div>
+  </div>
+
+  <details class="card roadmap-card"><summary><b>50-Year Product Vision & Reference</b> — open only when you want the long-term roadmap</summary><img src="vision-50-years.png" alt="SAO Workplace 50 years AI vision" class="vision-reference-image"></details>
+</template><template id="mydayTpl">
   <div class="hero myday-hero">
     <div><span class="eyebrow">TODAY • FOCUS • TIME BLOCKS</span><h2>My Day</h2><p>Choose the few things that matter most today. See overdue work, reminders and realistic time demand in one screen.</p></div>
     <div class="focus-card"><span>Planned Workload</span><b id="myDayMinutes">0</b><small>minutes estimated today</small></div>
@@ -80,6 +130,6 @@
 <template id="filesTpl"><div class="grid2"><div class="card"><h3>Files, Images, PDFs & Notes</h3><div class="formgrid"><label>Area<select id="fileCategory"></select></label><label>Linked Task / Project<select id="fileTask"><option value="">General / not linked</option></select></label><label>Note<input id="fileNote" placeholder="What is this file?"></label></div><label class="uploadbox">📎 Add Image / PDF / Document<input id="fileInput" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"></label><div id="pickedFiles"></div><button id="saveFiles">Save Files</button></div><div class="card"><div class="cardhead"><h3>Saved Files</h3><select id="fileFilter"><option value="">All Areas</option></select></div><div id="filesList"></div></div></div></template>
 <template id="backupTpl"><div class="card"><h3>Backup, Restore & Export</h3><p class="muted">Keep a backup before major changes or switching devices.</p><div class="actionrow"><button id="backupBtn">Download JSON Backup</button><label class="buttonlike">Restore JSON<input type="file" id="restoreInput" accept=".json" hidden></label><button class="ghost" id="csvBtn">Export Tasks CSV</button></div></div></template>
 <template id="settingsTpl"><div class="card"><h3>Workplace Settings</h3><div id="settingsForm"></div></div><div class="card"><h3>Reminder Permission</h3><p class="muted">In-app reminders work whenever the app is opened. Browser notifications can also appear while the app is active if permission is granted.</p><button id="notificationBtn">Enable Notifications</button><div id="notificationState" class="note"></div></div></template>
-<script src="app.js?v=3.0.0"></script>
+<script src="app.js?v=4.0.0"></script>
 </body>
 </html>
