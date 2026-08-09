@@ -1,21 +1,20 @@
-SAO WORKPLACE FOR OFFICE & HOME — V2 SMART PLANNER
+SAO WORKPLACE V2.1 — WORKING FIX
 
-V2 upgrades:
-- My Day dashboard with focus, agenda, overdue and waiting/help-needed work.
-- Top Focus flag for important tasks.
-- Estimated minutes and daily workload total.
-- Next Action field.
-- Progress percentage bar.
-- Waiting For / Delegated To + contact.
-- Recurring tasks: Daily / Weekly / Monthly / Yearly. Completing a recurring task creates the next occurrence.
-- Status Kanban Board.
-- Review Center for overdue, stale 14+ day, waiting/help and long-term tasks.
-- One-click reschedule to Tomorrow or Next Week.
-- Weekly Reflection history.
-- V1 data is preserved and automatically migrated with defaults for new fields.
+Fixed root cause of blank dashboard and dead buttons:
+- V2 app.js exported an undefined function named reschedule. That stopped the whole JavaScript app from initializing.
+- My Day, Status Board and Review Center templates existed, but their render functions were missing from the view router.
 
-Existing modules retained:
-Dashboard, Tasks & Projects, Study Planner, Wellness & Sadhana, Travel & Seminar, Master Summary, Files & Notes, Backup/Restore, Settings.
+V2.1 fixes:
+- All navigation buttons wired.
+- Dashboard renders.
+- Quick Add works.
+- My Day works.
+- Tasks & Projects works.
+- Status Board / Kanban works.
+- Study, Wellness, Travel, Review, Summary, Files, Backup, Settings all routed.
+- Reschedule Tomorrow / Next Week added.
+- Task smart fields: estimated minutes, progress, repeat, focus, next action, waiting for/contact.
+- Service worker cache replaced with v2.1 and immediate activation.
+- View errors display a visible message rather than a blank page.
 
-Important:
-Data is still local to the current browser/device. For true cross-device sync and reminders while the app is fully closed, add Firebase/cloud backend in a future version.
+Deploy ALL root files and hard refresh / close-reopen installed app.
