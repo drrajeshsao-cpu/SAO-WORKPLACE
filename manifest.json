@@ -1,7 +1,7 @@
 {
-  "name": "SAO Workplace for Office & Home V2 Smart Planner",
+  "name": "SAO Workplace for Office & Home V2.2",
   "short_name": "SAO Workplace",
-  "description": "Smart personal workplace with My Day, recurring tasks, Kanban board, review center, study, wellness and travel planning.",
+  "description": "Four focused workspaces for Home, Clinic/Office, Study, and App Development & AI, with smart task planning.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",
