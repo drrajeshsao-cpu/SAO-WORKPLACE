@@ -45,3 +45,32 @@ button{background:linear-gradient(135deg,#315a7d,#406e94);color:#fff}button.ghos
 body.dark-mode{--bg:#0b1421;--panel:#101d2c;--ink:#eef6ff;--muted:#91a0b8;--line:#24374b;background:#0b1421;color:#eef6ff}body.dark-mode .sidebar{background:#101d2c;color:#fff;border-color:#263b50}body.dark-mode .brand{color:#fff;border-color:#263b50}body.dark-mode .topbar{background:rgba(11,20,33,.92)}body.dark-mode .topbar h1{color:#fff}body.dark-mode .card,body.dark-mode .future-kpi,body.dark-mode .future-workspace-grid .workspace-launch,body.dark-mode .future-vision-strip div,body.dark-mode .advanced-tool,body.dark-mode .preview-grid>div{background:#101d2c!important;color:#eef6ff!important;border-color:#263b50!important}body.dark-mode input,body.dark-mode select,body.dark-mode textarea{background:#0d1927;color:#fff;border-color:#2a4055}body.dark-mode .future-command-hero,body.dark-mode .ai-soft-hero{background:#102034;border-color:#29425a}body.dark-mode .future-intro h2,body.dark-mode .ai-soft-hero h2,body.dark-mode .future-kpi b,body.dark-mode .workspace-label,body.dark-mode .ai-strategy-list b{color:#fff}
 @media(max-width:1000px){.advanced-tools-grid{grid-template-columns:1fr 1fr}.ai-soft-hero{grid-template-columns:1fr}}
 @media(max-width:760px){.preview-grid,.advanced-tools-grid{grid-template-columns:1fr}.top-actions{grid-template-columns:1fr 1fr}.top-actions input{grid-column:1/-1}.ai-soft-hero{padding:16px}.ai-soft-hero h2{font-size:25px}}
+
+
+/* V5 FINAL STABLE — eye-comfort, installability and final production polish */
+:root{
+  --final-blue:#356f98;--final-blue-soft:#eaf4fb;--final-blue-pale:#f4f9fc;--final-yellow:#e4bb55;--final-yellow-soft:#fff8df;--final-ink:#1d3449;
+}
+body:not(.dark-mode){background:linear-gradient(180deg,#f8fbfd 0%,#eef6fb 100%);color:var(--final-ink)}
+body:not(.dark-mode) .main{background:transparent}
+body:not(.dark-mode) .card,body:not(.dark-mode) .future-card{background:rgba(255,255,255,.96);border-color:#d7e5ef;box-shadow:0 10px 28px rgba(47,91,124,.07)}
+body:not(.dark-mode) .sidebar{background:linear-gradient(180deg,#eaf4fb,#f7fbfe);border-right:1px solid #cadce8;color:#24435c}
+body:not(.dark-mode) .brand strong,body:not(.dark-mode) nav button{color:#29475f}
+body:not(.dark-mode) .brand span{color:#71879a}
+body:not(.dark-mode) nav button.active{background:#d9edf8;color:#234e6c;border-color:#a9cde1;box-shadow:none}
+body:not(.dark-mode) .vision-chip{background:var(--final-yellow-soft);border-color:#e9cf83;color:#735a18}
+body:not(.dark-mode) .future-command-hero,body:not(.dark-mode) .ai-soft-hero{background:linear-gradient(135deg,#edf7fd 0%,#fff 65%,#fff9e9 100%);border-color:#cfe2ee}
+body:not(.dark-mode) .future-orb-card,body:not(.dark-mode) .ai-copilot-badge{background:#fff;border:1px solid #d9e7f0;color:#315470}
+body:not(.dark-mode) .future-vision-strip{background:#f7fbfe;border-color:#d6e6ef}
+body:not(.dark-mode) .future-vision-strip>div:nth-child(1),body:not(.dark-mode) .future-vision-strip>div:nth-child(4){border-top:3px solid #70a7c7}
+body:not(.dark-mode) .future-vision-strip>div:nth-child(2),body:not(.dark-mode) .future-vision-strip>div:nth-child(5){border-top:3px solid var(--final-yellow)}
+body:not(.dark-mode) .future-vision-strip>div:nth-child(3),body:not(.dark-mode) .future-vision-strip>div:nth-child(6){border-top:3px solid #8bc5b0}
+.install-app-btn{background:linear-gradient(135deg,#d8aa3f,#efcb70)!important;color:#3d3319!important;white-space:nowrap}
+.install-app-btn:disabled{opacity:.7;cursor:default}
+.stable-badge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#e8f6ef;color:#287354;font-size:10px;font-weight:950;letter-spacing:.06em}
+.health-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.health-item{border:1px solid #dce7ee;border-radius:13px;padding:12px;background:#fff}.health-item b{display:block;font-size:16px}.health-item span{font-size:10px;color:#748596}.health-item.ok{background:#edf8f2;border-color:#cae7d5}.health-item.warn{background:#fff9e8;border-color:#ead58e}.health-item.bad{background:#fff0ef;border-color:#efc9c6}
+.final-task-editor{border-top:4px solid #7cacc8}.sticky-final-actions{position:sticky;bottom:8px;padding:9px;background:rgba(255,255,255,.96);border:1px solid #dbe7ee;border-radius:13px;z-index:20}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid rgba(222,179,69,.45);outline-offset:2px}
+@media(max-width:900px){.health-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.top-actions{grid-template-columns:1fr 1fr}.top-actions input{grid-column:1/-1}.install-app-btn{width:100%}.health-grid{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

@@ -1,20 +1,27 @@
-SAO WORKPLACE V4 — AI COPILOT SOFT BLUE
+SAO WORKPLACE V5 — FINAL STABLE EDITION
 
-Major upgrades:
-- Eye-soothing Soft Blue default theme with white cards and selective yellow/gold highlights.
-- Optional Dark appearance in Settings.
-- AI Insights page redesigned into a functional Smart Decision Center.
-- Natural-language task capture (local parser).
-- Voice task capture using browser SpeechRecognition when supported.
-- Read-aloud daily brief using browser speech synthesis.
-- Smart Daily Brief generated from current planner data.
-- One-click Prepare My Day for top 3 suggested focus tasks.
-- Workload balance, overdue, waiting and long-term risk analysis retained.
-- Clear distinction between features working now and future cloud/external-AI expansion.
-- 50-year vision image moved into a collapsible roadmap so it does not dominate daily use.
+This is the final frozen build after UI, workflow and stability review.
 
-Privacy:
-Current Smart Insights and natural-language parsing run locally in the browser. No planner data is sent to an external AI service by this version.
+FINAL FIXES / UPGRADES
+- Soft Blue + White eye-comfort default with selective Gold/Yellow accents.
+- Dark theme remains optional.
+- Full Advanced Task form fixed: Next Action, Estimated Minutes, Progress, Waiting For, Waiting Contact, Repeat, Top Focus.
+- Recurring task behavior retained.
+- AI Smart Insights, natural-language local capture, voice capture and Read Aloud retained.
+- PWA service worker is now registered.
+- Install App button added.
+- 192px and 512px install icons added.
+- Offline app-shell caching enabled.
+- App Health & Installation panel added in Settings.
+- Data Health Check added.
+- Backup date is now recorded.
+- Ctrl/Cmd + K opens Quick Add.
+- Capability labels corrected to distinguish active local tools vs future secure cloud/external-AI expansion.
+- Accessibility focus outlines and reduced-motion support added.
 
-Limitations:
-Voice recognition depends on browser/device support. True closed-app reminders, universal sync and external AI reasoning require backend/cloud integration later.
+IMPORTANT
+Data is local-first in the browser/device. Keep JSON backups regularly.
+True automatic multi-device sync and external AI reasoning require a secure backend and should NOT be added casually to this frozen personal build.
+
+FINAL DEPLOYMENT
+Upload/replace ALL root files, wait 1–2 minutes, Ctrl+F5 once, test core modules, then install the PWA.

@@ -1,17 +1,30 @@
 {
-  "name": "SAO Workplace V4 \u2014 AI Copilot Soft Blue",
+  "name": "SAO Workplace \u2014 Office & Home | Final Stable",
   "short_name": "SAO Workplace",
-  "description": "Four focused workspaces for Home, Clinic/Office, Study, and App Development & AI, with smart task planning.",
+  "description": "Final stable personal workplace for Home, Clinic/Office, Study, App Development & AI, tasks, wellness, travel, reminders and smart local insights.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#eef6fb",
+  "background_color": "#f4f9fc",
   "theme_color": "#eaf4fb",
   "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
-  ]
+  ],
+  "scope": "./"
 }
