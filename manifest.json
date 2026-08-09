@@ -1,1 +1,17 @@
-{"name":"SAO Workplace for Office & Home","short_name":"SAO Workplace","description":"Personal work, study, wellness, spiritual, travel and life responsibility planner.","start_url":"./","display":"standalone","background_color":"#f5f7fa","theme_color":"#26364a","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "SAO Workplace for Office & Home V2 Smart Planner",
+  "short_name": "SAO Workplace",
+  "description": "Smart personal workplace with My Day, recurring tasks, Kanban board, review center, study, wellness and travel planning.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#26364a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

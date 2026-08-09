@@ -1,8 +1,21 @@
-SAO WORKPLACE FOR OFFICE & HOME — V1 PRO
+SAO WORKPLACE FOR OFFICE & HOME — V2 SMART PLANNER
 
-Modules: Dashboard; Tasks & Projects; Study Planner; Wellness & Sadhana; Travel & Seminar; Master Summary; Files & Notes; Backup / Restore; Settings.
+V2 upgrades:
+- My Day dashboard with focus, agenda, overdue and waiting/help-needed work.
+- Top Focus flag for important tasks.
+- Estimated minutes and daily workload total.
+- Next Action field.
+- Progress percentage bar.
+- Waiting For / Delegated To + contact.
+- Recurring tasks: Daily / Weekly / Monthly / Yearly. Completing a recurring task creates the next occurrence.
+- Status Kanban Board.
+- Review Center for overdue, stale 14+ day, waiting/help and long-term tasks.
+- One-click reschedule to Tomorrow or Next Week.
+- Weekly Reflection history.
+- V1 data is preserved and automatically migrated with defaults for new fields.
 
-Priority: Red critical, Orange high, Yellow important, Green routine.
-Start horizons: Today, Tomorrow, 2-3 Days, 1 Week Later, 1 Month Later, 3 Months Later, 6 Months Later, 1 Year Later, Someday, Custom Date.
+Existing modules retained:
+Dashboard, Tasks & Projects, Study Planner, Wellness & Sadhana, Travel & Seminar, Master Summary, Files & Notes, Backup/Restore, Settings.
 
-Important: data is stored locally on the device/browser. Use JSON backup regularly. True cross-device sync and reliable reminders while the app is fully closed require a cloud backend, which can be added later.
+Important:
+Data is still local to the current browser/device. For true cross-device sync and reminders while the app is fully closed, add Firebase/cloud backend in a future version.
