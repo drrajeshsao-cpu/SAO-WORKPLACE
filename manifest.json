@@ -1,7 +1,7 @@
 {
-  "name": "SAO Workplace V5.2 Final Cloud Sync",
+  "name": "SAO Workplace V5.3 Final Cloud Sync",
   "short_name": "SAO Workplace",
-  "description": "Final Stable SAO Workplace with safer Firebase laptop-mobile synchronization.",
+  "description": "Final Stable SAO Workplace with fixed first-device Firebase migration and laptop-mobile sync.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f9fc",

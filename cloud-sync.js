@@ -73,6 +73,14 @@ function cloudComparable(data){
 function safeLocalSnapshot(){
   try{return window.app?.getCloudSnapshot?.() || null}catch(e){return null}
 }
+async function waitForAppBridge(timeoutMs=5000){
+  const started=Date.now();
+  while(Date.now()-started < timeoutMs){
+    if(window.app?.getCloudSnapshot && window.app?.applyCloudSnapshot) return true;
+    await new Promise(r=>setTimeout(r,100));
+  }
+  return false;
+}
 function withTimeout(promise, ms, label='Operation'){
   let timer;
   return Promise.race([
@@ -114,6 +122,13 @@ function scheduleUpload(reason='local-save'){
 async function initializeUserWorkspace(user){
   currentUser=user;
   setCloudStatus(navigator.onLine?'syncing':'offline',navigator.onLine?'Connecting cloud…':'● Offline');
+
+  const bridgeReady = await waitForAppBridge();
+  if(!bridgeReady){
+    setCloudStatus('error','⚠ App sync bridge unavailable');
+    console.error('SAO app bridge was not exposed to cloud-sync.js');
+    return;
+  }
   const ref=cloudRef(user.uid);
 
   // Start realtime listener immediately. This prevents the UI from being held
@@ -132,6 +147,7 @@ async function initializeUserWorkspace(user){
         // Existing local data can seed cloud only when it is meaningful.
         const local=safeLocalSnapshot();
         if(hasMeaningfulLocalData(local)){
+          setCloudStatus('syncing','Uploading this device data…');
           uploadNow('first-device-migration');
         }else{
           setCloudStatus('synced','☁ Cloud ready • no data yet');
@@ -188,7 +204,10 @@ async function initializeUserWorkspace(user){
       if(hasMeaningfulLocalData(local)){
         await uploadNow('first-device-migration');
       }else{
-        setCloudStatus('synced','☁ Cloud ready • no data yet');
+        setCloudStatus('syncing','Uploading this device data…');
+          const local=safeLocalSnapshot();
+          if(hasMeaningfulLocalData(local)) uploadNow('first-device-migration');
+          else setCloudStatus('synced','☁ Cloud ready • no data yet');
       }
     }
   }catch(e){
