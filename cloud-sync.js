@@ -4,7 +4,7 @@ import {
   sendPasswordResetEmail, setPersistence, browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot,
+  getFirestore, doc, getDocFromServer, setDoc, onSnapshot,
   enableMultiTabIndexedDbPersistence, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
@@ -73,6 +73,17 @@ function cloudComparable(data){
 function safeLocalSnapshot(){
   try{return window.app?.getCloudSnapshot?.() || null}catch(e){return null}
 }
+function withTimeout(promise, ms, label='Operation'){
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label+' timed out')),ms)})
+  ]).finally(()=>clearTimeout(timer));
+}
+function hasMeaningfulLocalData(data){
+  if(!data || typeof data!=='object') return false;
+  return (data.tasks?.length||0)+(data.study?.length||0)+(data.wellness?.length||0)+(data.travel?.length||0) > 0;
+}
 async function uploadNow(reason='save'){
   if(!currentUser || applyingRemote || !navigator.onLine)return;
   const data=safeLocalSnapshot();
@@ -105,30 +116,30 @@ async function initializeUserWorkspace(user){
   setCloudStatus(navigator.onLine?'syncing':'offline',navigator.onLine?'Connecting cloud…':'● Offline');
   const ref=cloudRef(user.uid);
 
-  let snap;
-  try{ snap=await getDoc(ref); }
-  catch(e){
-    console.warn('Initial cloud read failed; listener will retry',e);
-  }
-
-  const local=safeLocalSnapshot();
-  if(snap?.exists()){
-    const remote=snap.data();
-    applyingRemote=true;
-    try{
-      window.app?.applyCloudSnapshot?.(remote);
-      lastCloudVersion=remote?._cloud?.clientUpdatedAt||0;
-    }finally{
-      applyingRemote=false;
-    }
-  }else if(local){
-    // First authenticated laptop: seed cloud with existing local data.
-    await uploadNow('first-device-migration');
-  }
-
+  // Start realtime listener immediately. This prevents the UI from being held
+  // indefinitely by a first get() request on some mobile/PWA environments.
   if(unsubscribe)unsubscribe();
+  let firstServerSnapshotResolved=false;
   unsubscribe=onSnapshot(ref,{includeMetadataChanges:true},snapshot=>{
-    if(!snapshot.exists())return;
+    if(snapshot.metadata.fromCache && !navigator.onLine){
+      setCloudStatus('offline','● Offline • cached data');
+    }
+
+    if(!snapshot.exists()){
+      if(!snapshot.metadata.fromCache){
+        firstServerSnapshotResolved=true;
+        // Do NOT auto-upload an empty mobile workspace.
+        // Existing local data can seed cloud only when it is meaningful.
+        const local=safeLocalSnapshot();
+        if(hasMeaningfulLocalData(local)){
+          uploadNow('first-device-migration');
+        }else{
+          setCloudStatus('synced','☁ Cloud ready • no data yet');
+        }
+      }
+      return;
+    }
+
     const remote=snapshot.data();
     const pending=snapshot.metadata.hasPendingWrites;
     if(pending){
@@ -136,6 +147,7 @@ async function initializeUserWorkspace(user){
       return;
     }
 
+    if(!snapshot.metadata.fromCache) firstServerSnapshotResolved=true;
     const remoteVersion=remote?._cloud?.clientUpdatedAt||0;
     const localNow=safeLocalSnapshot();
     if(remoteVersion>=lastCloudVersion && cloudComparable(remote)!==cloudComparable(localNow)){
@@ -152,8 +164,66 @@ async function initializeUserWorkspace(user){
     setCloudStatus('synced','☁ Synced');
   },e=>{
     console.error('Cloud listener error',e);
-    setCloudStatus(navigator.onLine?'error':'offline',navigator.onLine?'⚠ Sync error':'● Offline');
+    setCloudStatus(navigator.onLine?'error':'offline',
+      navigator.onLine?('⚠ '+friendlyCloudError(e)):'● Offline');
   });
+
+  // Explicit server connectivity test with timeout. Never overwrite cloud on failure.
+  try{
+    const snap=await withTimeout(getDocFromServer(ref),12000,'Cloud connection');
+    firstServerSnapshotResolved=true;
+
+    if(snap.exists()){
+      const remote=snap.data();
+      applyingRemote=true;
+      try{
+        window.app?.applyCloudSnapshot?.(remote);
+        lastCloudVersion=remote?._cloud?.clientUpdatedAt||0;
+      }finally{
+        applyingRemote=false;
+      }
+      setCloudStatus('synced','☁ Synced');
+    }else{
+      const local=safeLocalSnapshot();
+      if(hasMeaningfulLocalData(local)){
+        await uploadNow('first-device-migration');
+      }else{
+        setCloudStatus('synced','☁ Cloud ready • no data yet');
+      }
+    }
+  }catch(e){
+    console.error('Initial server connection test failed',e);
+    // Keep listener active so recovery can happen automatically.
+    setCloudStatus(navigator.onLine?'error':'offline',
+      navigator.onLine?'⚠ Cloud connection problem':'● Offline');
+  }
+}
+
+function friendlyCloudError(e){
+  const c=e?.code||'';
+  if(c.includes('permission-denied')) return 'Permission denied';
+  if(c.includes('unauthenticated')) return 'Sign-in required';
+  if(c.includes('unavailable')) return 'Cloud temporarily unavailable';
+  if(c.includes('failed-precondition')) return 'Browser storage issue';
+  return 'Sync error';
+}
+
+async function testCloudConnection(){
+  if(!currentUser){
+    setCloudStatus('offline','Cloud sign-in required');
+    return false;
+  }
+  setCloudStatus('syncing','Testing cloud…');
+  try{
+    await withTimeout(getDocFromServer(cloudRef(currentUser.uid)),12000,'Cloud test');
+    setCloudStatus('synced','☁ Cloud connected');
+    return true;
+  }catch(e){
+    console.error('Cloud test failed',e);
+    setCloudStatus(navigator.onLine?'error':'offline',
+      navigator.onLine?('⚠ '+friendlyCloudError(e)):'● Offline');
+    return false;
+  }
 }
 
 window.addEventListener('sao-local-save',()=>scheduleUpload());
@@ -208,11 +278,13 @@ accountBtn?.addEventListener('click',()=>{
     <p><b>${currentUser.email||'Signed in'}</b></p>
     <div class="cloud-scope-note">Automatically synced: Tasks, Study Planner, Wellness & Sadhana, Travel/Seminar, reflections and app settings. Files/PDF blobs in “Files & Notes” remain device-local in this final version.</div>
     <div class="actionrow">
+      <button id="testCloudBtn" class="ghost">Test Cloud</button>
       <button id="forceCloudSync">Sync Now</button>
       <button id="cloudLogout" class="ghost">Sign Out</button>
     </div>`:
     `<h4>Cloud account</h4><p>Not signed in.</p>`;
   document.body.appendChild(accountPopover);
+  document.getElementById('testCloudBtn')?.addEventListener('click',async()=>{await testCloudConnection();closePopover()});
   document.getElementById('forceCloudSync')?.addEventListener('click',()=>{uploadNow('manual-sync');closePopover()});
   document.getElementById('cloudLogout')?.addEventListener('click',async()=>{closePopover();await signOut(auth)});
 });
