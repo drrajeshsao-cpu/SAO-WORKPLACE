@@ -18,7 +18,28 @@ let db=JSON.parse(localStorage.getItem(KEY)||'null')||{tasks:[],study:[],wellnes
 db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+let currentView='dashboard';
+const normalizeDb=x=>{
+  x=x||{};
+  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];
+  x.reflections=x.reflections||[];
+  x.settings={...defaultSettings,...(x.settings||{})};
+  x.tasks=x.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
+  return x;
+};
+const save=()=>{
+  localStorage.setItem(KEY,JSON.stringify(db));
+  window.dispatchEvent(new CustomEvent('sao-local-save',{detail:{at:Date.now()}}));
+};
+const getCloudSnapshot=()=>JSON.parse(JSON.stringify(db));
+const applyCloudSnapshot=(incoming)=>{
+  if(!incoming||typeof incoming!=='object')return false;
+  db=normalizeDb(incoming);
+  localStorage.setItem(KEY,JSON.stringify(db));
+  try{showView(currentView||'dashboard')}catch(e){console.warn('Cloud refresh render',e)}
+  return true;
+};
 const today=()=>new Date().toISOString().slice(0,10);const fmt=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'-';
 const isDone=t=>t.status==='Done';const priorityRank=p=>({Red:1,Orange:2,Yellow:3,Green:4}[p]||9);const horizonRank=h=>HORIZONS.indexOf(h)<0?99:HORIZONS.indexOf(h);const tpl=id=>document.getElementById(id).content.cloneNode(true);
 function fillOptions(el,items,blank=false,blankText='Select'){el.innerHTML=(blank?`<option value="">${blankText}</option>`:'')+items.map(x=>{const v=typeof x==='string'?x:x.value,l=typeof x==='string'?x:x.label;return `<option value="${esc(v)}">${esc(l)}</option>`}).join('')}
@@ -26,7 +47,7 @@ const titles={dashboard:['Dashboard','Your work, study, health, family and life 
   myday:['My Day','Focus on what truly needs attention today.'],tasks:['Tasks & Projects','Capture, prioritize, schedule and finish responsibilities.'],
   board:['Status Board','A visual flow of ideas, active work, waiting and completion.'],study:['Study Planner','Plan what to learn, from where, when and how much.'],wellness:['Wellness & Sadhana','Track health habits, spiritual practice and seva.'],travel:['Travel & Seminar','Plan purpose, tickets, time, budget and nearby visits.'],review:['Review Center','Daily, weekly and monthly review of forgotten and blocked work.'],ai:['AI Insights','Smart local analysis, focus strategy and future-ready decision support.'],
   summary:['Master Summary','A single review of everything requiring your attention.'],files:['Files & Notes','Keep supporting documents linked to tasks and life areas.'],backup:['Backup / Restore','Protect your workplace data and move it between devices.'],settings:['Settings','Personal targets and app preferences.']};
-function showView(name){
+function showView(name){currentView=name;
   try{
     const meta=titles[name]||titles.dashboard;
     $$('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
@@ -332,4 +353,4 @@ function renderSettings(){
 }
 function checkReminders(){const due=db.tasks.filter(t=>!isDone(t)&&t.reminderDate===today());if(!due.length)return;const key='sao_reminder_seen_'+today();if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');if(window.Notification&&Notification.permission==='granted')new Notification('SAO Workplace Reminder',{body:`${due.length} task${due.length===1?'':'s'} need attention today.`})}
 function init(){applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
-return{init,showView,openQuickAdd,openWorkspace,editTask,markDone,shareTask,deleteTask,editStudy,editTravel,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp};})();document.addEventListener('DOMContentLoaded',app.init);
+return{init,showView,openQuickAdd,openWorkspace,editTask,markDone,shareTask,deleteTask,editStudy,editTravel,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();document.addEventListener('DOMContentLoaded',app.init);

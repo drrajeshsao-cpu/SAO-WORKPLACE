@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#eaf4fb">
   <title>SAO Workplace V5 • Final Stable</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css?v=5.0.0">
+  <link rel="stylesheet" href="styles.css?v=5.1.0">
 </head>
 <body>
 <div class="app">
@@ -29,13 +29,43 @@
     <div class="side-note"><b>SAO AI Future Mode</b><br>Human-centered planning • privacy • clarity • long-term impact.</div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Your work, study, health, family and life responsibilities in one place.</p></div><div class="top-actions"><input id="globalSearch" placeholder="Search anything…"><button id="installAppBtn" class="install-app-btn" hidden>⬇ Install App</button><button id="voiceQuickBtn" class="voice-top-btn" title="Voice capture">🎙 Voice</button><button id="quickAddBtn">+ Quick Add</button></div></header>
+    <header class="topbar"><div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Your work, study, health, family and life responsibilities in one place.</p></div><div class="top-actions">
+      <div id="cloudStatus" class="cloud-status cloud-offline" title="Firebase synchronization status">
+        <span class="cloud-dot"></span><b>Cloud not connected</b>
+      </div>
+      <input id="globalSearch" placeholder="Search anything…"><button id="installAppBtn" class="install-app-btn" hidden>⬇ Install App</button><button id="voiceQuickBtn" class="voice-top-btn" title="Voice capture">🎙 Voice</button><button id="quickAddBtn">+ Quick Add</button><button id="cloudAccountBtn" class="cloud-account-btn" title="Cloud account">☁ Account</button></div></header>
     <section id="view"></section>
   </main>
 </div>
+
+<div id="cloudAuthGate" class="cloud-auth-gate">
+  <div class="cloud-auth-card">
+    <div class="cloud-auth-brand">
+      <div class="logo future-logo"><span>S</span></div>
+      <div><span class="eyebrow">SAO WORKPLACE • SECURE CLOUD SYNC</span><h2>Laptop ↔ Mobile Automatic Sync</h2></div>
+    </div>
+    <p class="cloud-auth-intro">Sign in with the Firebase account created for SAO Workplace. Your planner data will then synchronize between this laptop and your mobile.</p>
+    <label>Email
+      <input id="cloudEmail" type="email" value="dr.raju2010@gmail.com" autocomplete="username">
+    </label>
+    <label>Password
+      <input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Firebase password">
+    </label>
+    <div id="cloudLoginMessage" class="cloud-login-message">Waiting for sign in.</div>
+    <div class="cloud-auth-actions">
+      <button id="cloudLoginBtn">Sign In & Sync</button>
+      <button id="cloudForgotBtn" class="ghost">Forgot Password</button>
+    </div>
+    <div class="cloud-auth-note">
+      <b>First laptop sign-in:</b> if cloud is empty, your existing local SAO Workplace data will be uploaded automatically.<br>
+      <b>Mobile sign-in:</b> the same cloud data will download automatically.
+    </div>
+  </div>
+</div>
+
 <div id="modal" class="modal"><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">QUICK CAPTURE</span><h3>Write it before you forget it</h3></div><button id="closeModal" class="ghost">✕</button></div><div class="formgrid"><label>What do you need to remember?<input id="q_title" placeholder="e.g. Renew insurance policy"></label><label>Area<select id="q_category"></select></label><label>Priority<select id="q_priority"></select></label><label>When to start?<select id="q_horizon"></select></label><label>Reminder Date<input id="q_reminder" type="date"></label><label>Status<select id="q_status"></select></label><label>Est. Minutes<input id="q_minutes" type="number" min="0" step="5" placeholder="30"></label><label>Next Action<input id="q_next" placeholder="First concrete step"></label></div><label>Notes<textarea id="q_notes" placeholder="Why, context, next action, whom to ask, etc."></textarea></label><div class="actionrow"><button id="saveQuick">Save to Workplace</button><button class="ghost" id="cancelQuick">Cancel</button></div></div></div>
 
-<template id="dashboardTpl"><section class="future-command-hero"><div class="future-intro"><span class="eyebrow future-eyebrow">SAO WORKPLACE • 50 YEARS VISION IN AI</span><h2 id="futureGreeting">Good Morning</h2><p>Human-centered intelligent planning for work, clinic, study, family, wellbeing and creation — designed to evolve with you for decades.</p><div class="future-badges"><span>Adaptive</span><span>Private-first</span><span>Cross-device ready</span><span>AI-expandable</span></div></div><div class="future-orb-card"><div class="future-orb">AI</div><b>SAO Intelligence Layer</b><span>Smart summaries • focus • risk • next action</span></div></section><div id="dashKpis" class="future-kpis"></div><div class="card future-workspaces-card"><div class="cardhead"><div><span class="eyebrow future-eyebrow">FOUR INTELLIGENT WORKSPACES</span><h3>Focused Workspaces</h3></div><button class="ghost future-ghost" onclick="app.showView('myday')">Open My Day</button></div><div id="mainWorkspaceButtons" class="main-workspace-grid future-workspace-grid"></div></div><div class="future-dashboard-grid"><div class="card future-card"><div class="cardhead"><div><h3>My Day</h3><p class="muted">Priority-ordered actions needing attention now.</p></div><button class="ghost future-ghost" onclick="app.showView('myday')">View All</button></div><div id="todayList"></div></div><div class="card future-card"><h3>Priority Distribution</h3><canvas id="priorityChart" width="700" height="320"></canvas></div><div class="card future-card ai-insight-card"><div class="ai-card-head"><span class="ai-dot">AI</span><div><h3>SAO Smart Insights</h3><p class="muted">Local decision support from your planner data.</p></div></div><div id="aiDashboardInsight"></div><button class="future-ai-button" onclick="app.showView('ai')">Open Full Insights</button></div></div><div class="future-dashboard-grid lower-grid"><div class="card future-card"><h3>Upcoming Horizon</h3><div id="horizonBoard"></div></div><div class="card future-card"><div class="cardhead"><h3>Study Queue</h3><button class="ghost future-ghost" onclick="app.showView('study')">Study</button></div><div id="studyQueue"></div></div><div class="card future-card"><div class="cardhead"><h3>Wellness & Sadhana</h3><button class="ghost future-ghost" onclick="app.showView('wellness')">Tracker</button></div><div id="wellnessToday"></div></div><div class="card future-card"><h3>Area Intelligence</h3><div id="areaOverview"></div></div></div><div class="future-vision-strip"><div><b>AI Smart Insights</b><span>Active • local analysis</span></div><div><b>Natural Language</b><span>Active • local task capture</span></div><div><b>Voice Capture</b><span>Active where browser supports</span></div><div><b>Installable PWA</b><span>Offline-ready app shell</span></div><div><b>Privacy First</b><span>Local-first planner data</span></div><div><b>Cloud / External AI</b><span>Future secure expansion</span></div></div></template>
+<template id="dashboardTpl"><section class="future-command-hero"><div class="future-intro"><span class="eyebrow future-eyebrow">SAO WORKPLACE • 50 YEARS VISION IN AI</span><h2 id="futureGreeting">Good Morning</h2><p>Human-centered intelligent planning for work, clinic, study, family, wellbeing and creation — designed to evolve with you for decades.</p><div class="future-badges"><span>Adaptive</span><span>Private-first</span><span>Cross-device synced</span><span>AI-expandable</span></div></div><div class="future-orb-card"><div class="future-orb">AI</div><b>SAO Intelligence Layer</b><span>Smart summaries • focus • risk • next action</span></div></section><div id="dashKpis" class="future-kpis"></div><div class="card future-workspaces-card"><div class="cardhead"><div><span class="eyebrow future-eyebrow">FOUR INTELLIGENT WORKSPACES</span><h3>Focused Workspaces</h3></div><button class="ghost future-ghost" onclick="app.showView('myday')">Open My Day</button></div><div id="mainWorkspaceButtons" class="main-workspace-grid future-workspace-grid"></div></div><div class="future-dashboard-grid"><div class="card future-card"><div class="cardhead"><div><h3>My Day</h3><p class="muted">Priority-ordered actions needing attention now.</p></div><button class="ghost future-ghost" onclick="app.showView('myday')">View All</button></div><div id="todayList"></div></div><div class="card future-card"><h3>Priority Distribution</h3><canvas id="priorityChart" width="700" height="320"></canvas></div><div class="card future-card ai-insight-card"><div class="ai-card-head"><span class="ai-dot">AI</span><div><h3>SAO Smart Insights</h3><p class="muted">Local decision support from your planner data.</p></div></div><div id="aiDashboardInsight"></div><button class="future-ai-button" onclick="app.showView('ai')">Open Full Insights</button></div></div><div class="future-dashboard-grid lower-grid"><div class="card future-card"><h3>Upcoming Horizon</h3><div id="horizonBoard"></div></div><div class="card future-card"><div class="cardhead"><h3>Study Queue</h3><button class="ghost future-ghost" onclick="app.showView('study')">Study</button></div><div id="studyQueue"></div></div><div class="card future-card"><div class="cardhead"><h3>Wellness & Sadhana</h3><button class="ghost future-ghost" onclick="app.showView('wellness')">Tracker</button></div><div id="wellnessToday"></div></div><div class="card future-card"><h3>Area Intelligence</h3><div id="areaOverview"></div></div></div><div class="future-vision-strip"><div><b>AI Smart Insights</b><span>Active • local analysis</span></div><div><b>Natural Language</b><span>Active • local task capture</span></div><div><b>Voice Capture</b><span>Active where browser supports</span></div><div><b>Installable PWA</b><span>Offline-ready app shell</span></div><div><b>Privacy First</b><span>Local-first planner data</span></div><div><b>Firebase Cloud Sync</b><span>Active • real-time structured planner data</span></div></div></template>
 
 
 <template id="workspaceTpl">
@@ -97,7 +127,7 @@
       <div class="advanced-tool active-tool"><b>🧠 Smart Local Insights</b><span>Working from your tasks, priorities, due dates and status.</span></div>
       <div class="advanced-tool active-tool"><b>⌨ Natural Language Capture</b><span>Working local parser for common planning phrases.</span></div>
       <div class="advanced-tool active-tool"><b>🔊 Read Aloud</b><span>Uses browser text-to-speech for your daily brief.</span></div>
-      <div class="advanced-tool future-tool"><b>☁ Universal Sync</b><span>Needs secure cloud backend before true cross-device sync.</span></div>
+      <div class="advanced-tool active-tool"><b>☁ Firebase Cloud Sync</b><span>Active • same signed-in workspace syncs across laptop and mobile.</span></div>
       <div class="advanced-tool future-tool"><b>✨ External AI Reasoning</b><span>Can later connect securely to an AI API with user permission.</span></div>
     </div>
   </div>
@@ -130,6 +160,7 @@
 <template id="filesTpl"><div class="grid2"><div class="card"><h3>Files, Images, PDFs & Notes</h3><div class="formgrid"><label>Area<select id="fileCategory"></select></label><label>Linked Task / Project<select id="fileTask"><option value="">General / not linked</option></select></label><label>Note<input id="fileNote" placeholder="What is this file?"></label></div><label class="uploadbox">📎 Add Image / PDF / Document<input id="fileInput" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"></label><div id="pickedFiles"></div><button id="saveFiles">Save Files</button></div><div class="card"><div class="cardhead"><h3>Saved Files</h3><select id="fileFilter"><option value="">All Areas</option></select></div><div id="filesList"></div></div></div></template>
 <template id="backupTpl"><div class="card"><h3>Backup, Restore & Export</h3><p class="muted">Keep a backup before major changes or switching devices.</p><div class="actionrow"><button id="backupBtn">Download JSON Backup</button><label class="buttonlike">Restore JSON<input type="file" id="restoreInput" accept=".json" hidden></label><button class="ghost" id="csvBtn">Export Tasks CSV</button></div></div></template>
 <template id="settingsTpl"><div class="card"><div class="cardhead"><div><span class="eyebrow">FINAL STABLE CONFIGURATION</span><h3>Workplace Settings</h3></div><span class="stable-badge">V5 FINAL</span></div><div id="settingsForm"></div></div><div class="card"><h3>App Health & Installation</h3><div id="appHealth"></div><div class="actionrow"><button id="settingsInstallBtn" class="install-app-btn">Install / App Instructions</button><button id="testDataBtn" class="ghost">Run Data Health Check</button></div></div><div class="card"><h3>Reminder Permission</h3><p class="muted">In-app reminders work whenever the app is opened. Browser notifications can also appear while the app is active if permission is granted.</p><button id="notificationBtn">Enable Notifications</button><div id="notificationState" class="note"></div></div></template>
-<script src="app.js?v=5.0.0"></script>
+<script src="app.js?v=5.1.0"></script>
+<script type="module" src="cloud-sync.js?v=5.1.0"></script>
 </body>
 </html>

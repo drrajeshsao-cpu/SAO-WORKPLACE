@@ -1,7 +1,7 @@
 {
-  "name": "SAO Workplace \u2014 Office & Home | Final Stable",
+  "name": "SAO Workplace V5.1 Final Cloud Sync",
   "short_name": "SAO Workplace",
-  "description": "Final stable personal workplace for Home, Clinic/Office, Study, App Development & AI, tasks, wellness, travel, reminders and smart local insights.",
+  "description": "Final Stable SAO Workplace with Firebase laptop-mobile synchronization.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f9fc",

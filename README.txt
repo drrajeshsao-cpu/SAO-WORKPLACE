@@ -1,27 +1,60 @@
-SAO WORKPLACE V5 — FINAL STABLE EDITION
+SAO WORKPLACE V5.1 — FINAL CLOUD SYNC
 
-This is the final frozen build after UI, workflow and stability review.
+Firebase project:
+SAO-WORKPLACE-CLOUD
+Plan: Spark / no-cost
 
-FINAL FIXES / UPGRADES
-- Soft Blue + White eye-comfort default with selective Gold/Yellow accents.
-- Dark theme remains optional.
-- Full Advanced Task form fixed: Next Action, Estimated Minutes, Progress, Waiting For, Waiting Contact, Repeat, Top Focus.
-- Recurring task behavior retained.
-- AI Smart Insights, natural-language local capture, voice capture and Read Aloud retained.
-- PWA service worker is now registered.
-- Install App button added.
-- 192px and 512px install icons added.
-- Offline app-shell caching enabled.
-- App Health & Installation panel added in Settings.
-- Data Health Check added.
-- Backup date is now recorded.
-- Ctrl/Cmd + K opens Quick Add.
-- Capability labels corrected to distinguish active local tools vs future secure cloud/external-AI expansion.
-- Accessibility focus outlines and reduced-motion support added.
+WHAT THIS VERSION DOES
+- Email/password Firebase Authentication
+- Automatic laptop <-> mobile structured-data synchronization
+- Real-time Firestore listener
+- First laptop login migrates existing local planner data to cloud when cloud is empty
+- Mobile login downloads the same cloud workspace
+- Local browser copy remains available
+- Firestore web offline persistence requested
+- Visible status:
+  Cloud sign-in required
+  Connecting cloud...
+  Syncing...
+  Synced
+  Offline
+  Sync error
+- Forgot password email
+- Manual Sync Now
+- Sign Out
 
-IMPORTANT
-Data is local-first in the browser/device. Keep JSON backups regularly.
-True automatic multi-device sync and external AI reasoning require a secure backend and should NOT be added casually to this frozen personal build.
+SYNCED DATA
+- Tasks & Projects
+- My Day / Status Board data (derived from tasks)
+- Study Planner
+- Wellness & Sadhana
+- Travel & Seminar
+- Review reflections
+- App settings
 
-FINAL DEPLOYMENT
-Upload/replace ALL root files, wait 1–2 minutes, Ctrl+F5 once, test core modules, then install the PWA.
+DEVICE-LOCAL ONLY
+- Files / PDFs / image blobs stored in IndexedDB remain local to that device.
+  Cloud Storage is intentionally NOT enabled on Spark in this version.
+
+FIRST TEST
+1. Deploy ALL files to GitHub Pages.
+2. Open laptop app.
+3. Sign in using the Firebase user you created.
+4. Existing laptop data should upload if cloud is empty.
+5. Wait for "Synced".
+6. Open the same URL/app on mobile.
+7. Sign in with the SAME email/password.
+8. Laptop data should appear.
+9. Add a simple test task on mobile and confirm it appears on laptop.
+
+SECURITY
+Firestore rules must remain:
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+  }
+}
