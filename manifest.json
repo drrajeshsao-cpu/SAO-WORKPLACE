@@ -1,10 +1,10 @@
 {
-  "name": "SAO Workplace V5.5 — Travel Intelligence",
+  "name": "SAO Workplace V6.2 — Final Stable",
   "short_name": "SAO Workplace",
-  "description": "SAO Workplace with Ideas Studio and complete route, stay, nearby discovery and day-wise travel planning.",
-  "start_url": "./?v=5.5",
+  "description": "Integrated work, clinic/referral, travel, study, wellbeing, ideas and long-term planning workspace.",
+  "start_url": "./?v=6.2",
   "display": "standalone",
-  "background_color": "#f4f9fc",
+  "background_color": "#f5fafc",
   "theme_color": "#eaf4fb",
   "icons": [
     {
@@ -26,5 +26,21 @@
       "purpose": "any"
     }
   ],
-  "scope": "./"
+  "scope": "./",
+  "id": "./",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "lang": "en-IN",
+  "dir": "ltr",
+  "orientation": "any",
+  "categories": [
+    "productivity",
+    "medical",
+    "travel",
+    "education"
+  ]
 }

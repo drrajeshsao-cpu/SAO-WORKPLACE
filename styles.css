@@ -180,3 +180,183 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .travel-save-row{bottom:74px}.travel-section{padding:13px}.travel-section-title b{font-size:15px}
 }
 @media(max-width:430px){.travel-interest-grid{grid-template-columns:1fr}.travel-kpis{grid-template-columns:1fr 1fr}.travel-ai-badges span{font-size:11px}}
+
+/* ===== SAO WORKPLACE V5.6 — TRAVEL LIFE INTELLIGENCE ===== */
+.travel-live-data-note{margin:14px 0;padding:13px 15px;border-radius:14px;background:#fff8df;border:1px solid #ead18a;color:#765d1f;line-height:1.45}
+.travel-discovery-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.travel-place-card{border:1px solid #d8e4ed;background:#fff;border-radius:15px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
+.travel-place-card>div:first-child{display:flex;flex-direction:column;gap:3px}.travel-place-card>div:first-child span{font-size:12px;color:#687d8d}
+.travel-place-meta{grid-column:1/2;display:flex;gap:6px;flex-wrap:wrap}.travel-place-meta span{font-size:11px;background:#f4f8fb;border-radius:999px;padding:5px 7px;color:#526c7d}
+.travel-place-card button{grid-row:1/3;grid-column:2/3;align-self:center}
+.travel-day-flow{display:grid;gap:10px;margin:12px 0}.travel-day-card{border:1px solid #d6e5ed;border-radius:16px;background:linear-gradient(135deg,#f6fbff,#fffdf5);padding:12px}
+.travel-day-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px;color:#24506e}.travel-day-head span{color:#6b7c88;font-size:12px}
+.travel-flowline{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.travel-flowline span{background:#fff;border:1px solid #dce6ed;border-radius:11px;padding:7px 9px;font-size:12px;font-weight:700}.travel-flowline i{font-style:normal;color:#8a9aa6}
+@media(max-width:820px){.travel-discovery-cards{grid-template-columns:1fr}.travel-place-card{grid-template-columns:1fr}.travel-place-card button,.travel-place-meta{grid-column:auto;grid-row:auto}.travel-flowline i{display:none}.travel-flowline span{flex:1 1 45%;text-align:center}}
+
+/* ===== V5.7 TRAIN JOURNEY INTELLIGENCE ===== */
+.train-intel-section{border-color:#bdd9e9;background:linear-gradient(135deg,#f5fbff,#fffdf6)}
+.train-quick-links{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.train-subsection{border:1px solid #d8e6ee;background:#fff;border-radius:15px;padding:12px;margin:12px 0}
+.train-subhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.train-subhead>div{display:flex;flex-direction:column;gap:3px}.train-subhead small{color:#6b7d8b}
+.train-stop-head,.train-stop-row{display:grid;grid-template-columns:130px 1.5fr 90px 105px 105px 90px 1.5fr 42px;gap:7px;align-items:center}
+.train-stop-head{font-size:11px;font-weight:800;text-transform:uppercase;color:#647888;padding:0 4px 6px}
+.train-stop-row{padding:7px 0;border-top:1px solid #edf2f5}.train-stop-row:first-child{border-top:0}
+.train-stop-row input{min-width:0;width:100%}
+.train-remove-stop{border:0;background:#fff0f0;color:#a33;border-radius:10px;font-size:20px;height:40px;cursor:pointer}
+.train-meal-time-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.train-meal-plan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.train-meal-card{border:1px solid #d8e7ef;border-radius:14px;background:linear-gradient(135deg,#fbfeff,#fffaf0);padding:12px;display:grid;gap:6px}
+.train-meal-title{display:flex;justify-content:space-between;gap:10px;color:#1d4f70}.train-meal-title span{font-weight:800}
+.train-meal-where{font-weight:700}.train-meal-source{color:#395f4d}.train-meal-action{font-size:12px;color:#667986}
+@media(max-width:1050px){
+  .train-stop-head{display:none}
+  .train-stop-row{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px;border:1px solid #e3edf3;border-radius:12px;margin:8px 0}
+  .train-remove-stop{grid-column:2;justify-self:end;width:44px}
+  .train-meal-time-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .train-stop-row{grid-template-columns:1fr}
+  .train-remove-stop{grid-column:auto;justify-self:stretch;width:100%}
+  .train-meal-time-grid,.train-meal-plan{grid-template-columns:1fr}
+  .train-quick-links>*{flex:1 1 100%}
+}
+
+/* ===== V5.8 SMART TRAIN + BUS ROUTE INTELLIGENCE ===== */
+.train-ticket-import{border:1px dashed #b9d4e4;background:#f8fcff;border-radius:15px;padding:12px;margin:12px 0}
+.train-ticket-import textarea{min-height:92px}
+.train-route-visual{display:grid;gap:8px;margin-top:12px}
+.route-stop-card{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;border:1px solid #dce7ed;border-left:5px solid #8faabd;border-radius:14px;background:#fff;padding:10px 12px}
+.route-stop-card.major-stop{border-left-color:#2e9b6e;background:#f7fffb}
+.route-stop-card.max-halt{box-shadow:0 0 0 2px #f2c65b inset;background:#fffaf0}
+.route-seq{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e8f2f8;font-weight:900;color:#285a78}
+.route-main{display:flex;flex-direction:column;gap:2px}.route-main span,.route-main small{color:#6b7e8b}.route-main small{font-size:12px}
+.route-icons{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.route-icons span{padding:4px 7px;border-radius:999px;background:#edf8f2;font-size:11px;font-weight:800;color:#2a6b4f}
+.route-food-note{grid-column:2/4;color:#2d6f50;font-size:12px;font-weight:700}
+.bus-intel-section{border-color:#c9def0;background:linear-gradient(135deg,#f7fbff,#fffdf7)}
+.bus-stop-head,.bus-stop-row{display:grid;grid-template-columns:125px 1.5fr 105px 105px 90px 1.5fr 42px;gap:7px;align-items:center}
+.bus-stop-head{font-size:11px;font-weight:800;text-transform:uppercase;color:#647888;padding:0 4px 6px}
+.bus-stop-row{padding:7px 0;border-top:1px solid #edf2f5}.bus-stop-row input{width:100%;min-width:0}
+@media(max-width:1050px){.bus-stop-head{display:none}.bus-stop-row{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px;border:1px solid #e3edf3;border-radius:12px;margin:8px 0}}
+@media(max-width:700px){.route-stop-card{grid-template-columns:34px 1fr}.route-icons{grid-column:2;justify-content:flex-start}.route-food-note{grid-column:2}.bus-stop-row{grid-template-columns:1fr}}
+
+/* ===== SAO WORKPLACE V5.9 — SMART ROUTE DISCOVERY + REUSABLE JOURNEYS ===== */
+.route-discovery-hub{border:1px solid #b9d8e7;background:linear-gradient(135deg,#f1fbff 0%,#fffdf4 100%);box-shadow:0 12px 30px rgba(39,85,116,.08)}
+.route-discovery-grid{grid-template-columns:1.2fr 1.2fr 1fr 1fr}
+.route-discovery-actions,.travel-record-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.route-discovery-result{border:1px solid #dce8ef;background:#fff;border-radius:15px;padding:14px;margin:10px 0;color:#526b7c;min-height:62px}
+.route-summary-card{display:flex;flex-direction:column;gap:5px}.route-summary-card b{font-size:18px;color:#183d59}.route-summary-card span{font-weight:700;color:#355c72}.route-summary-card small{color:#778995}
+.route-search-shortcuts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.booking-launch-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:12px 0}
+.booking-btn{border:1px solid #d3e2eb;border-radius:13px;background:#fff;padding:11px 10px;font-weight:800;color:#234a65;cursor:pointer}
+.booking-btn.rail{background:#eef7ff}.booking-btn.railone{background:#effaf6}.booking-btn.bus{background:#fff5f3}.booking-btn.paytm{background:#f2f8ff}.booking-btn.map{background:#f6fbf2}
+.saved-travel-panel{border-top:1px solid #dfebf1;margin-top:12px;padding-top:12px}
+.saved-template-list{display:grid;gap:8px}.saved-template-card{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #dde8ee;background:#fff;border-radius:13px;padding:10px 12px}
+.saved-template-card>div:first-child{display:flex;flex-direction:column;gap:3px}.saved-template-card span{font-size:12px;color:#748795}.saved-template-actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty-template{padding:12px;border:1px dashed #d6e1e7;border-radius:12px;color:#7b8992;background:#fbfdfe}
+.danger-lite{color:#9a3434!important;background:#fff5f5!important}
+.travel-record-actions button:first-child{background:#265f85;color:white}
+@media(max-width:1100px){.booking-launch-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.route-discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+  .booking-launch-grid,.route-discovery-grid{grid-template-columns:1fr}
+  .route-discovery-actions>*,.travel-record-actions>*{flex:1 1 100%}
+  .saved-template-card{grid-template-columns:1fr}.saved-template-actions{justify-content:stretch}.saved-template-actions>*{flex:1}
+}
+
+/* ===== V6.0 ETERNAL TRAVEL COMPANION FOUNDATION ===== */
+.travel-v6-command{border:1px solid #bfd7e6;border-radius:22px;background:linear-gradient(135deg,#f3fbff,#fffaf0);padding:18px;margin-bottom:16px;box-shadow:0 14px 34px rgba(45,88,117,.09)}
+.travel-v6-hero{display:grid;grid-template-columns:1fr 130px;gap:18px;align-items:center}.travel-v6-hero h3{font-size:28px;margin:5px 0;color:#173d59}.travel-v6-hero p{color:#6c7f8d;margin:0}.eyebrow{font-size:11px;letter-spacing:.15em;font-weight:900;color:#087f78}
+.travel-readiness-ring{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;align-content:center;background:#fff;border:10px solid #dff2ee;box-shadow:0 0 0 8px #edf8f5;text-align:center}.travel-readiness-ring b{font-size:25px}.travel-readiness-ring span{font-size:11px;color:#677a86}
+.travel-v6-shortcuts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:18px}.travel-v6-shortcuts button{display:flex;flex-direction:column;gap:3px;text-align:left;background:#fff;border:1px solid #d8e5ec;border-radius:15px;padding:12px;font-weight:800}.travel-v6-shortcuts small{font-size:11px;font-weight:500;color:#7a8b95}
+.stay-booking-vault{background:linear-gradient(135deg,#fffdf2,#f8fff9);border-color:#ead99d}.travel-security-vault{background:linear-gradient(135deg,#f6fbff,#fbf9ff);border-color:#cdd9ec}
+.travel-security-warning{padding:11px 13px;border-radius:12px;background:#fff5df;border:1px solid #f0cd77;color:#775318;margin-bottom:12px}
+.travel-doc-upload{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.travel-doc-upload input[type=file]{flex:1;min-width:260px}
+.travel-doc-list{display:grid;gap:8px}.travel-doc-card{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;border:1px solid #dce7ef;background:#fff;border-radius:14px;padding:10px}.travel-doc-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#eef7fb;font-size:22px}.travel-doc-card>div:nth-child(2){display:flex;flex-direction:column;gap:2px}.travel-doc-card span,.travel-doc-card small{font-size:12px;color:#71828d}
+.emergency-pack{background:linear-gradient(135deg,#fff8f5,#f6fbff);border-color:#e3c8c3}.emergency-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.emergency-card{border:1px solid #dce6ec;background:#fff;border-radius:15px;padding:14px}.emergency-card h4{margin:0 0 12px}.emergency-contact-list{display:grid;gap:7px;margin-top:10px}.emergency-line{display:grid;grid-template-columns:1fr auto 38px;gap:8px;align-items:center;border:1px solid #e3ebef;border-radius:11px;padding:8px}.emergency-line>div{display:flex;flex-direction:column}.emergency-line span{font-size:11px;color:#73848e}.emergency-line a{font-weight:800;color:#205f81;text-decoration:none}.emergency-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:900px){.travel-v6-shortcuts{grid-template-columns:repeat(2,1fr)}.emergency-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.travel-v6-hero{grid-template-columns:1fr}.travel-readiness-ring{width:92px;height:92px}.travel-v6-shortcuts{grid-template-columns:1fr 1fr}.travel-doc-card{grid-template-columns:44px 1fr}.travel-doc-card .saved-template-actions{grid-column:1/3}.emergency-actions>*{flex:1 1 100%}}
+
+/* ===== V6.1 CLINICAL REFERRAL NETWORK ===== */
+.referral-hero{display:grid;grid-template-columns:1fr 130px;gap:18px;align-items:center;border:1px solid #cfe0ea;background:linear-gradient(135deg,#eef8ff,#f7fffb);border-radius:22px;padding:22px;margin-bottom:14px}.referral-hero h2{font-size:29px;margin:5px 0;color:#153f5e}.referral-hero p{color:#6c7f8d}.referral-hero-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.referral-hero-badges span{background:#fff;border:1px solid #d8e6ee;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800}.referral-stat-orb{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;align-content:center;background:#fff;border:10px solid #dceff1;box-shadow:0 0 0 8px #eef8f8;text-align:center}.referral-stat-orb b{font-size:27px}.referral-stat-orb span{font-size:11px;color:#6b7d88}
+.referral-global-search{margin-bottom:12px}.referral-tabs{display:flex;gap:8px;overflow:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:thin}.referral-tabs button{white-space:nowrap;border:1px solid #d5e2ea;background:#f7fbfd;color:#274d67;border-radius:13px;padding:11px 14px;font-weight:800}.referral-tabs button.active{background:#dff3ee;color:#0b6f67;border-color:#b7ddd2}
+.referral-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:14px}.referral-editor textarea{min-height:76px}.status-chip{border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;background:#eef6fa;color:#426275}
+.provider-card,.referral-work-card,.contact-card,.diagnostic-card{border:1px solid #dce7ed;background:#fff;border-radius:15px;padding:12px;margin-bottom:9px;box-shadow:0 4px 12px rgba(42,76,98,.03)}.provider-card.inactive,.contact-card.inactive{opacity:.55;background:#f7f7f7}.provider-head,.referral-work-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.provider-head>div,.referral-work-head>div{display:flex;flex-direction:column}.provider-head b,.referral-work-head b,.contact-card b,.diagnostic-card b{font-size:16px;color:#183d58}.provider-head span,.referral-work-head span,.contact-card span,.diagnostic-card span{font-size:12px;color:#70818c}.provider-status,.ref-status{font-size:10px!important;font-weight:900!important;border-radius:999px;padding:5px 8px}.provider-status.active{background:#e3f7e8;color:#28733d}.provider-status.inactive{background:#ededed;color:#777}.ref-status{background:#edf4fa;color:#355b75}
+.provider-tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.provider-tags span{background:#eef7fb;border-radius:999px;padding:4px 7px;font-size:10px;color:#355a70}.provider-meta{font-size:12px;color:#667a87;margin:7px 0}.provider-actions{display:flex;gap:6px;flex-wrap:wrap}.provider-actions a,.provider-actions button{border:1px solid #dbe6ec;background:#f9fcfd;color:#285673;border-radius:10px;padding:7px 9px;text-decoration:none;font-size:11px;font-weight:800}
+.contact-card{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}.contact-card>div:first-child,.diagnostic-card>div:first-child{display:flex;flex-direction:column}.contact-card small,.diagnostic-card small{font-size:11px;color:#82919a}.contact-phone{display:flex;flex-direction:column;gap:4px}.contact-phone a{font-size:11px;text-decoration:none;color:#23617f;font-weight:800}.contact-import-row,.ref-attachment-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}.contact-import-row input,.ref-attachment-row input{flex:1;min-width:240px}
+.ref-compliance-note{border:1px solid #f0d08a;background:#fff8e8;color:#72521b;border-radius:12px;padding:10px 12px;margin:10px 0;font-size:12px}.diagnostic-service-filter{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.diagnostic-service-filter button{border:1px solid #d5e4eb;border-radius:999px;padding:7px 10px;background:#f7fbfd;font-weight:800}.diagnostic-card{display:grid;grid-template-columns:1fr auto;gap:10px}.referral-workspace-shortcut{border-left:5px solid #2b799b}
+@media(max-width:1000px){.referral-layout{grid-template-columns:1fr}.referral-hero{grid-template-columns:1fr}.referral-stat-orb{width:92px;height:92px}.contact-card{grid-template-columns:1fr}.diagnostic-card{grid-template-columns:1fr}}
+@media(max-width:650px){.referral-hero{padding:16px}.referral-hero h2{font-size:23px}.provider-actions>*{flex:1 1 auto;text-align:center}.referral-tabs button{flex:0 0 auto}}
+
+/* ===== V6.2 FINAL STABLE • CROSS-DEVICE POLISH ===== */
+html,body{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:Inter,"Segoe UI Variable","Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(33,126,156,.24);outline-offset:2px}
+.integrated-logo{padding:0;overflow:hidden;background:#fff!important;border:1px solid #c9dde7!important;box-shadow:0 5px 16px rgba(24,73,98,.10)}
+.integrated-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.release-badge-row{display:grid;gap:6px;margin:12px 8px}.release-badge{display:inline-flex;align-items:center;width:max-content;max-width:100%;padding:6px 9px;border-radius:999px;background:#edf7fb;border:1px solid #c8e0e8;color:#24546c;font-size:10px;font-weight:900}.release-badge.updated{background:#eef9ef;border-color:#c9e5ca;color:#34714b}
+.sidebar{overflow-y:auto;overscroll-behavior:contain}.sidebar nav{padding-bottom:82px}
+.topbar{min-height:76px;border-bottom:1px solid rgba(188,211,223,.65);padding-bottom:12px}.top-actions{align-items:center;flex-wrap:wrap}.top-actions button{white-space:nowrap}
+.cloud-status{min-height:44px}.main{min-height:100vh}
+.stable-home-hero{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;border:1px solid #c9dde8;background:linear-gradient(135deg,#f8fcff,#edf9f4 58%,#fff9e8);border-radius:26px;padding:24px;box-shadow:0 15px 38px rgba(35,78,100,.08)}
+.home-brand-row{display:flex;gap:15px;align-items:center}.home-app-icon{width:72px;height:72px;border-radius:20px;box-shadow:0 8px 24px rgba(31,93,117,.13)}.stable-home-copy h2{font-size:34px;line-height:1.12;margin:5px 0 10px;color:#153c58}.stable-home-copy>p{max-width:850px;color:#687c88;font-size:16px;margin:0}
+.stable-badge-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.stable-badge-row span{background:#fff;border:1px solid #d5e4e9;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800;color:#416276}
+.home-status-panel{display:flex;align-items:center;gap:14px;justify-content:center;border:1px solid #dce8e8;background:rgba(255,255,255,.72);border-radius:20px;padding:16px}.home-status-panel>div:last-child{display:flex;flex-direction:column}.home-status-panel>div:last-child b{color:#183f59}.home-status-panel>div:last-child span{font-size:11px;color:#71818b}.status-ring{width:88px;height:88px;border:8px solid #dcefe9;background:#fff;border-radius:50%;display:grid;place-items:center;align-content:center;flex:0 0 auto}.status-ring b{font-size:21px}.status-ring span{font-size:10px;color:#71828d}
+.home-launch-section{margin:16px 0}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.section-heading h3{margin:3px 0;font-size:21px}
+.home-launch-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px}.home-launch-tile{min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;gap:2px;min-height:112px;border:1px solid #d7e5eb!important;background:#fff!important;color:#173a52!important;border-radius:18px!important;padding:14px!important;box-shadow:0 6px 18px rgba(41,78,97,.04)}.home-launch-tile:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(41,78,97,.09)}.home-launch-tile>span{font-size:25px}.home-launch-tile b{font-size:14px}.home-launch-tile small{font-size:10px;color:#7a8a93;font-weight:600}.home-launch-tile.clinic{border-top:4px solid #3a8c78!important}.home-launch-tile.travel{border-top:4px solid #4b7cad!important}.home-launch-tile.study{border-top:4px solid #c89c35!important}.home-launch-tile.ideas{border-top:4px solid #916bc0!important}.home-launch-tile.wellness{border-top:4px solid #60a26d!important}.home-launch-tile.today{border-top:4px solid #d19c37!important}.home-launch-tile.tasks{border-top:4px solid #527b98!important}.home-launch-tile.files{border-top:4px solid #74828b!important}
+.stable-kpis{margin:14px 0}.stable-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,.8fr);gap:12px}.stable-priority-card,.stable-intelligence-card{margin:0}.stable-idea-strip{margin:14px 0}.stable-secondary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.stable-secondary-grid>.card{margin:0;min-width:0}.stable-system-strip{margin-bottom:90px}
+.mobile-dock{display:none}
+.card,.future-kpi,.provider-card,.referral-work-card,.contact-card,.diagnostic-card{transition:box-shadow .18s ease,transform .18s ease}
+input,select,textarea{font-size:14px;min-height:44px}textarea{min-height:96px}button{font-size:13px}
+.provider-actions a,.provider-actions button{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
+#view{min-width:0}.card,.ref-tab-pane,.referral-layout,.travel-section{min-width:0}
+table{max-width:100%}
+img,svg,canvas,video{max-width:100%}
+
+@media(max-width:1420px){
+  .home-launch-grid{grid-template-columns:repeat(4,1fr)}
+  .stable-secondary-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:1180px){
+  .app{grid-template-columns:230px minmax(0,1fr)}
+  .main{padding:20px}
+  .stable-home-hero{grid-template-columns:1fr}
+  .home-status-panel{justify-content:flex-start}
+  .stable-dashboard-grid{grid-template-columns:1fr}
+  .stable-secondary-grid{grid-template-columns:1fr 1fr}
+  .top-actions input{width:min(300px,35vw)}
+}
+@media(max-width:900px){
+  .app{grid-template-columns:190px minmax(0,1fr)}
+  .sidebar{padding:12px 8px}.brand{gap:8px}.brand strong{font-size:15px}.logo{width:44px;height:44px}
+  nav button{font-size:11px;padding:10px}
+  .main{padding:16px}
+  .home-launch-grid{grid-template-columns:repeat(3,1fr)}
+  .future-kpis{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:760px){
+  body{padding-bottom:86px;background:#f5fafc}
+  .app{display:block}.sidebar{position:sticky;top:0;z-index:130;height:auto;overflow:visible;padding:8px 10px;background:rgba(248,252,254,.97)!important;backdrop-filter:blur(12px);border-bottom:1px solid #cfe0e8}
+  .brand{padding:2px 2px 8px;border:0}.brand .logo{width:42px;height:42px;border-radius:13px}.brand strong{font-size:16px}.brand span{font-size:10px}.vision-chip{display:none}.release-badge-row{position:absolute;right:8px;top:8px;margin:0;gap:3px}.release-badge{font-size:8px;padding:4px 6px}.release-badge.updated{display:none}
+  .sidebar nav{display:flex;overflow-x:auto;gap:6px;padding:5px 0 3px;margin:0;scrollbar-width:none}.sidebar nav::-webkit-scrollbar{display:none}.sidebar nav button{flex:0 0 auto;padding:8px 10px;min-height:38px;font-size:10px;border-radius:10px;background:#fff}.side-note{display:none}
+  .main{padding:10px}.topbar{position:relative;top:auto;z-index:1;display:block;margin-bottom:10px;padding:6px 0 9px;background:transparent;border:0;backdrop-filter:none}.topbar h1{font-size:23px}.topbar p{font-size:11px;margin-top:2px}.top-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.top-actions input{grid-column:1/-1;width:100%;height:42px}.top-actions button,.cloud-status{min-height:40px;font-size:11px}.cloud-status{grid-column:1/-1}
+  .stable-home-hero{padding:16px;border-radius:20px;gap:12px}.home-app-icon{width:56px;height:56px;border-radius:16px}.stable-home-copy h2{font-size:25px}.stable-home-copy>p{font-size:13px}.stable-badge-row{gap:5px}.stable-badge-row span{font-size:9px;padding:5px 7px}.home-status-panel{padding:11px}.status-ring{width:70px;height:70px;border-width:6px}.status-ring b{font-size:17px}
+  .section-heading{align-items:flex-start}.section-heading h3{font-size:18px}.section-heading button{font-size:10px;padding:8px}
+  .home-launch-grid{grid-template-columns:1fr 1fr;gap:8px}.home-launch-tile{min-height:94px;padding:12px!important}.home-launch-tile>span{font-size:22px}.home-launch-tile b{font-size:13px}
+  .future-kpis,.kpis,.kpis.compact{grid-template-columns:1fr 1fr}.stable-secondary-grid{grid-template-columns:1fr}.stable-dashboard-grid{grid-template-columns:1fr}.card{padding:13px;border-radius:15px}.cardhead{gap:8px}.cardhead h3{font-size:16px}
+  .formgrid{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.referral-layout{grid-template-columns:1fr}.provider-actions>*{flex:1 1 42%}.contact-import-row,.ref-attachment-row{display:grid;grid-template-columns:1fr}.contact-import-row input,.ref-attachment-row input{min-width:0}
+  .mobile-dock{position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));height:66px;z-index:1200;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(255,255,255,.96);border:1px solid #d3e0e7;border-radius:22px;box-shadow:0 15px 40px rgba(29,63,82,.18);backdrop-filter:blur(15px);padding:5px}
+  .mobile-dock button{min-height:54px;background:transparent!important;color:#536d7a!important;padding:5px!important;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}.mobile-dock button span{font-size:20px;line-height:1}.mobile-dock button small{font-size:8px;font-weight:800}.mobile-dock .dock-add{background:#1d7186!important;color:#fff!important;transform:translateY(-5px);box-shadow:0 7px 18px rgba(29,113,134,.25)}
+  .modal{padding:8px}.modal-card{width:100%;max-height:94dvh;border-radius:18px;padding:14px}
+}
+@media(max-width:390px){
+  .home-launch-grid{grid-template-columns:1fr 1fr}
+  .top-actions{grid-template-columns:1fr}.top-actions input,.cloud-status{grid-column:auto}
+  .release-badge{font-size:7px}
+}
+@supports(padding:max(0px)){
+  .sidebar{padding-left:max(13px,env(safe-area-inset-left))}
+  .main{padding-right:max(10px,env(safe-area-inset-right))}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media print{.mobile-dock{display:none!important}}

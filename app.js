@@ -18,14 +18,14 @@ const WORKSPACES={
   ai:{label:'App Development & AI',icon:'🤖',color:'ai',categories:['App Development & AI','App Development'],quickCategory:'App Development & AI',subtitle:'Apps, websites, AI experiments, GitHub work and technology projects.'}
 };
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{tasks:[],study:[],wellness:[],travel:[],settings:defaultSettings};
-db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.ideas=db.ideas||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.ideas=db.ideas||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
+db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.ideas=db.ideas||[];db.travelStays=db.travelStays||[];db.travelDocs=db.travelDocs||[];db.emergencyContacts=db.emergencyContacts||[];db.travelFinance=db.travelFinance||[];db.healthProviders=db.healthProviders||[];db.healthContacts=db.healthContacts||[];db.patientReferrals=db.patientReferrals||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.ideas=db.ideas||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 let currentView='dashboard';
 const normalizeDb=x=>{
   x=x||{};
-  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];x.ideas=x.ideas||[];
+  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];x.ideas=x.ideas||[];x.travelStays=x.travelStays||[];x.travelDocs=x.travelDocs||[];x.emergencyContacts=x.emergencyContacts||[];x.travelFinance=x.travelFinance||[];x.healthProviders=x.healthProviders||[];x.healthContacts=x.healthContacts||[];x.patientReferrals=x.patientReferrals||[];
   x.reflections=x.reflections||[];
   x.settings={...defaultSettings,...(x.settings||{})};
   x.tasks=x.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
@@ -48,7 +48,7 @@ const isDone=t=>t.status==='Done';const priorityRank=p=>({Red:1,Orange:2,Yellow:
 function fillOptions(el,items,blank=false,blankText='Select'){el.innerHTML=(blank?`<option value="">${blankText}</option>`:'')+items.map(x=>{const v=typeof x==='string'?x:x.value,l=typeof x==='string'?x:x.label;return `<option value="${esc(v)}">${esc(l)}</option>`}).join('')}
 const titles={dashboard:['Dashboard','Your work, study, health, family and life responsibilities in one place.'],
   myday:['My Day','Focus on what truly needs attention today.'],tasks:['Tasks & Projects','Capture, prioritize, schedule and finish responsibilities.'],
-  board:['Status Board','A visual flow of ideas, active work, waiting and completion.'],ideas:['My Ideas & Creativity','Capture, develop, review and learn from every useful idea.'],study:['Study Planner','Plan what to learn, from where, when and how much.'],wellness:['Wellness & Sadhana','Track health habits, spiritual practice and seva.'],travel:['Travel & Seminar','Plan purpose, tickets, time, budget and nearby visits.'],review:['Review Center','Daily, weekly and monthly review of forgotten and blocked work.'],ai:['AI Insights','Smart local analysis, focus strategy and future-ready decision support.'],
+  board:['Status Board','A visual flow of ideas, active work, waiting and completion.'],ideas:['My Ideas & Creativity','Capture, develop, review and learn from every useful idea.'],study:['Study Planner','Plan what to learn, from where, when and how much.'],wellness:['Wellness & Sadhana','Track health habits, spiritual practice and seva.'],travel:['Travel & Seminar','Plan purpose, tickets, time, budget and nearby visits.'],referrals:['Referral Network','Hospitals, diagnostics, doctors, PRO/staff, referrals and follow-up in one searchable directory.'],review:['Review Center','Daily, weekly and monthly review of forgotten and blocked work.'],ai:['AI Insights','Smart local analysis, focus strategy and future-ready decision support.'],
   summary:['Master Summary','A single review of everything requiring your attention.'],files:['Files & Notes','Keep supporting documents linked to tasks and life areas.'],backup:['Backup / Restore','Protect your workplace data and move it between devices.'],settings:['Settings','Personal targets and app preferences.']};
 function showView(name){currentView=name;
   try{
@@ -58,7 +58,7 @@ function showView(name){currentView=name;
     const v=$('#view'), t=document.getElementById(name+'Tpl');
     if(!t){v.innerHTML='<div class="card"><h3>Section unavailable</h3><p class="muted">Please reload the latest app version.</p></div>';return}
     v.innerHTML='';v.appendChild(t.content.cloneNode(true));
-    const renderers={dashboard:renderDashboard,myday:renderMyDay,tasks:renderTasks,board:renderBoard,ideas:renderIdeas,study:renderStudy,wellness:renderWellness,travel:renderTravel,review:renderReview,ai:renderAI,summary:renderSummary,files:renderFiles,backup:renderBackup,settings:renderSettings};
+    const renderers={dashboard:renderDashboard,myday:renderMyDay,tasks:renderTasks,board:renderBoard,ideas:renderIdeas,study:renderStudy,wellness:renderWellness,travel:renderTravel,referrals:renderReferralNetwork,review:renderReview,ai:renderAI,summary:renderSummary,files:renderFiles,backup:renderBackup,settings:renderSettings};
     if(renderers[name]) renderers[name]();
   }catch(err){
     console.error('View error',name,err);
@@ -96,6 +96,9 @@ function openWorkspace(key){
   $('#workspaceUpcoming').innerHTML=upcoming.map(workspaceTaskRow).join('')||'<p class="muted">No upcoming item yet.</p>';
   $('#workspaceTasks').innerHTML=open.sort((a,b)=>priorityRank(a.priority)-priorityRank(b.priority)||horizonRank(a.horizon)-horizonRank(b.horizon)).map(workspaceTaskRow).join('')||'<p class="muted">No open task in this workspace. Use + Add Here.</p>';
   $('#workspaceQuickAdd').onclick=()=>openQuickAdd(w.quickCategory);
+  if(key==='clinic'){
+    $('#workspaceExtra').innerHTML=`<div class="card referral-workspace-shortcut"><div class="cardhead"><div><span class="eyebrow">CLINICAL NETWORK</span><h3>🏥 Hospital & Diagnostic Referral Network</h3><p class="muted">Search hospitals, doctors, PRO/staff, diagnostics and referral history from one directory.</p></div><button onclick="app.showView('referrals')">Open Referral Network</button></div><div class="future-kpis"><div class="metric"><b>${db.healthProviders?.filter(x=>x.status==='Active').length||0}</b><span>Active Providers</span></div><div class="metric"><b>${db.healthContacts?.filter(x=>x.status==='Active').length||0}</b><span>Active Contacts</span></div><div class="metric"><b>${db.patientReferrals?.filter(x=>!['Completed','Cancelled','Lost to follow-up'].includes(x.status)).length||0}</b><span>Open Referrals</span></div></div></div>`;
+  }
   if(key==='study'){
     $('#workspaceExtra').innerHTML=`<div class="card"><div class="cardhead"><div><h3>Study Topics</h3><p class="muted">Study Planner records are shown here too.</p></div><button class="ghost" onclick="app.showView('study')">Open Full Study Planner</button></div>${db.study.filter(s=>s.status!=='Done').map(s=>`<div class="timeline-item"><b>${esc(s.topic)}</b><span>${esc(s.sourceType)} • ${fmt(s.targetDate)} • ${esc(s.status)}</span></div>`).join('')||'<p class="muted">No study topic yet.</p>'}</div>`;
   }
@@ -103,7 +106,7 @@ function openWorkspace(key){
 function workspaceTaskRow(t){return `<div class="workspace-task-row"><div><b>${esc(t.title)}</b><span>${esc(t.category)} • ${esc(t.priority)} • ${esc(t.status)} • ${esc(t.horizon)}</span>${t.nextAction?`<small>Next: ${esc(t.nextAction)}</small>`:''}</div><div class="actionrow"><button class="ghost" onclick="app.editTask('${t.id}')">Edit</button><button class="ghost" onclick="app.markDone('${t.id}')">Done</button></div></div>`}
 function showWorkspaceTasks(key){const w=WORKSPACES[key];showView('tasks');setTimeout(()=>{const f=$('#taskCategoryFilter');if(f&&w.categories.length===1){f.value=w.categories[0];drawTasks()}else if($('#taskSearch')){$('#taskSearch').value=w.categories.join(' ');drawTasks()}},10)}
 
-function renderDashboard(){renderMainWorkspaceButtons();const open=db.tasks.filter(t=>!isDone(t)),attention=open.filter(dueAttention),overdue=open.filter(t=>t.dueDate&&t.dueDate<today()),dueToday=open.filter(t=>t.dueDate===today()||t.reminderDate===today()||t.horizon==='Today'),completed=db.tasks.filter(isDone).length,focus=open.filter(t=>t.focus).length,total=db.tasks.length||1;const focusScore=Math.max(0,Math.min(100,Math.round((completed/total)*45+Math.max(0,40-overdue.length*5)+Math.min(15,focus*5))));const hour=new Date().getHours(),greet=hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening';$('#futureGreeting').textContent=`${greet}, ${db.settings.ownerName||'Dr Rajesh Sao'}`;$('#dashKpis').innerHTML=[['Total Tasks',db.tasks.length,'neutral'],['In Progress',open.filter(t=>['Work Started','Started Today'].includes(t.status)).length,'blue'],['Today',dueToday.length,'cyan'],['Overdue',overdue.length,'red'],['Completed',completed,'green'],['Focus Score',focusScore+'%','violet']].map(x=>`<div class="future-kpi ${x[2]}"><span>${x[0]}</span><b>${x[1]}</b><small>${x[0]==='Overdue'?'Needs attention':x[0]==='Focus Score'?'Adaptive score':'Live planner data'}</small></div>`).join('');$('#todayList').innerHTML=attention.sort((a,b)=>priorityRank(a.priority)-priorityRank(b.priority)).slice(0,7).map(t=>`<div class="future-action-row"><span class="priority-dot ${t.priority.toLowerCase()}"></span><div><b>${esc(t.title)}</b><small>${esc(t.category)} • ${esc(t.status)}</small></div><span class="future-chip">${esc(t.priority)}</span></div>`).join('')||'<p class="muted">No urgent action right now.</p>';$('#horizonBoard').innerHTML=HORIZONS.slice(0,6).map(h=>{const n=open.filter(t=>t.horizon===h).length;return `<div class="future-horizon"><span>${esc(h)}</span><b>${n}</b><i style="--w:${Math.min(100,n*14)}%"></i></div>`}).join('');drawPriorityChart($('#priorityChart'),open);$('#areaOverview').innerHTML=`<div class="future-area-grid">${CATEGORIES.map(c=>{const n=open.filter(t=>t.category===c).length;return n?`<div><b>${n}</b><span>${esc(c)}</span></div>`:''}).join('')}</div>`;$('#studyQueue').innerHTML=db.study.filter(x=>x.status!=='Done').slice(0,5).map(s=>`<div class="future-list-row"><div><b>${esc(s.topic)}</b><span>${esc(s.sourceType)} • ${esc(s.status)}</span></div><small>${s.targetDate?fmt(s.targetDate):'No date'}</small></div>`).join('')||'<p class="muted">No study topic planned.</p>';const w=db.wellness.find(x=>x.date===today());$('#wellnessToday').innerHTML=w?`<div class="future-wellness-grid"><div><b>${w.japa||0}</b><span>Naam Japa</span></div><div><b>${w.exercise||0}m</b><span>Exercise</span></div><div><b>${w.sleep||0}h</b><span>Sleep</span></div><div><b>${w.water||0}L</b><span>Water</span></div></div>`:'<p class="muted">No wellness log today.</p>';$('#aiDashboardInsight').innerHTML=buildDashboardInsight(open,overdue);
+function renderDashboard(){renderMainWorkspaceButtons();const open=db.tasks.filter(t=>!isDone(t)),attention=open.filter(dueAttention),overdue=open.filter(t=>t.dueDate&&t.dueDate<today()),dueToday=open.filter(t=>t.dueDate===today()||t.reminderDate===today()||t.horizon==='Today'),completed=db.tasks.filter(isDone).length,focus=open.filter(t=>t.focus).length,total=db.tasks.length||1;const focusScore=Math.max(0,Math.min(100,Math.round((completed/total)*45+Math.max(0,40-overdue.length*5)+Math.min(15,focus*5))));const homeFocus=$('#homeFocusScore');if(homeFocus)homeFocus.textContent=focusScore+'%';const hour=new Date().getHours(),greet=hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening';$('#futureGreeting').textContent=`${greet}, ${db.settings.ownerName||'Dr Rajesh Sao'}`;$('#dashKpis').innerHTML=[['Total Tasks',db.tasks.length,'neutral'],['In Progress',open.filter(t=>['Work Started','Started Today'].includes(t.status)).length,'blue'],['Today',dueToday.length,'cyan'],['Overdue',overdue.length,'red'],['Completed',completed,'green'],['Focus Score',focusScore+'%','violet']].map(x=>`<div class="future-kpi ${x[2]}"><span>${x[0]}</span><b>${x[1]}</b><small>${x[0]==='Overdue'?'Needs attention':x[0]==='Focus Score'?'Adaptive score':'Live planner data'}</small></div>`).join('');$('#todayList').innerHTML=attention.sort((a,b)=>priorityRank(a.priority)-priorityRank(b.priority)).slice(0,7).map(t=>`<div class="future-action-row"><span class="priority-dot ${t.priority.toLowerCase()}"></span><div><b>${esc(t.title)}</b><small>${esc(t.category)} • ${esc(t.status)}</small></div><span class="future-chip">${esc(t.priority)}</span></div>`).join('')||'<p class="muted">No urgent action right now.</p>';$('#horizonBoard').innerHTML=HORIZONS.slice(0,6).map(h=>{const n=open.filter(t=>t.horizon===h).length;return `<div class="future-horizon"><span>${esc(h)}</span><b>${n}</b><i style="--w:${Math.min(100,n*14)}%"></i></div>`}).join('');drawPriorityChart($('#priorityChart'),open);$('#areaOverview').innerHTML=`<div class="future-area-grid">${CATEGORIES.map(c=>{const n=open.filter(t=>t.category===c).length;return n?`<div><b>${n}</b><span>${esc(c)}</span></div>`:''}).join('')}</div>`;$('#studyQueue').innerHTML=db.study.filter(x=>x.status!=='Done').slice(0,5).map(s=>`<div class="future-list-row"><div><b>${esc(s.topic)}</b><span>${esc(s.sourceType)} • ${esc(s.status)}</span></div><small>${s.targetDate?fmt(s.targetDate):'No date'}</small></div>`).join('')||'<p class="muted">No study topic planned.</p>';const w=db.wellness.find(x=>x.date===today());$('#wellnessToday').innerHTML=w?`<div class="future-wellness-grid"><div><b>${w.japa||0}</b><span>Naam Japa</span></div><div><b>${w.exercise||0}m</b><span>Exercise</span></div><div><b>${w.sleep||0}h</b><span>Sleep</span></div><div><b>${w.water||0}L</b><span>Water</span></div></div>`:'<p class="muted">No wellness log today.</p>';$('#aiDashboardInsight').innerHTML=buildDashboardInsight(open,overdue);
   const ideas=db.ideas||[], ideaOpen=ideas.filter(i=>!['Completed','Cancelled','Impossible'].includes(i.status));
   const ideaEl=$('#ideaDashStats');
   if(ideaEl) ideaEl.innerHTML=`<span><b>${ideas.length}</b>Total</span><span><b>${ideaOpen.length}</b>Open</span><span><b>${ideas.filter(i=>i.status==='Working').length}</b>Working</span><span><b>${ideas.filter(i=>i.status==='Completed').length}</b>Done</span>`;
@@ -213,7 +216,26 @@ function renderWellnessTotals(){const month=($('#wellnessDate').value||today()).
 function renderWellnessHistory(){$('#wellnessHistory').innerHTML=db.wellness.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(w=>`<div class="timeline-item"><b>${fmt(w.date)}</b><span>Japa ${w.japa||0} • Mala ${w.mala||0} • Exercise ${w.exercise||0} min • Sleep ${w.sleep||0}h ${w.vrata==='Yes'?'• Vrata':''}</span></div>`).join('')||'<p class="muted">No log yet.</p>'}
 
 const TRAVEL_MODES=['Train','Flight','Bus','Car','Bike / Motorcycle','Taxi / Cab','Auto / Rapido','Metro','Local Train','Walking','Mixed'];
-const TRAVEL_INTERESTS=['Spiritual / Temple','Heritage / History','Nature / Park','Museum / Culture','Food / Local Cuisine','Shopping / Market','Family / Leisure','Medical / Academic','Scenic / Photography','Other'];
+const TRAVEL_INTERESTS=[
+'Krishna / Vishnu / Rama Temple','Shiva / Jyotirlinga','Other Devi / Devata Temple','Famous Sadhu-Sant Ashram / Statue',
+'Ganga / Holy River','Yamuna','Narmada','Other Holy River','Ocean Darshan / Snan','Beach',
+'Hill Station / Viewpoint','Garden / Park','Historical Place','Famous Statue / Landmark','Museum / Culture',
+'Shopping / Market','Adventure','Outing / Night Stay','Outside Food','Walking','Bike Riding','Sunrise','Sunset','Pond / Lake','Other'
+];
+const TRAVEL_STAY_TYPES=['Hotel / Lodge','ISKCON Guest House','Other Ashram / Guest House','Dharamshala','Friend Home','Relative Home','Self Home','Hostel','Sleep During Train Travel','Sleep During Bus Travel','Sleep During Car Travel','Other'];
+const TRAVEL_FOOD_TYPES=['ISKCON Guest House Prasadam','ISKCON Govinda Restaurant','ISKCON Tiffin Service','ISKCON Online Delivery','ISKCON Thali on Train','Jain Restaurant','Jain Thali','Jain Online Delivery','Jain Thali on Train','Pure Veg — No Onion/Garlic','Pure Veg — Special Order No Onion/Garlic','Pure Veg — Self Adjustment','Self Cooking','Relative Home Food','Friend Home Food','Home Food / Packed Food','Fruits','Snacks','Milk / Light Food','Fasting / Vrata','Other'];
+const TRAVEL_SLEEP_TYPES=['Self Home','Hotel / Lodge','ISKCON Guest House','Other Guest House / Ashram','Friend Home','Relative Home','Dharamshala','Train','Bus','Car','Other Place'];
+const TRAIN_CLASSES=['1A','2A','3A','3E','CC','EC','SL','2S','General','Other'];
+const TRAIN_BERTH_TYPES=['Lower','Middle','Upper','Side Lower','Side Upper','Chair Car Seat','Not allotted','Other'];
+const TRAIN_MEAL_TYPES=['Breakfast','Lunch','Evening Snack','Dinner'];
+const TRAIN_FOOD_SOURCES=['Home / Packed Food','Railway Pantry / On-board','IRCTC eCatering / Food on Track','ISKCON / Govinda / Prasadam','Jain Food / Jain Thali','Pure Veg No Onion-Garlic','Pure Veg Special Order','Fruits / Snacks','Fasting / Vrata','Station Vendor','Other'];
+const TRAIN_TICKET_STATUS=['Confirmed (CNF)','RAC','GNWL','RLWL','PQWL','TQWL','CKWL','WL — Other','Chart Prepared','Cancelled','Not booked','Other'];
+const TRAIN_QUOTAS=['GN','TQ','LD','SS','HO','DF','HP','PH','Other'];
+const BUS_TYPES=['AC Sleeper','Non-AC Sleeper','AC Seater','Non-AC Seater','Volvo / Multi-axle','Electric Bus','Government Bus','Private Bus','Mini Bus','Other'];
+const BUS_TICKET_STATUS=['Confirmed','Waitlisted / Pending','Boarding Pass Issued','Cancelled','Not booked','Other'];
+
+
+
 
 function renderTravel(){
   fillOptions($('#travelStatusFilter'),TRAVEL_STATUSES,true,'All Status');
@@ -241,6 +263,8 @@ function tripDays(start,end){
 function travelModeOptions(selected='Train'){
   return TRAVEL_MODES.map(x=>`<option ${x===selected?'selected':''}>${x}</option>`).join('');
 }
+function genericOptions(arr,selected=''){return arr.map(x=>`<option ${x===selected?'selected':''}>${esc(x)}</option>`).join('')}
+
 function interestChecks(selected=[]){
   const set=new Set(Array.isArray(selected)?selected:String(selected||'').split('|').filter(Boolean));
   return TRAVEL_INTERESTS.map((x,i)=>`<label class="travel-check"><input type="checkbox" class="tr_interest" value="${esc(x)}" ${set.has(x)?'checked':''}>${esc(x)}</label>`).join('');
@@ -249,8 +273,71 @@ function travelPlanTemplate(t={}){
   const stayStart=t.stayStart||t.startDate||'', stayEnd=t.stayEnd||t.returnDate||'';
   return `
   <input id="tr_id" type="hidden" value="${esc(t.id||'')}">
+
+  <div class="travel-v6-command">
+    <div class="travel-v6-hero">
+      <div>
+        <div class="eyebrow">SAO TRAVEL COMPANION • V6 FOUNDATION</div>
+        <h3>Plan once. Carry everything. Recover fast.</h3>
+        <p>Route → booking → stay → food → documents → emergency → memories, with reusable records and offline-first access.</p>
+      </div>
+      <div class="travel-readiness-ring"><b id="travelReadinessScore">--</b><span>Trip Readiness</span></div>
+    </div>
+    <div class="travel-v6-shortcuts">
+      <button type="button" id="tr_jump_plan">🗺 Plan Trip<small>Route & tickets</small></button>
+      <button type="button" id="tr_jump_stay">🛕 Stay & Ashram<small>Booking details</small></button>
+      <button type="button" id="tr_jump_vault">🪪 Travel Vault<small>ID & membership</small></button>
+      <button type="button" id="tr_jump_emergency">🆘 Emergency Pack<small>Contacts & recovery</small></button>
+      <button type="button" id="tr_generate_trip_pack">📄 Trip Pack<small>Print / PDF / share</small></button>
+    </div>
+  </div>
+
+  <div class="travel-section route-discovery-hub" id="travelPlanHub">
+    <div class="travel-section-title"><span>0</span><div><b>🧠 Smart Route Discovery & Booking Hub</b><small>Start here: From → To → Date. Reuse saved travel details, compare train/bus options, check route, then continue planning.</small></div></div>
+
+    <div class="formgrid route-discovery-grid">
+      <label>From<input id="tr_discovery_from" value="${esc(t.origin||'Raipur')}" placeholder="Raipur"></label>
+      <label>To<input id="tr_discovery_to" value="${esc(t.place||'')}" placeholder="Pune"></label>
+      <label>Journey date<input id="tr_discovery_date" type="date" value="${t.startDate||t.journeyDate||''}"></label>
+      <label>Preferred mode
+        <select id="tr_discovery_mode">
+          <option>Compare Train + Bus</option>
+          <option>Train</option>
+          <option>Bus</option>
+          <option>Car</option>
+          <option>Flight</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="route-discovery-actions">
+      <button type="button" id="tr_discover_route" class="travel-ai-btn">✨ Discover Route Options</button>
+      <button type="button" id="tr_copy_route_to_plan" class="ghost">↓ Use These Details in Planner</button>
+      <button type="button" id="tr_load_saved_template" class="ghost">📂 Load Saved Journey</button>
+      <button type="button" id="tr_save_as_template" class="ghost">💾 Save as Reusable Journey</button>
+    </div>
+
+    <div id="tr_route_discovery_result" class="route-discovery-result">
+      Enter From, To and Date. The app can estimate straight-line distance and open live search/booking services. Exact road/rail distance, fares, availability and timetable remain provider-verified.
+    </div>
+
+    <div class="booking-launch-grid">
+      <button type="button" id="tr_book_irctc" class="booking-btn rail">🚆 IRCTC Train Booking</button>
+      <button type="button" id="tr_open_railone" class="booking-btn railone">📱 RailOne</button>
+      <button type="button" id="tr_book_paytm_train" class="booking-btn paytm">🚆 Paytm Trains</button>
+      <button type="button" id="tr_book_redbus" class="booking-btn bus">🚌 redBus</button>
+      <button type="button" id="tr_book_paytm_bus" class="booking-btn paytm">🚌 Paytm Bus</button>
+      <button type="button" id="tr_open_google_route" class="booking-btn map">🗺 Google Route</button>
+    </div>
+
+    <div class="saved-travel-panel">
+      <div class="train-subhead"><div><b>Saved Journey Templates</b><small>Frequent routes can be loaded without typing again.</small></div></div>
+      <div id="tr_saved_template_list" class="saved-template-list"></div>
+    </div>
+  </div>
+
   <div class="travel-section">
-    <div class="travel-section-title"><span>1</span><div><b>Trip identity</b><small>Where, why and with whom</small></div></div>
+    <div class="travel-section-title"><span>1</span><div><b>Trip identity</b><small>Where, why, dates and companion</small></div></div>
     <div class="formgrid">
       <label>Event / Trip title *<input id="tr_title" value="${esc(t.title||'')}" placeholder="Raipur → Pune → Raipur"></label>
       <label>Purpose<input id="tr_purpose" value="${esc(t.purpose||'')}" placeholder="Seminar / family / pilgrimage / work / leisure"></label>
@@ -262,7 +349,7 @@ function travelPlanTemplate(t={}){
   </div>
 
   <div class="travel-section">
-    <div class="travel-section-title"><span>2</span><div><b>Outward journey</b><small>Origin → destination</small></div></div>
+    <div class="travel-section-title"><span>2</span><div><b>Outward journey</b><small>Raipur → destination; multi-mode supported</small></div></div>
     <div class="formgrid">
       <label>Mode<select id="tr_mode">${travelModeOptions(t.mode||'Train')}</select></label>
       <label>Departure date<input id="tr_start" type="date" value="${t.startDate||''}"></label>
@@ -273,27 +360,196 @@ function travelPlanTemplate(t={}){
       <label>Boarding point<input id="tr_boarding" value="${esc(t.boarding||'')}" placeholder="Station / airport / pickup point"></label>
       <label>Arrival point<input id="tr_arrival_point" value="${esc(t.arrivalPoint||'')}" placeholder="Station / airport / stop"></label>
     </div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_route_search" class="ghost">🔎 Live Route / Schedule Search</button>
+    </div>
+  </div>
+
+  <div class="travel-section train-intel-section">
+    <div class="travel-section-title"><span>2A</span><div><b>🚆 Train Journey Intelligence</b><small>Use when any major leg is by train — PNR, coach/seat, stoppages and meal-window planning</small></div></div>
+
+    <div class="formgrid">
+      <label>Train number<input id="tr_train_no" value="${esc(t.trainNo||'')}" placeholder="e.g. 12851"></label>
+      <label>Train name<input id="tr_train_name" value="${esc(t.trainName||'')}" placeholder="Train name"></label>
+      <label>PNR number<input id="tr_pnr" inputmode="numeric" maxlength="10" value="${esc(t.pnr||'')}" placeholder="10-digit PNR"></label>
+      <label>Ticket status<select id="tr_train_ticket_status">${genericOptions(TRAIN_TICKET_STATUS,t.trainTicketStatus||'Confirmed (CNF)')}</select></label>
+      <label>Quota<select id="tr_train_quota">${genericOptions(TRAIN_QUOTAS,t.trainQuota||'GN')}</select></label>
+      <label>Date of journey<input id="tr_journey_date" type="date" value="${t.journeyDate||t.startDate||''}"></label>
+      <label>Class<select id="tr_train_class">${genericOptions(TRAIN_CLASSES,t.trainClass||'3A')}</select></label>
+      <label>Coach<input id="tr_coach" value="${esc(t.coach||'')}" placeholder="e.g. B2"></label>
+      <label>Seat / Berth no.<input id="tr_seat" value="${esc(t.seat||'')}" placeholder="e.g. 35"></label>
+      <label>Berth type<select id="tr_berth_type">${genericOptions(TRAIN_BERTH_TYPES,t.berthType||'Not allotted')}</select></label>
+      <label>Boarding station<input id="tr_train_board" value="${esc(t.trainBoard||t.boarding||'')}" placeholder="Raipur Jn"></label>
+      <label>Boarding code<input id="tr_train_board_code" value="${esc(t.trainBoardCode||'')}" placeholder="R / RPR"></label>
+      <label>Destination station<input id="tr_train_dest" value="${esc(t.trainDest||t.arrivalPoint||'')}" placeholder="Pune Jn"></label>
+      <label>Destination code<input id="tr_train_dest_code" value="${esc(t.trainDestCode||'')}" placeholder="PUNE"></label>
+    </div>
+
+    <div class="train-quick-links">
+      <button type="button" id="tr_pnr_check" class="ghost">🎫 Check PNR — Official Railway</button>
+      <button type="button" id="tr_train_schedule" class="ghost">🕒 Find Train Route / Stoppages</button>
+      <button type="button" id="tr_ecatering" class="ghost">🍱 IRCTC eCatering / Food on Track</button>
+      <button type="button" id="tr_iskcon_train_food" class="ghost">🙏 Search ISKCON Food on Train / Route</button>
+    </div>
+
+    <div class="train-ticket-import">
+      <div class="train-subhead">
+        <div><b>🎟 Smart Ticket / PNR Detail Import</b><small>Paste text copied from ticket, SMS, WhatsApp or booking summary and let the app fill matching fields locally.</small></div>
+      </div>
+      <textarea id="tr_ticket_text" placeholder="Paste ticket text here: Train no/name, PNR, journey date, coach, berth/seat, boarding, destination, status...">${esc(t.ticketText||'')}</textarea>
+      <div class="travel-smart-actions">
+        <button type="button" id="tr_parse_ticket" class="travel-ai-btn secondary">✨ Auto-fill Train Fields from Pasted Text</button>
+        <button type="button" id="tr_clear_ticket_text" class="ghost">Clear pasted text</button>
+      </div>
+      <div id="tr_ticket_parse_status" class="travel-online-status">No ticket text parsed yet.</div>
+    </div>
+
+    <div class="train-subsection">
+      <div class="train-subhead">
+        <div><b>Station & Stoppage Timeline</b><small>Enter important stations manually from the verified timetable. Meal planner uses these times.</small></div>
+        <button type="button" id="tr_add_stop" class="ghost">＋ Add Station Stop</button>
+      </div>
+      <div class="train-stop-head">
+        <span>Date</span><span>Station / City</span><span>Code</span><span>Arrival</span><span>Departure</span><span>Halt min</span><span>Major / Food</span><span></span>
+      </div>
+      <div id="tr_train_stops" class="train-stop-list"></div>
+      <div class="travel-smart-actions">
+        <button type="button" id="tr_build_route_visual" class="travel-ai-btn secondary">🗺 Build Full Train Route Timeline</button>
+      </div>
+      <div id="tr_train_route_visual" class="train-route-visual">${t.trainRouteVisualHtml||''}</div>
+    </div>
+
+    <div class="train-subsection">
+      <div class="train-subhead"><div><b>Meal Timing Intelligence</b><small>Shows likely station / in-transit location near your preferred meal times.</small></div></div>
+      <div class="train-meal-time-grid">
+        <label>Breakfast<input id="tr_breakfast_time" type="time" value="${t.breakfastTime||'08:00'}"></label>
+        <label>Lunch<input id="tr_lunch_time" type="time" value="${t.lunchTime||'13:00'}"></label>
+        <label>Snack<input id="tr_snack_time" type="time" value="${t.snackTime||'17:00'}"></label>
+        <label>Dinner<input id="tr_dinner_time" type="time" value="${t.dinnerTime||'20:00'}"></label>
+        <label>Preferred source<select id="tr_train_food_source">${genericOptions(TRAIN_FOOD_SOURCES,t.trainFoodSource||'ISKCON / Govinda / Prasadam')}</select></label>
+      </div>
+      <div class="travel-smart-actions">
+        <button type="button" id="tr_build_meal_plan" class="travel-ai-btn secondary">🍽 Build Train Meal Plan</button>
+      </div>
+      <div id="tr_train_meal_plan" class="train-meal-plan"></div>
+    </div>
+
+    <div class="travel-record-actions">
+      <button type="button" id="tr_save_train_snapshot">💾 Save Train Details</button>
+      <button type="button" id="tr_share_train_snapshot" class="ghost">↗ Share Train Details</button>
+      <button type="button" id="tr_copy_train_snapshot" class="ghost">📋 Copy</button>
+      <button type="button" id="tr_print_train_snapshot" class="ghost">🖨 Print</button>
+    </div>
+    <div id="tr_train_save_status" class="travel-online-status"></div>
+    <div class="travel-live-data-note">
+      <b>Important:</b> PNR status, platform, delays, live stoppage times, pantry/eCatering availability and vendor menus can change. Keep the train number + PNR here, but verify final live details with Indian Railways / IRCTC before travel or ordering food.
+    </div>
+  </div>
+
+
+  <div class="travel-section bus-intel-section">
+    <div class="travel-section-title"><span>2B</span><div><b>🚌 Bus Journey Intelligence</b><small>For intercity / overnight bus legs — operator, bus no., seat, boarding, dropping, major halts and food stops</small></div></div>
+    <div class="formgrid">
+      <label>Bus operator<input id="tr_bus_operator" value="${esc(t.busOperator||'')}" placeholder="Operator / ST / Travels"></label>
+      <label>Bus / Service number<input id="tr_bus_no" value="${esc(t.busNo||'')}" placeholder="Bus no. / service no."></label>
+      <label>Bus type<select id="tr_bus_type">${genericOptions(BUS_TYPES,t.busType||'AC Sleeper')}</select></label>
+      <label>Ticket status<select id="tr_bus_ticket_status">${genericOptions(BUS_TICKET_STATUS,t.busTicketStatus||'Confirmed')}</select></label>
+      <label>Seat / Berth<input id="tr_bus_seat" value="${esc(t.busSeat||'')}" placeholder="e.g. L5 / 12"></label>
+      <label>Journey date<input id="tr_bus_date" type="date" value="${t.busDate||t.startDate||''}"></label>
+      <label>Boarding city / point<input id="tr_bus_board" value="${esc(t.busBoard||'')}" placeholder="Raipur / pickup point"></label>
+      <label>Dropping city / point<input id="tr_bus_drop" value="${esc(t.busDrop||'')}" placeholder="Pune / drop point"></label>
+    </div>
+    <div class="train-ticket-import">
+      <textarea id="tr_bus_ticket_text" placeholder="Paste bus ticket / SMS / booking details here...">${esc(t.busTicketText||'')}</textarea>
+      <div class="travel-smart-actions">
+        <button type="button" id="tr_parse_bus_ticket" class="travel-ai-btn secondary">✨ Auto-fill Bus Fields from Pasted Text</button>
+        <button type="button" id="tr_bus_route_search" class="ghost">🔎 Search Bus Route / Stops / Fare</button>
+      </div>
+    </div>
+    <div class="train-subsection">
+      <div class="train-subhead"><div><b>Major Bus Stops / Food Breaks</b><small>Add major cities, scheduled halts or meal breaks. Longer halts are highlighted automatically.</small></div>
+      <button type="button" id="tr_add_bus_stop" class="ghost">＋ Add Bus Stop</button></div>
+      <div class="bus-stop-head"><span>Date</span><span>City / Stop</span><span>Arrival</span><span>Departure</span><span>Halt min</span><span>Food / Break</span><span></span></div>
+      <div id="tr_bus_stops" class="bus-stop-list"></div>
+      <div class="travel-smart-actions"><button type="button" id="tr_build_bus_visual" class="travel-ai-btn secondary">🗺 Build Bus Route Timeline</button></div>
+      <div id="tr_bus_route_visual" class="train-route-visual">${t.busRouteVisualHtml||''}</div>
+    </div>
+    <div class="travel-record-actions">
+      <button type="button" id="tr_save_bus_snapshot">💾 Save Bus Details</button>
+      <button type="button" id="tr_share_bus_snapshot" class="ghost">↗ Share Bus Details</button>
+      <button type="button" id="tr_copy_bus_snapshot" class="ghost">📋 Copy</button>
+      <button type="button" id="tr_print_bus_snapshot" class="ghost">🖨 Print</button>
+    </div>
+    <div id="tr_bus_save_status" class="travel-online-status"></div>
+  </div>
+
+
+  <div class="travel-section stay-booking-vault" id="travelStayVault">
+    <div class="travel-section-title"><span>3A</span><div><b>🛕 Stay / ISKCON / Ashram Booking Vault</b><small>Save accommodation once, keep booking, room, charges, facilities and authorized contact together.</small></div></div>
+    <div class="formgrid">
+      <label>Stay type<select id="sv_type"><option>ISKCON Guest House</option><option>Ashram</option><option>Dharamshala</option><option>Hotel</option><option>Lodge</option><option>Friend / Relative Home</option><option>Other Guest House</option></select></label>
+      <label>Temple / property name<input id="sv_name" placeholder="ISKCON Pune / Guest House"></label>
+      <label>City / address<input id="sv_city" placeholder="City / address"></label>
+      <label>Booking reference<input id="sv_booking" placeholder="Booking / reservation ID"></label>
+      <label>Check-in<input id="sv_checkin" type="datetime-local"></label>
+      <label>Check-out<input id="sv_checkout" type="datetime-local"></label>
+      <label>Room / bed no.<input id="sv_room" placeholder="Room / bed"></label>
+      <label>Total charges ₹<input id="sv_charges" type="number" min="0" placeholder="0"></label>
+      <label>Advance / token ₹<input id="sv_advance" type="number" min="0" placeholder="0"></label>
+      <label>Balance ₹<input id="sv_balance" type="number" min="0" placeholder="0"></label>
+      <label>Authorized person / desk<input id="sv_contact_name" placeholder="Name / reception"></label>
+      <label>Contact number<input id="sv_contact_phone" inputmode="tel" placeholder="Phone / WhatsApp"></label>
+      <label>Membership / LTM ID<input id="sv_membership" placeholder="ISKCON Life Membership ID"></label>
+      <label>Facilities<input id="sv_facilities" placeholder="Prasadam, parking, lift, hot water, Wi-Fi..."></label>
+    </div>
+    <label>Booking / stay notes<textarea id="sv_notes" placeholder="Rules, check-in instructions, darshan timing, gate, food timing, special requirements..."></textarea></label>
+    <div class="travel-record-actions">
+      <button type="button" id="sv_save">💾 Save Stay Booking</button>
+      <button type="button" id="sv_share" class="ghost">↗ Share</button>
+      <button type="button" id="sv_print" class="ghost">🖨 Print / PDF</button>
+    </div>
+    <div id="sv_saved_list" class="saved-template-list"></div>
   </div>
 
   <div class="travel-section travel-stay-section">
-    <div class="travel-section-title"><span>3</span><div><b>Stay at destination</b><small>Duration automatically calculated</small></div></div>
+    <div class="travel-section-title"><span>3</span><div><b>Stay + Sleep Plan</b><small>Destination residence and nightly sleep preference</small></div></div>
     <div class="formgrid">
       <label>Stay from<input id="tr_stay_start" type="date" value="${stayStart}"></label>
       <label>Stay until<input id="tr_stay_end" type="date" value="${stayEnd}"></label>
-      <label>Accommodation<input id="tr_stay" value="${esc(t.stay||'')}" placeholder="Hotel / relative / ashram / hostel"></label>
-      <label>Area / locality<input id="tr_locality" value="${esc(t.locality||'')}" placeholder="e.g. Shivajinagar, Pune"></label>
+      <label>Stay type<select id="tr_stay_type">${genericOptions(TRAVEL_STAY_TYPES,t.stayType||'ISKCON Guest House')}</select></label>
+      <label>Accommodation / Name<input id="tr_stay" value="${esc(t.stay||'')}" placeholder="Name of lodge / ISKCON / relative / guest house"></label>
+      <label>Area / locality<input id="tr_locality" value="${esc(t.locality||'')}" placeholder="e.g. Camp, Pune"></label>
+      <label>Primary sleeping place<select id="tr_sleep_type">${genericOptions(TRAVEL_SLEEP_TYPES,t.sleepType||'ISKCON Guest House')}</select></label>
     </div>
     <div id="tr_stay_summary" class="travel-stay-summary">Select stay dates to calculate duration.</div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_find_stay" class="ghost">🏨 Search Stay Near Destination</button>
+      <button type="button" id="tr_find_iskcon" class="ghost">🛕 Search ISKCON / Ashram Stay</button>
+    </div>
   </div>
 
   <div class="travel-section">
-    <div class="travel-section-title"><span>4</span><div><b>Local movement & exploration</b><small>Discover places and build daily plan</small></div></div>
+    <div class="travel-section-title"><span>4</span><div><b>Food & Fasting Plan</b><small>Default food preference for this trip; editable day-wise</small></div></div>
+    <div class="formgrid">
+      <label>Primary food preference<select id="tr_food_type">${genericOptions(TRAVEL_FOOD_TYPES,t.foodType||'Pure Veg — No Onion/Garlic')}</select></label>
+      <label>Backup food option<select id="tr_food_backup">${genericOptions(TRAVEL_FOOD_TYPES,t.foodBackup||'Fruits')}</select></label>
+      <label>Meal pattern<select id="tr_meal_pattern">${genericOptions(['2 meals','3 meals','Breakfast + Lunch + Snack + Dinner','Fasting / Parana based','Flexible as per travel','Other'],t.mealPattern||'Flexible as per travel')}</select></label>
+      <label>Special instruction<input id="tr_food_note" value="${esc(t.foodNote||'')}" placeholder="No onion/garlic, Jain, Ekadashi, packed food, etc."></label>
+    </div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_find_food" class="ghost">🥗 Search Preferred Food Nearby</button>
+      <button type="button" id="tr_find_govinda" class="ghost">🍛 Search ISKCON Govinda / Prasadam</button>
+    </div>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>5</span><div><b>Spiritual-first nearby discovery & exploration</b><small>Select categories → discover → review → add to trip</small></div></div>
     <div class="formgrid">
       <label>Primary local transport<select id="tr_local_mode">${travelModeOptions(t.localMode||'Taxi / Cab')}</select></label>
       <label>Explore radius
         <select id="tr_radius">
           <option value="3000">3 km</option><option value="5000">5 km</option><option value="10000">10 km</option>
-          <option value="25000">25 km</option><option value="50000">50 km</option>
+          <option value="25000">25 km</option><option value="50000">50 km</option><option value="100000">100 km</option>
         </select>
       </label>
       <label>Daily pace
@@ -303,22 +559,31 @@ function travelPlanTemplate(t={}){
         </select>
       </label>
       <label>Preferred visit window
-        <select id="tr_window"><option>09:00–18:00</option><option>07:00–14:00</option><option>10:00–20:00</option><option>Flexible</option></select>
+        <select id="tr_window"><option>06:00–12:00</option><option>07:00–14:00</option><option>09:00–18:00</option><option>10:00–20:00</option><option>Sunrise-focused</option><option>Sunset-focused</option><option>Flexible</option></select>
       </label>
     </div>
     <div class="travel-interest-grid">${interestChecks(t.interests||[])}</div>
     <div class="travel-smart-actions">
       <button type="button" id="tr_discover" class="travel-ai-btn">✨ Discover Nearby Places</button>
-      <button type="button" id="tr_generate" class="travel-ai-btn secondary">🗓 Generate Day-wise Itinerary</button>
+      <button type="button" id="tr_generate" class="travel-ai-btn secondary">🗓 Generate Day-wise Life Plan</button>
       <button type="button" id="tr_maps" class="ghost">📍 Open Destination Map</button>
     </div>
-    <div id="tr_online_status" class="travel-online-status">Nearby discovery uses public map data when internet is available. You can always edit the result manually.</div>
-    <label>Nearby / places to explore<textarea id="tr_nearby" placeholder="Discovered or manually added places, one per line">${esc(t.nearby||'')}</textarea></label>
-    <label>Generated day-wise itinerary<textarea id="tr_schedule" class="travel-itinerary-text" placeholder="Day 1..., Day 2...">${esc(t.schedule||'')}</textarea></label>
+    <div id="tr_online_status" class="travel-online-status">Public map discovery can suggest named places. Opening hours, fees and live availability must be verified before finalizing.</div>
+    <label>Nearby / shortlisted places<textarea id="tr_nearby" placeholder="Discovered or manually added places, one per line">${esc(t.nearby||'')}</textarea></label>
+    <div id="tr_discovery_cards" class="travel-discovery-cards"></div>
   </div>
 
   <div class="travel-section">
-    <div class="travel-section-title"><span>5</span><div><b>Return journey</b><small>Destination → origin</small></div></div>
+    <div class="travel-section-title"><span>6</span><div><b>Daily Flow Map</b><small>Date-wise waking, meals, travel, darshan/visit, rest and sleep</small></div></div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_generate_visual" class="travel-ai-btn secondary">🪄 Build Visual Daily Flow</button>
+    </div>
+    <div id="tr_day_flow" class="travel-day-flow">${t.dayFlowHtml||''}</div>
+    <label>Editable day-wise itinerary<textarea id="tr_schedule" class="travel-itinerary-text" placeholder="Day 1..., Day 2...">${esc(t.schedule||'')}</textarea></label>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>7</span><div><b>Return journey</b><small>Destination → home</small></div></div>
     <div class="formgrid">
       <label>Return mode<select id="tr_return_mode">${travelModeOptions(t.returnMode||t.mode||'Train')}</select></label>
       <label>Return departure date<input id="tr_return" type="date" value="${t.returnDate||''}"></label>
@@ -330,16 +595,83 @@ function travelPlanTemplate(t={}){
   </div>
 
   <div class="travel-section">
-    <div class="travel-section-title"><span>6</span><div><b>Tickets, budget & notes</b><small>Keep practical details together</small></div></div>
+    <div class="travel-section-title"><span>8</span><div><b>Tickets, budget, live-data notes & final summary</b><small>Save what is confirmed and what still needs verification</small></div></div>
     <div class="formgrid">
       <label>Ticket status<input id="tr_ticket" value="${esc(t.ticketStatus||'')}" placeholder="Booked / Waiting / RAC / Not needed"></label>
       <label>Estimated total cost ₹<input id="tr_cost" type="number" value="${t.cost||''}"></label>
+      <label>Travel fare / schedule note<input id="tr_live_note" value="${esc(t.liveNote||'')}" placeholder="e.g. Train 12851 ₹___; verify on booking provider"></label>
+      <label>Rules / booking / timing note<input id="tr_rules_note" value="${esc(t.rulesNote||'')}" placeholder="Temple closing, ticket rule, ID requirement, etc."></label>
     </div>
-    <label>Why / Strategy / Notes<textarea id="tr_notes" placeholder="Purpose, important contacts, food plan, medicines, luggage, seminar timing, special needs...">${esc(t.notes||'')}</textarea></label>
+    <label>Why / Strategy / Notes<textarea id="tr_notes" placeholder="Purpose, important contacts, medicines, luggage, seminar timing, special needs...">${esc(t.notes||'')}</textarea></label>
+  </div>
+
+  <div class="travel-live-data-note">
+    <b>Live-data safety:</b> current train/flight/bus availability, fares, exact opening hours, ticket rules and seasonal restrictions can change. The planner can organize and launch targeted searches; confirm final details with the actual operator/venue before booking.
+  </div>
+
+
+  <div class="travel-section travel-security-vault" id="travelDocVault">
+    <div class="travel-section-title"><span>8</span><div><b>🪪 Secure Travel Document Vault</b><small>Keep essential travel documents discoverable. Prefer masked Aadhaar. Files stay local-first; optional Firebase Storage backup is attempted when signed in.</small></div></div>
+    <div class="travel-security-warning"><b>Financial safety:</b> Do not store card PIN, CVV, OTP or full debit/credit-card numbers here. Save only bank/card nickname + last 4 digits + blocking helpline.</div>
+    <div class="formgrid">
+      <label>Document type<select id="td_type"><option>Masked Aadhaar</option><option>PAN Card</option><option>Driving Licence</option><option>Passport</option><option>ISKCON Life Membership Card</option><option>Visiting Card</option><option>Travel Insurance</option><option>Vehicle RC</option><option>Rail / Bus Ticket</option><option>Medical / Prescription</option><option>Other</option></select></label>
+      <label>Document label<input id="td_label" placeholder="e.g. Masked Aadhaar / LTM Pune"></label>
+      <label>ID / last 4 / reference<input id="td_number" placeholder="Avoid unnecessary full sensitive numbers"></label>
+      <label>Expiry / valid until<input id="td_expiry" type="date"></label>
+    </div>
+    <label>Notes<input id="td_note" placeholder="Issuer, emergency use, where accepted, etc."></label>
+    <div class="travel-doc-upload">
+      <input id="td_file" type="file" accept="image/*,application/pdf">
+      <button type="button" id="td_pick_contact" class="ghost">👤 Pick Contact (supported phones)</button>
+      <button type="button" id="td_save">💾 Save Document</button>
+    </div>
+    <div id="td_status" class="travel-online-status"></div>
+    <div id="td_list" class="travel-doc-list"></div>
+  </div>
+
+  <div class="travel-section emergency-pack" id="travelEmergencyPack">
+    <div class="travel-section-title"><span>9</span><div><b>🆘 Emergency & Recovery Pack</b><small>What you need if phone, wallet, documents or connectivity are lost.</small></div></div>
+    <div class="emergency-grid">
+      <div class="emergency-card">
+        <h4>☎ Essential Contacts</h4>
+        <div class="formgrid">
+          <label>Name<input id="ec_name" placeholder="Person / service"></label>
+          <label>Relation / role<input id="ec_role" placeholder="Family / doctor / bank / host"></label>
+          <label>Phone<input id="ec_phone" inputmode="tel"></label>
+          <label>Priority<select id="ec_priority"><option>Top 10</option><option>Top 50</option><option>Normal</option></select></label>
+        </div>
+        <button type="button" id="ec_save">＋ Save Contact</button>
+        <div id="ec_list" class="emergency-contact-list"></div>
+      </div>
+      <div class="emergency-card">
+        <h4>💳 Financial Recovery — masked only</h4>
+        <div class="formgrid">
+          <label>Bank / payment method<input id="tf_bank" placeholder="SBI / ICICI / UPI backup"></label>
+          <label>Card/account nickname<input id="tf_name" placeholder="Travel backup card"></label>
+          <label>Last 4 digits<input id="tf_last4" maxlength="4" inputmode="numeric" placeholder="1234"></label>
+          <label>Lost-card / help number<input id="tf_help" inputmode="tel" placeholder="Official helpline"></label>
+          <label>Fallback<select id="tf_fallback"><option>Secondary bank / card</option><option>UPI backup</option><option>Emergency cash</option><option>Trusted family transfer</option><option>Other</option></select></label>
+          <label>Cash reserve ₹<input id="tf_cash" type="number" min="0" placeholder="Optional"></label>
+        </div>
+        <label>Recovery note<input id="tf_note" placeholder="What to do first if wallet/phone is lost"></label>
+        <button type="button" id="tf_save">💾 Save Recovery Method</button>
+        <div id="tf_list" class="emergency-contact-list"></div>
+      </div>
+    </div>
+    <div class="emergency-actions">
+      <button type="button" id="ec_contact_picker" class="ghost">📱 Import selected phone contacts</button>
+      <button type="button" id="ec_print">📄 Print / Save Emergency Pack PDF</button>
+      <button type="button" id="ec_share" class="ghost">↗ Share Emergency Pack</button>
+      <button type="button" id="ec_digilocker" class="ghost">🔐 Open DigiLocker</button>
+      <button type="button" id="ec_myaadhaar" class="ghost">🪪 Open MyAadhaar</button>
+    </div>
   </div>
 
   <div class="actionrow travel-save-row">
     <button id="saveTravel">💾 Save Complete Travel Plan</button>
+    <button type="button" id="tr_share_full_plan" class="ghost">↗ Share Full Plan</button>
+    <button type="button" id="tr_print_full_plan" class="ghost">🖨 Print / Save PDF</button>
+    <button type="button" id="tr_copy_full_plan" class="ghost">📋 Copy Summary</button>
     <button class="ghost" id="cancelTravel">Cancel</button>
   </div>`;
 }
@@ -364,6 +696,69 @@ function editTravel(id=''){
   $('#tr_discover').onclick=discoverNearbyPlaces;
   $('#tr_generate').onclick=generateTravelItinerary;
   $('#tr_maps').onclick=openTravelMap;
+  $('#tr_route_search').onclick=openLiveRouteSearch;
+  $('#tr_pnr_check').onclick=openOfficialPNR;
+  $('#tr_train_schedule').onclick=openTrainScheduleSearch;
+  $('#tr_ecatering').onclick=openIRCTCEcatering;
+  $('#tr_iskcon_train_food').onclick=openISKCONTrainFoodSearch;
+  $('#tr_parse_ticket').onclick=parseTrainTicketText;
+  $('#tr_clear_ticket_text').onclick=()=>{$('#tr_ticket_text').value='';$('#tr_ticket_parse_status').textContent='Cleared.'};
+  $('#tr_build_route_visual').onclick=buildTrainRouteVisual;
+  $('#tr_parse_bus_ticket').onclick=parseBusTicketText;
+  $('#tr_bus_route_search').onclick=openBusRouteSearch;
+  $('#tr_add_bus_stop').onclick=()=>addBusStopRow();
+  $('#tr_build_bus_visual').onclick=buildBusRouteVisual;
+  $('#tr_discover_route').onclick=discoverRouteHub;
+  $('#tr_copy_route_to_plan').onclick=copyDiscoveryToPlanner;
+  $('#tr_save_as_template').onclick=saveCurrentJourneyTemplate;
+  $('#tr_load_saved_template').onclick=showSavedJourneyTemplates;
+  $('#tr_book_irctc').onclick=openIRCTCBooking;
+  $('#tr_open_railone').onclick=openRailOne;
+  $('#tr_book_paytm_train').onclick=()=>openBookingSearch('paytm-train');
+  $('#tr_book_redbus').onclick=()=>openBookingSearch('redbus');
+  $('#tr_book_paytm_bus').onclick=()=>openBookingSearch('paytm-bus');
+  $('#tr_open_google_route').onclick=openGoogleRouteFromHub;
+  $('#tr_save_train_snapshot').onclick=saveTrainSnapshot;
+  $('#tr_share_train_snapshot').onclick=()=>shareText(buildTrainSummary(),'Train Journey Details');
+  $('#tr_copy_train_snapshot').onclick=()=>copyText(buildTrainSummary(),'Train details copied.');
+  $('#tr_print_train_snapshot').onclick=()=>printTextCard('Train Journey Details',buildTrainSummary());
+  $('#tr_save_bus_snapshot').onclick=saveBusSnapshot;
+  $('#tr_share_bus_snapshot').onclick=()=>shareText(buildBusSummary(),'Bus Journey Details');
+  $('#tr_copy_bus_snapshot').onclick=()=>copyText(buildBusSummary(),'Bus details copied.');
+  $('#tr_print_bus_snapshot').onclick=()=>printTextCard('Bus Journey Details',buildBusSummary());
+  $('#tr_share_full_plan').onclick=()=>shareText(buildFullTravelSummary(),'Complete Travel Plan');
+  $('#tr_copy_full_plan').onclick=()=>copyText(buildFullTravelSummary(),'Travel summary copied.');
+  $('#tr_print_full_plan').onclick=()=>printTextCard('Complete Travel Plan',buildFullTravelSummary());
+  showSavedJourneyTemplates();
+  $('#tr_jump_plan').onclick=()=>$('#travelPlanHub')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_jump_stay').onclick=()=>$('#travelStayVault')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_jump_vault').onclick=()=>$('#travelDocVault')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_jump_emergency').onclick=()=>$('#travelEmergencyPack')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_generate_trip_pack').onclick=()=>printTextCard('SAO Travel Trip Pack',buildTripPackSummary());
+  $('#sv_save').onclick=saveStayBooking; $('#sv_share').onclick=()=>shareText(buildCurrentStaySummary(),'Stay Booking'); $('#sv_print').onclick=()=>printTextCard('Stay Booking',buildCurrentStaySummary());
+  $('#td_save').onclick=saveTravelDocument; $('#td_pick_contact').onclick=pickTravelContact;
+  $('#ec_save').onclick=saveEmergencyContact; $('#tf_save').onclick=saveTravelFinance;
+  $('#ec_contact_picker').onclick=pickEmergencyContacts; $('#ec_print').onclick=()=>printTextCard('Emergency Travel Pack',buildEmergencyPack());
+  $('#ec_share').onclick=()=>shareText(buildEmergencyPack(),'Emergency Travel Pack');
+  $('#ec_digilocker').onclick=()=>window.open('https://www.digilocker.gov.in/','_blank','noopener');
+  $('#ec_myaadhaar').onclick=()=>window.open('https://myaadhaar.uidai.gov.in/','_blank','noopener');
+  renderStayBookings(); renderTravelDocs(); renderEmergencyContacts(); renderTravelFinance(); updateTravelReadiness();
+  $('#tr_add_stop').onclick=()=>addTrainStopRow();
+  $('#tr_build_meal_plan').onclick=buildTrainMealPlan;
+  $('#tr_find_stay').onclick=()=>openTravelSearch('stay');
+  $('#tr_find_iskcon').onclick=()=>openTravelSearch('iskcon');
+  $('#tr_find_food').onclick=()=>openTravelSearch('food');
+  $('#tr_find_govinda').onclick=()=>openTravelSearch('govinda');
+  $('#tr_generate_visual').onclick=buildTravelDayFlow;
+  renderTrainStopRows(Array.isArray(t?.trainStops)?t.trainStops:[]);
+  if(t?.trainMealPlanHtml) $('#tr_train_meal_plan').innerHTML=t.trainMealPlanHtml;
+  renderBusStopRows(Array.isArray(t?.busStops)?t.busStops:[]);
+  if(t?.trainRouteVisualHtml) $('#tr_train_route_visual').innerHTML=t.trainRouteVisualHtml;
+  if(t?.busRouteVisualHtml) $('#tr_bus_route_visual').innerHTML=t.busRouteVisualHtml;
+  if($('#tr_discovery_from')) $('#tr_discovery_from').value=t?.origin||'Raipur';
+  if($('#tr_discovery_to')) $('#tr_discovery_to').value=t?.place||'';
+  if($('#tr_discovery_date')) $('#tr_discovery_date').value=t?.startDate||t?.journeyDate||'';
+
 
   $('#saveTravel').onclick=()=>{
     const title=$('#tr_title').value.trim(),place=$('#tr_place').value.trim(),origin=$('#tr_origin').value.trim();
@@ -373,12 +768,19 @@ function editTravel(id=''){
       id:id||uid(),title,purpose:$('#tr_purpose').value,origin,place,startDate:$('#tr_start').value,departTime:$('#tr_depart_time').value,
       arrivalDate:$('#tr_arrival_date').value,arrivalTime:$('#tr_arrival_time').value,outRef:$('#tr_out_ref').value,
       boarding:$('#tr_boarding').value,arrivalPoint:$('#tr_arrival_point').value,status:$('#tr_status').value,mode:$('#tr_mode').value,
-      stayStart:$('#tr_stay_start').value,stayEnd:$('#tr_stay_end').value,stay:$('#tr_stay').value,locality:$('#tr_locality').value,
+      trainNo:$('#tr_train_no').value.trim(),trainName:$('#tr_train_name').value.trim(),pnr:$('#tr_pnr').value.trim(),
+        trainTicketStatus:$('#tr_train_ticket_status').value,trainQuota:$('#tr_train_quota').value,ticketText:$('#tr_ticket_text').value,
+        journeyDate:$('#tr_journey_date').value,trainClass:$('#tr_train_class').value,coach:$('#tr_coach').value.trim(),seat:$('#tr_seat').value.trim(),berthType:$('#tr_berth_type').value,
+        trainBoard:$('#tr_train_board').value.trim(),trainBoardCode:$('#tr_train_board_code').value.trim(),trainDest:$('#tr_train_dest').value.trim(),trainDestCode:$('#tr_train_dest_code').value.trim(),
+        trainStops:collectTrainStops(),trainRouteVisualHtml:$('#tr_train_route_visual').innerHTML,breakfastTime:$('#tr_breakfast_time').value,lunchTime:$('#tr_lunch_time').value,snackTime:$('#tr_snack_time').value,dinnerTime:$('#tr_dinner_time').value,
+        trainFoodSource:$('#tr_train_food_source').value,trainMealPlanHtml:$('#tr_train_meal_plan').innerHTML,
+        busOperator:$('#tr_bus_operator').value.trim(),busNo:$('#tr_bus_no').value.trim(),busType:$('#tr_bus_type').value,busTicketStatus:$('#tr_bus_ticket_status').value,busSeat:$('#tr_bus_seat').value.trim(),busDate:$('#tr_bus_date').value,busBoard:$('#tr_bus_board').value.trim(),busDrop:$('#tr_bus_drop').value.trim(),busTicketText:$('#tr_bus_ticket_text').value,busStops:collectBusStops(),busRouteVisualHtml:$('#tr_bus_route_visual').innerHTML,
+        stayStart:$('#tr_stay_start').value,stayEnd:$('#tr_stay_end').value,stayType:$('#tr_stay_type').value,stay:$('#tr_stay').value,locality:$('#tr_locality').value,sleepType:$('#tr_sleep_type').value,foodType:$('#tr_food_type').value,foodBackup:$('#tr_food_backup').value,mealPattern:$('#tr_meal_pattern').value,foodNote:$('#tr_food_note').value,
       localMode:$('#tr_local_mode').value,radius:+$('#tr_radius').value||10000,pace:+$('#tr_pace').value||3,visitWindow:$('#tr_window').value,
       interests,ticketStatus:$('#tr_ticket').value,withWhom:$('#tr_with').value,cost:+$('#tr_cost').value||0,
       nearby:$('#tr_nearby').value,schedule:$('#tr_schedule').value,returnMode:$('#tr_return_mode').value,returnDate:$('#tr_return').value,
       returnTime:$('#tr_return_time').value,homeDate:$('#tr_home_date').value,homeTime:$('#tr_home_time').value,
-      returnRef:$('#tr_return_ref').value,notes:$('#tr_notes').value,updatedAt:new Date().toISOString(),createdAt:t?.createdAt||new Date().toISOString()
+      returnRef:$('#tr_return_ref').value,liveNote:$('#tr_live_note').value,rulesNote:$('#tr_rules_note').value,dayFlowHtml:$('#tr_day_flow').innerHTML,notes:$('#tr_notes').value,updatedAt:new Date().toISOString(),createdAt:t?.createdAt||new Date().toISOString()
     };
     if(id)db.travel=db.travel.map(y=>y.id===id?x:y);else db.travel.push(x);
     save();$('#travelEditor').innerHTML='';drawTravel();renderTravelKpis();alert('Complete travel plan saved.');
@@ -390,15 +792,39 @@ function selectedTravelInterests(){
 }
 function overpassFilters(interests){
   const f=[];
-  if(interests.some(x=>/Spiritual/.test(x)))f.push('["amenity"="place_of_worship"]');
-  if(interests.some(x=>/Heritage/.test(x)))f.push('["historic"]');
-  if(interests.some(x=>/Nature/.test(x)))f.push('["leisure"="park"]','["tourism"="viewpoint"]');
-  if(interests.some(x=>/Museum|Culture/.test(x)))f.push('["tourism"="museum"]','["tourism"="gallery"]');
-  if(interests.some(x=>/Shopping/.test(x)))f.push('["shop"]');
-  if(interests.some(x=>/Family/.test(x)))f.push('["tourism"="attraction"]');
-  if(interests.some(x=>/Scenic/.test(x)))f.push('["tourism"="viewpoint"]','["natural"]');
+  const has=r=>interests.some(x=>r.test(x));
+  if(has(/Krishna|Vishnu|Rama/))f.push('["amenity"="place_of_worship"]["religion"="hindu"]');
+  if(has(/Shiva|Jyotirlinga/))f.push('["amenity"="place_of_worship"]["religion"="hindu"]');
+  if(has(/Devi|Devata/))f.push('["amenity"="place_of_worship"]["religion"="hindu"]');
+  if(has(/Ashram|Sadhu|Sant|Statue/))f.push('["amenity"="place_of_worship"]','["tourism"="artwork"]','["historic"="memorial"]');
+  if(has(/River|Ganga|Yamuna|Narmada/))f.push('["waterway"="river"]','["natural"="water"]');
+  if(has(/Ocean|Beach/))f.push('["natural"="beach"]','["natural"="coastline"]');
+  if(has(/Hill|Viewpoint|Sunrise|Sunset/))f.push('["tourism"="viewpoint"]','["natural"="peak"]');
+  if(has(/Garden|Park/))f.push('["leisure"="park"]','["leisure"="garden"]');
+  if(has(/Historical/))f.push('["historic"]');
+  if(has(/Landmark|Statue/))f.push('["tourism"="attraction"]','["tourism"="artwork"]');
+  if(has(/Museum|Culture/))f.push('["tourism"="museum"]','["tourism"="gallery"]');
+  if(has(/Shopping|Market/))f.push('["shop"]','["amenity"="marketplace"]');
+  if(has(/Adventure/))f.push('["sport"]','["leisure"]');
+  if(has(/Pond|Lake/))f.push('["natural"="water"]','["water"="lake"]','["water"="pond"]');
   if(!f.length)f.push('["tourism"="attraction"]','["historic"]','["leisure"="park"]','["amenity"="place_of_worship"]');
-  return [...new Set(f)].slice(0,8);
+  return [...new Set(f)].slice(0,10);
+}
+function haversineKm(a,b,c,d){
+  const R=6371,rad=x=>x*Math.PI/180,dl=rad(c-a),dn=rad(d-b);
+  const h=Math.sin(dl/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(dn/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function guessPlaceCategory(tags={}){
+  if(tags.amenity==='place_of_worship') return tags.religion==='hindu'?'Temple / Ashram':'Place of Worship';
+  if(tags.historic) return 'Historical';
+  if(tags.tourism==='museum') return 'Museum';
+  if(tags.tourism==='viewpoint') return 'Viewpoint';
+  if(tags.natural==='beach') return 'Beach';
+  if(tags.leisure==='park'||tags.leisure==='garden') return 'Garden / Park';
+  if(tags.shop||tags.amenity==='marketplace') return 'Shopping';
+  if(tags.natural==='water'||tags.water||tags.waterway) return 'Water / River / Lake';
+  return tags.tourism||tags.natural||tags.leisure||'Attraction';
 }
 async function discoverNearbyPlaces(){
   const city=$('#tr_place').value.trim(),locality=$('#tr_locality').value.trim();
@@ -412,19 +838,33 @@ async function discoverNearbyPlaces(){
     const lat=+g[0].lat,lon=+g[0].lon,radius=+$('#tr_radius').value||10000;
     const filters=overpassFilters(selectedTravelInterests());
     const parts=filters.map(f=>`nwr(around:${radius},${lat},${lon})${f}["name"];`).join('');
-    const query=`[out:json][timeout:20];(${parts});out center tags 40;`;
+    const query=`[out:json][timeout:20];(${parts});out center tags 60;`;
     const ov=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:'data='+encodeURIComponent(query)});
     if(!ov.ok)throw new Error('Nearby place service unavailable');
     const data=await ov.json();
-    const seen=new Set(),names=[];
+    const seen=new Set(),items=[];
     for(const e of data.elements||[]){
-      const n=(e.tags?.name||'').trim();
-      if(n && !seen.has(n.toLowerCase())){seen.add(n.toLowerCase());names.push(n)}
-      if(names.length>=18)break;
+      const n=(e.tags?.name||'').trim(); if(!n||seen.has(n.toLowerCase()))continue;
+      seen.add(n.toLowerCase());
+      const plat=+(e.lat??e.center?.lat),plon=+(e.lon??e.center?.lon);
+      const dist=(Number.isFinite(plat)&&Number.isFinite(plon))?haversineKm(lat,lon,plat,plon):null;
+      items.push({name:n,category:guessPlaceCategory(e.tags||{}),distance:dist,opening:e.tags?.opening_hours||'',fee:e.tags?.fee||'',website:e.tags?.website||e.tags?.['contact:website']||'',religion:e.tags?.religion||'',denomination:e.tags?.denomination||''});
+      if(items.length>=24)break;
     }
-    if(!names.length)throw new Error('No named places returned');
-    $('#tr_nearby').value=names.join('\n');
-    status.innerHTML=`✅ Found <b>${names.length}</b> nearby place(s) around ${esc(city)}. Review/edit them, then generate itinerary.`;
+    if(!items.length)throw new Error('No named places returned');
+    items.sort((a,b)=>(a.distance??999)-(b.distance??999));
+    $('#tr_nearby').value=items.map(x=>x.name).join('\n');
+    const cards=$('#tr_discovery_cards');
+    cards.innerHTML=items.map((x,i)=>`<div class="travel-place-card">
+      <div><b>${i+1}. ${esc(x.name)}</b><span>${esc(x.category)}${x.distance!=null?` • ~${x.distance.toFixed(1)} km`:''}</span></div>
+      <div class="travel-place-meta">
+        <span>🕒 ${esc(x.opening||'Hours: verify live')}</span>
+        <span>🎫 ${esc(x.fee?`Fee: ${x.fee}`:'Ticket/Fee: verify')}</span>
+        ${x.religion?`<span>🙏 ${esc(x.religion)}${x.denomination?` • ${esc(x.denomination)}`:''}</span>`:''}
+      </div>
+      <button class="ghost" type="button" onclick="app.openNamedPlace('${encodeURIComponent(x.name+' '+city)}')">Map / Details</button>
+    </div>`).join('');
+    status.innerHTML=`✅ Found <b>${items.length}</b> nearby place(s) around ${esc(city)}. Distances are approximate straight-line distance; verify route time, opening hours, tickets and rules before finalizing.`;
   }catch(e){
     status.innerHTML=`⚠ Automatic discovery could not complete (${esc(e.message||'network issue')}). Existing data is safe. Add places manually or use “Open Destination Map”.`;
   }
@@ -435,27 +875,545 @@ function generateTravelItinerary(){
   const r=tripDays(start,end); if(!r.days){alert('Please check the stay dates.');return}
   const raw=$('#tr_nearby').value.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
   const pace=+$('#tr_pace').value||3,windowTxt=$('#tr_window').value,local=$('#tr_local_mode').value;
+  const stay=$('#tr_stay_type').value,food=$('#tr_food_type').value,backup=$('#tr_food_backup').value,sleep=$('#tr_sleep_type').value,meal=$('#tr_meal_pattern').value;
   const days=[];
   for(let i=0;i<r.days;i++){
     const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);
     const spots=raw.slice(i*pace,(i+1)*pace);
-    const date=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    const date=d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
     let text=`Day ${i+1} • ${date} • ${city||'Destination'}\n`;
-    if(i===0)text+=`Morning: settle-in / local orientation as needed.\n`;
-    if(spots.length){
-      spots.forEach((p,j)=>text+=`${j+1}. ${p} — visit sequence to be adjusted by distance, opening hours and local conditions.\n`);
-    }else{
-      text+=`Flexible / rest / seminar / family / personal work block.\n`;
-    }
-    text+=`Preferred window: ${windowTxt} • Local movement: ${local}\n`;
-    if(i===r.days-1)text+=`Keep buffer for packing, checkout and return departure.\n`;
+    text+=`Stay: ${stay} • Sleep: ${sleep}\nFood: ${food} • Backup: ${backup} • Pattern: ${meal}\n`;
+    text+=`Preferred outing window: ${windowTxt} • Local movement: ${local}\n`;
+    if(i===0)text+=`Arrival / settle-in / bath-rest / local orientation as needed.\n`;
+    if(spots.length)spots.forEach((p,j)=>text+=`${j+1}. ${p} — verify route, opening hours, ticket/rules, darshan timing and local conditions.\n`);
+    else text+=`Flexible block: seminar / family / rest / sadhana / personal work.\n`;
+    if(i===r.days-1)text+=`Return buffer: packing, checkout, food/water preparation and departure.\n`;
     days.push(text);
   }
   const remaining=raw.slice(r.days*pace);
   if(remaining.length)days.push(`Optional / overflow places:\n- ${remaining.join('\n- ')}`);
   $('#tr_schedule').value=days.join('\n');
-  $('#tr_online_status').innerHTML=`✅ Day-wise plan generated for <b>${r.days} day(s)</b>. Please verify travel time, opening hours, weather and booking requirements before finalizing.`;
+  buildTravelDayFlow(false);
+  $('#tr_online_status').innerHTML=`✅ Day-wise life plan generated for <b>${r.days} day(s)</b>. It includes stay, food, sleep and visit blocks. Verify all live details before booking.`;
 }
+function buildTravelDayFlow(showAlert=true){
+  const start=$('#tr_stay_start').value,end=$('#tr_stay_end').value,city=$('#tr_place').value.trim();
+  if(!start||!end){if(showAlert)alert('Enter stay dates first.');return}
+  const r=tripDays(start,end); if(!r.days)return;
+  const raw=$('#tr_nearby').value.split(/\n|,/).map(x=>x.trim()).filter(Boolean),pace=+$('#tr_pace').value||3;
+  const stay=$('#tr_stay_type').value,food=$('#tr_food_type').value,sleep=$('#tr_sleep_type').value,local=$('#tr_local_mode').value;
+  const rows=[];
+  for(let i=0;i<r.days;i++){
+    const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);
+    const date=d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'});
+    const spots=raw.slice(i*pace,(i+1)*pace);
+    rows.push(`<div class="travel-day-card"><div class="travel-day-head"><b>Day ${i+1}</b><span>${date}</span></div>
+      <div class="travel-flowline">
+        <span>🌅 Wake / Morning</span><i>→</i><span>🙏 Sadhana / Ready</span><i>→</i><span>🥗 ${esc(food)}</span><i>→</i>
+        <span>🚕 ${esc(local)}</span><i>→</i><span>📍 ${esc(spots.join(' • ')||'Flexible / Rest')}</span><i>→</i>
+        <span>🏨 ${esc(stay)}</span><i>→</i><span>😴 ${esc(sleep)}</span>
+      </div></div>`);
+  }
+  $('#tr_day_flow').innerHTML=rows.join('');
+}
+function renderTrainStopRows(rows=[]){
+  const box=$('#tr_train_stops'); if(!box)return;
+  box.innerHTML='';
+  rows.forEach(r=>addTrainStopRow(r));
+}
+function addTrainStopRow(r={}){
+  const box=$('#tr_train_stops'); if(!box)return;
+  const row=document.createElement('div'); row.className='train-stop-row';
+  row.innerHTML=`
+    <input class="ts-date" type="date" value="${r.date||''}">
+    <input class="ts-station" value="${esc(r.station||'')}" placeholder="Station / City">
+    <input class="ts-code" value="${esc(r.code||'')}" placeholder="Code">
+    <input class="ts-arrival" type="time" value="${r.arrival||''}">
+    <input class="ts-departure" type="time" value="${r.departure||''}">
+    <input class="ts-halt" type="number" min="0" value="${r.halt||''}" placeholder="min">
+    <input class="ts-food" value="${esc(r.food||'')}" placeholder="🍽 Food / eCatering / major city">
+    <button type="button" class="train-remove-stop" title="Remove">×</button>`;
+  row.querySelector('.train-remove-stop').onclick=()=>row.remove();
+  box.appendChild(row);
+}function collectTrainStops(){
+  return [...document.querySelectorAll('#tr_train_stops .train-stop-row')].map(r=>({
+    date:r.querySelector('.ts-date').value,
+    station:r.querySelector('.ts-station').value.trim(),
+    code:r.querySelector('.ts-code').value.trim(),
+    arrival:r.querySelector('.ts-arrival').value,
+    departure:r.querySelector('.ts-departure').value,
+    halt:r.querySelector('.ts-halt').value,
+    food:r.querySelector('.ts-food').value.trim()
+  })).filter(x=>x.date||x.station||x.arrival||x.departure);
+}
+function dtOf(date,time){
+  if(!date||!time)return null;
+  const d=new Date(`${date}T${time}:00`);
+  return Number.isNaN(d.getTime())?null:d;
+}
+function stationPointTime(s){
+  return dtOf(s.date,s.arrival)||dtOf(s.date,s.departure);
+}
+function nearestTrainContext(target,stops){
+  const withTime=stops.map(s=>({s,t:stationPointTime(s)})).filter(x=>x.t).sort((a,b)=>a.t-b.t);
+  if(!withTime.length)return {kind:'unknown'};
+  let best=null;
+  for(const x of withTime){
+    const diff=Math.abs(x.t-target);
+    if(!best||diff<best.diff)best={...x,diff};
+  }
+  if(best && best.diff<=60*60*1000)return {kind:'station',stop:best.s,diffMin:Math.round(best.diff/60000)};
+  let prev=null,next=null;
+  for(const x of withTime){if(x.t<=target)prev=x;if(x.t>target){next=x;break}}
+  if(prev&&next)return {kind:'between',prev:prev.s,next:next.s};
+  if(prev)return {kind:'after',prev:prev.s};
+  if(next)return {kind:'before',next:next.s};
+  return {kind:'unknown'};
+}
+function normalizeDateToISO(s){
+  if(!s)return '';
+  let m=s.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\b/);
+  if(m)return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+  return '';
+}
+function parseTrainTicketText(){
+  const txt=$('#tr_ticket_text').value.trim(); if(!txt){alert('Paste train ticket / SMS text first.');return}
+  const one=txt.replace(/\s+/g,' ');
+  const pnr=(one.match(/\bPNR(?:\s*(?:No|Number|:|-))?\s*[:#-]?\s*(\d{10})\b/i)||one.match(/\b(\d{10})\b/))?.[1]||'';
+  const train=(one.match(/\b(?:Train|Train No|Train Number)\s*[:#-]?\s*(\d{4,6})\b/i)||[])?.[1]||'';
+  const coach=(one.match(/\b(?:Coach|Coach No)\s*[:#-]?\s*([A-Z]{1,3}\d{0,2})\b/i)||[])?.[1]||'';
+  const berth=(one.match(/\b(?:Berth|Seat|Seat No|Berth No)\s*[:#-]?\s*([A-Z]?\d{1,3})\b/i)||[])?.[1]||'';
+  const cls=(one.match(/\b(1A|2A|3A|3E|SL|CC|EC|2S)\b/)||[])?.[1]||'';
+  const status=(one.match(/\b(CNF|CONFIRMED|RAC|RLWL|GNWL|PQWL|TQWL|CKWL|WL)\b/i)||[])?.[1]||'';
+  const date=normalizeDateToISO(one);
+  if(pnr)$('#tr_pnr').value=pnr;if(train)$('#tr_train_no').value=train;if(coach)$('#tr_coach').value=coach;if(berth)$('#tr_seat').value=berth;if(cls)$('#tr_train_class').value=cls;if(date)$('#tr_journey_date').value=date;
+  if(status){
+    const map={CNF:'Confirmed (CNF)',CONFIRMED:'Confirmed (CNF)',RAC:'RAC',RLWL:'RLWL',GNWL:'GNWL',PQWL:'PQWL',TQWL:'TQWL',CKWL:'CKWL',WL:'WL — Other'};
+    $('#tr_train_ticket_status').value=map[status.toUpperCase()]||'Other';
+  }
+  $('#tr_ticket_parse_status').innerHTML=`✅ Parsed locally: ${[pnr&&'PNR',train&&'train no.',coach&&'coach',berth&&'seat/berth',cls&&'class',status&&'status',date&&'date'].filter(Boolean).join(', ')||'no standard field confidently recognized'}. Please verify before saving.`;
+}
+function classifyStop(s,maxHalt){
+  const h=+s.halt||0, food=(s.food||'').toLowerCase();
+  const major=h>=15 || /major|junction|jn|city|break|meal/.test(food);
+  const foodFlag=/food|meal|thali|breakfast|lunch|dinner|ecater|iskcon|govinda|jain|veg|pantry|snack/.test(food);
+  const max=h===maxHalt && h>0;
+  return {major,foodFlag,max};
+}
+function buildTrainRouteVisual(){
+  const stops=collectTrainStops(); if(!stops.length){alert('Add verified train stoppages first.');return}
+  const maxHalt=Math.max(...stops.map(s=>+s.halt||0));
+  $('#tr_train_route_visual').innerHTML=stops.map((s,i)=>{
+    const c=classifyStop(s,maxHalt);
+    return `<div class="route-stop-card ${c.max?'max-halt':''} ${c.major?'major-stop':''}">
+      <div class="route-seq">${i+1}</div><div class="route-main"><b>${esc(s.station||'Station')}</b><span>${esc(s.code||'')} ${s.date?`• ${esc(s.date)}`:''}</span>
+      <small>${s.arrival?`Arr ${s.arrival}`:''}${s.departure?` • Dep ${s.departure}`:''}${s.halt?` • Halt ${s.halt} min`:''}</small></div>
+      <div class="route-icons">${c.max?'<span title="Longest entered halt">⏱️ MAX HALT</span>':''}${c.major?'<span title="Major / useful stop">🏙️</span>':''}${c.foodFlag?'<span title="Food opportunity">🍱</span>':''}</div>
+      ${s.food?`<div class="route-food-note">🥗 ${esc(s.food)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function parseBusTicketText(){
+  const txt=$('#tr_bus_ticket_text').value.trim();if(!txt){alert('Paste bus ticket / SMS text first.');return}
+  const one=txt.replace(/\s+/g,' ');
+  const seat=(one.match(/\b(?:Seat|Berth)\s*[:#-]?\s*([A-Z]?\d{1,3})\b/i)||[])?.[1]||'';
+  const svc=(one.match(/\b(?:Bus|Service|Bus No|Service No)\s*[:#-]?\s*([A-Z0-9\-]{3,15})\b/i)||[])?.[1]||'';
+  const date=normalizeDateToISO(one);
+  if(seat)$('#tr_bus_seat').value=seat;if(svc)$('#tr_bus_no').value=svc;if(date)$('#tr_bus_date').value=date;
+}
+function renderBusStopRows(rows=[]){const box=$('#tr_bus_stops');if(!box)return;box.innerHTML='';rows.forEach(r=>addBusStopRow(r))}
+function addBusStopRow(r={}){
+  const box=$('#tr_bus_stops');if(!box)return;const row=document.createElement('div');row.className='bus-stop-row';
+  row.innerHTML=`<input class="bs-date" type="date" value="${r.date||''}"><input class="bs-city" value="${esc(r.city||'')}" placeholder="Major city / halt"><input class="bs-arrival" type="time" value="${r.arrival||''}"><input class="bs-departure" type="time" value="${r.departure||''}"><input class="bs-halt" type="number" min="0" value="${r.halt||''}" placeholder="min"><input class="bs-food" value="${esc(r.food||'')}" placeholder="🍽 Food / washroom / break"><button type="button" class="train-remove-stop">×</button>`;
+  row.querySelector('.train-remove-stop').onclick=()=>row.remove();box.appendChild(row);
+}
+function collectBusStops(){return [...document.querySelectorAll('#tr_bus_stops .bus-stop-row')].map(r=>({date:r.querySelector('.bs-date').value,city:r.querySelector('.bs-city').value.trim(),arrival:r.querySelector('.bs-arrival').value,departure:r.querySelector('.bs-departure').value,halt:r.querySelector('.bs-halt').value,food:r.querySelector('.bs-food').value.trim()})).filter(x=>x.date||x.city||x.arrival||x.departure)}
+function buildBusRouteVisual(){
+  const stops=collectBusStops();if(!stops.length){alert('Add bus stops / halts first.');return}
+  const maxHalt=Math.max(...stops.map(s=>+s.halt||0));
+  $('#tr_bus_route_visual').innerHTML=stops.map((s,i)=>{const h=+s.halt||0,food=!!s.food,max=h===maxHalt&&h>0,major=h>=20;
+    return `<div class="route-stop-card ${max?'max-halt':''} ${major?'major-stop':''}"><div class="route-seq">${i+1}</div><div class="route-main"><b>${esc(s.city||'Bus stop')}</b><span>${s.date||''}</span><small>${s.arrival?`Arr ${s.arrival}`:''}${s.departure?` • Dep ${s.departure}`:''}${s.halt?` • Halt ${s.halt} min`:''}</small></div><div class="route-icons">${max?'<span>⏱️ MAX HALT</span>':''}${major?'<span>🏙️</span>':''}${food?'<span>🍱</span>':''}</div>${food?`<div class="route-food-note">🥗 ${esc(s.food)}</div>`:''}</div>`;
+  }).join('');
+}
+
+
+function stayObjFromForm(){
+  return {id:uid(),type:$('#sv_type').value,name:$('#sv_name').value.trim(),city:$('#sv_city').value.trim(),booking:$('#sv_booking').value.trim(),checkin:$('#sv_checkin').value,checkout:$('#sv_checkout').value,room:$('#sv_room').value.trim(),charges:$('#sv_charges').value,advance:$('#sv_advance').value,balance:$('#sv_balance').value,contactName:$('#sv_contact_name').value.trim(),contactPhone:$('#sv_contact_phone').value.trim(),membership:$('#sv_membership').value.trim(),facilities:$('#sv_facilities').value.trim(),notes:$('#sv_notes').value.trim(),savedAt:new Date().toISOString()}
+}
+function buildCurrentStaySummary(){
+  const x=stayObjFromForm();
+  return `STAY BOOKING
+Type: ${x.type}
+Property: ${x.name||'-'}
+City / Address: ${x.city||'-'}
+Booking Ref: ${x.booking||'-'}
+Check-in: ${x.checkin||'-'}
+Check-out: ${x.checkout||'-'}
+Room / Bed: ${x.room||'-'}
+Charges: ₹${x.charges||0} | Advance: ₹${x.advance||0} | Balance: ₹${x.balance||0}
+Authorized person: ${x.contactName||'-'} ${x.contactPhone||''}
+Membership/LTM: ${x.membership||'-'}
+Facilities: ${x.facilities||'-'}
+Notes: ${x.notes||'-'}`;
+}
+function saveStayBooking(){
+  const x=stayObjFromForm(); if(!x.name&&!x.city){alert('Enter stay/property or city first.');return}
+  db.travelStays.push(x); save(); renderStayBookings(); updateTravelReadiness();
+}
+function renderStayBookings(){
+  const box=$('#sv_saved_list'); if(!box)return;
+  box.innerHTML=(db.travelStays||[]).slice().reverse().slice(0,15).map(x=>`<div class="saved-template-card"><div><b>${esc(x.name||x.type)}</b><span>${esc(x.city||'')} • ${esc(x.checkin||'')} → ${esc(x.checkout||'')} • Room ${esc(x.room||'-')}</span></div><div class="saved-template-actions"><button type="button" class="ghost" onclick="app.shareStay('${x.id}')">Share</button><button type="button" class="ghost danger-lite" onclick="app.deleteStay('${x.id}')">Delete</button></div></div>`).join('')||'<div class="empty-template">No stay booking saved yet.</div>'
+}
+function shareStay(id){const x=(db.travelStays||[]).find(a=>a.id===id);if(x)shareText(`STAY BOOKING\n${x.name}\n${x.city}\nBooking: ${x.booking||'-'}\nCheck-in: ${x.checkin||'-'}\nCheck-out: ${x.checkout||'-'}\nRoom: ${x.room||'-'}\nContact: ${x.contactName||'-'} ${x.contactPhone||''}\nFacilities: ${x.facilities||'-'}`,'Stay Booking')}
+function deleteStay(id){if(confirm('Delete saved stay?')){db.travelStays=(db.travelStays||[]).filter(x=>x.id!==id);save();renderStayBookings();updateTravelReadiness()}}
+
+async function saveTravelDocument(){
+  const f=$('#td_file').files?.[0]; const type=$('#td_type').value,label=$('#td_label').value.trim()||type,number=$('#td_number').value.trim(),expiry=$('#td_expiry').value,note=$('#td_note').value.trim();
+  if(!f){alert('Choose an image or PDF first.');return}
+  const fileId='traveldoc_'+uid();
+  await putFile({id:fileId,category:'Travel / Seminar',taskId:'',note:`TRAVEL VAULT • ${type} • ${note}`,name:f.name,type:f.type,size:f.size,date:today(),blob:f});
+  const meta={id:uid(),fileId,type,label,number,expiry,note,name:f.name,size:f.size,savedAt:new Date().toISOString(),cloudStatus:'Local only'};
+  db.travelDocs.push(meta);save();$('#td_file').value='';$('#td_status').textContent='✅ Saved locally. Attempting optional encrypted-account cloud file backup if Firebase Storage is available…';
+  try{
+    if(window.SAOCloudFiles?.uploadTravelDocument){
+      const res=await window.SAOCloudFiles.uploadTravelDocument(fileId,f,{type,label,name:f.name});
+      if(res?.path){meta.cloudPath=res.path;meta.cloudStatus='Cloud backed up';save();$('#td_status').textContent='✅ Saved locally + cloud file backup complete.'}
+    }
+  }catch(e){console.warn(e);$('#td_status').textContent='✅ Saved locally. Cloud file backup unavailable; structured metadata still syncs.'}
+  renderTravelDocs();updateTravelReadiness();
+}
+async function renderTravelDocs(){
+  const box=$('#td_list');if(!box)return;
+  box.innerHTML=(db.travelDocs||[]).slice().reverse().map(x=>`<div class="travel-doc-card"><div class="travel-doc-icon">${docIcon(x.type)}</div><div><b>${esc(x.label)}</b><span>${esc(x.type)}${x.number?` • ${esc(x.number)}`:''}${x.expiry?` • valid to ${esc(x.expiry)}`:''}</span><small>${esc(x.cloudStatus||'Local only')} • ${esc(x.name||'')}</small></div><div class="saved-template-actions"><button type="button" class="ghost" onclick="app.openTravelDoc('${x.id}')">Open</button><button type="button" class="ghost" onclick="app.shareTravelDoc('${x.id}')">Share</button><button type="button" class="ghost" onclick="app.downloadTravelDoc('${x.id}')">Download</button><button type="button" class="ghost danger-lite" onclick="app.deleteTravelDoc('${x.id}')">Delete</button></div></div>`).join('')||'<div class="empty-template">No travel document saved yet.</div>'
+}
+function docIcon(t){if(/Aadhaar|PAN|Licence|Passport|RC/.test(t))return '🪪';if(/ISKCON/.test(t))return '🛕';if(/Insurance/.test(t))return '🛡️';if(/Ticket/.test(t))return '🎟️';if(/Medical/.test(t))return '🩺';return '📄'}
+async function openTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;let f=await getFile(x.fileId);if(!f&&x.cloudPath&&window.SAOCloudFiles?.downloadTravelDocument){try{const blob=await window.SAOCloudFiles.downloadTravelDocument(x.cloudPath);if(blob){await putFile({id:x.fileId,category:'Travel / Seminar',taskId:'',note:'Restored from cloud',name:x.name||'travel-document',type:blob.type,size:blob.size,date:today(),blob});f=await getFile(x.fileId)}}catch(e){}}if(f)window.open(URL.createObjectURL(f.blob),'_blank');else alert('File is not on this device and cloud restore was unavailable.')}
+async function downloadTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;await openTravelDoc(id);const f=await getFile(x.fileId);if(f){const a=document.createElement('a');a.href=URL.createObjectURL(f.blob);a.download=f.name;a.click()}}
+async function shareTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;let f=await getFile(x.fileId);if(f&&navigator.share&&navigator.canShare?.({files:[new File([f.blob],f.name,{type:f.type})]})){try{await navigator.share({title:x.label,text:`${x.type}${x.number?` • ${x.number}`:''}`,files:[new File([f.blob],f.name,{type:f.type})]});return}catch(e){if(e?.name==='AbortError')return}}shareText(`${x.label}\n${x.type}\nReference: ${x.number||'-'}\nExpiry: ${x.expiry||'-'}`,'Travel Document')}
+async function deleteTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;if(confirm('Delete this travel document from this device record?')){try{await delFile(x.fileId)}catch(e){}db.travelDocs=db.travelDocs.filter(a=>a.id!==id);save();renderTravelDocs();updateTravelReadiness()}}
+async function pickTravelContact(){
+  if(!navigator.contacts?.select){
+    alert('Direct phone contact access is not supported in this browser. Use CSV/VCF import in Referral Network → Doctors / PRO / Staff, or add the contact manually.');
+    return
+  }
+  try{const a=await navigator.contacts.select(['name','tel'],{multiple:false});if(a?.[0]){$('#td_note').value=[a[0].name?.[0],a[0].tel?.[0]].filter(Boolean).join(' • ')}}catch(e){}
+}
+
+function saveEmergencyContact(){
+  const x={id:uid(),name:$('#ec_name').value.trim(),role:$('#ec_role').value.trim(),phone:$('#ec_phone').value.trim(),priority:$('#ec_priority').value,savedAt:new Date().toISOString()};if(!x.name||!x.phone){alert('Enter contact name and phone.');return}db.emergencyContacts.push(x);save();renderEmergencyContacts();updateTravelReadiness()
+}
+function renderEmergencyContacts(){
+  const box=$('#ec_list');if(!box)return;
+  const rank={'Top 10':1,'Top 50':2,'Normal':3};
+  box.innerHTML=(db.emergencyContacts||[]).slice().sort((a,b)=>(rank[a.priority]||9)-(rank[b.priority]||9)).map(x=>`<div class="emergency-line"><div><b>${esc(x.name)}</b><span>${esc(x.role||'')} • ${esc(x.priority)}</span></div><a href="tel:${esc(x.phone)}">${esc(x.phone)}</a><button type="button" class="ghost danger-lite" onclick="app.deleteEmergencyContact('${x.id}')">×</button></div>`).join('')||'<div class="empty-template">No emergency contact saved yet.</div>'
+}
+function deleteEmergencyContact(id){db.emergencyContacts=(db.emergencyContacts||[]).filter(x=>x.id!==id);save();renderEmergencyContacts();updateTravelReadiness()}
+async function pickEmergencyContacts(){
+  if(!navigator.contacts?.select){
+    alert('This desktop/browser cannot directly read phone contacts. Use manual entry or import selected contacts from CSV/VCF in the Referral Network.');
+    return
+  }
+  try{const a=await navigator.contacts.select(['name','tel'],{multiple:true});for(const c of a||[]){const name=c.name?.[0]||'Contact',phone=c.tel?.[0]||'';if(phone)db.emergencyContacts.push({id:uid(),name,role:'Imported selected contact',phone,priority:'Top 50',savedAt:new Date().toISOString()})}save();renderEmergencyContacts();updateTravelReadiness()}catch(e){}
+}
+function saveTravelFinance(){
+  const last4=$('#tf_last4').value.trim();if(last4&&!/^\d{4}$/.test(last4)){alert('Use only the last 4 digits. Do not store a full card number.');return}
+  const x={id:uid(),bank:$('#tf_bank').value.trim(),name:$('#tf_name').value.trim(),last4,help:$('#tf_help').value.trim(),fallback:$('#tf_fallback').value,cash:$('#tf_cash').value,note:$('#tf_note').value.trim(),savedAt:new Date().toISOString()};if(!x.bank&&!x.name){alert('Enter bank or payment method.');return}db.travelFinance.push(x);save();renderTravelFinance();updateTravelReadiness()
+}
+function renderTravelFinance(){
+  const box=$('#tf_list');if(!box)return;
+  box.innerHTML=(db.travelFinance||[]).map(x=>`<div class="emergency-line"><div><b>${esc(x.bank||x.name)}</b><span>${esc(x.name||'')}${x.last4?` • •••• ${esc(x.last4)}`:''} • ${esc(x.fallback||'')}</span></div><span>${x.help?`☎ ${esc(x.help)}`:''}</span><button type="button" class="ghost danger-lite" onclick="app.deleteTravelFinance('${x.id}')">×</button></div>`).join('')||'<div class="empty-template">No recovery payment method saved yet.</div>'
+}
+function deleteTravelFinance(id){db.travelFinance=(db.travelFinance||[]).filter(x=>x.id!==id);save();renderTravelFinance();updateTravelReadiness()}
+function buildEmergencyPack(){
+  const contacts=(db.emergencyContacts||[]).map(x=>`${x.priority} • ${x.name} (${x.role||'-'}): ${x.phone}`).join('\n')||'No emergency contacts saved.';
+  const finance=(db.travelFinance||[]).map(x=>`${x.bank||x.name} ${x.name||''}${x.last4?` ••••${x.last4}`:''} | Help: ${x.help||'-'} | Fallback: ${x.fallback||'-'} | Cash reserve: ₹${x.cash||0}`).join('\n')||'No recovery method saved.';
+  return `SAO TRAVEL — EMERGENCY & RECOVERY PACK
+
+ESSENTIAL CONTACTS
+${contacts}
+
+FINANCIAL RECOVERY (MASKED)
+${finance}
+
+DOCUMENT RECOVERY
+Use DigiLocker / MyAadhaar where applicable. Keep only masked/reference data in shared copies.
+
+FIRST ACTIONS IF PHONE/WALLET IS LOST
+1. Move to a safe place and contact a trusted person.
+2. Block SIM/payment instruments using official channels.
+3. Use secondary payment/cash/family transfer.
+4. Access DigiLocker or cloud-backed travel documents on a trusted device.
+5. Re-check current bookings, stay contact and onward journey.`
+}
+function buildTripPackSummary(){
+  return `${buildFullTravelSummary()}
+
+LATEST STAYS
+${(db.travelStays||[]).slice(-3).map(x=>`${x.name||x.type} • ${x.city||'-'} • ${x.checkin||'-'} → ${x.checkout||'-'} • ${x.contactPhone||''}`).join('\n')||'None'}
+
+TRAVEL DOCUMENT INDEX
+${(db.travelDocs||[]).map(x=>`${x.type}: ${x.label}${x.number?` • ${x.number}`:''}${x.expiry?` • valid to ${x.expiry}`:''}`).join('\n')||'None'}
+
+${buildEmergencyPack()}`
+}
+function updateTravelReadiness(){
+  const el=$('#travelReadinessScore');if(!el)return;
+  let score=0;
+  const d=captureCurrentTravelBasics();
+  if(d.origin&&d.place)score+=20;if(d.startDate)score+=10;if(d.trainNo||d.busNo)score+=15;
+  if((db.travelStays||[]).length)score+=15;if((db.travelDocs||[]).length>=2)score+=15;if((db.emergencyContacts||[]).length>=2)score+=15;if((db.travelFinance||[]).length)score+=10;
+  el.textContent=Math.min(score,100)+'%';
+}
+function getJourneyTemplates(){
+  try{return JSON.parse(localStorage.getItem('saoTravelJourneyTemplatesV1')||'[]')}catch(e){return[]}
+}
+function setJourneyTemplates(x){
+  localStorage.setItem('saoTravelJourneyTemplatesV1',JSON.stringify(x||[]));
+}
+function showSavedJourneyTemplates(){
+  const box=$('#tr_saved_template_list'); if(!box)return;
+  const list=getJourneyTemplates();
+  if(!list.length){box.innerHTML='<div class="empty-template">No reusable journey saved yet.</div>';return}
+  box.innerHTML=list.slice().reverse().map(x=>`<div class="saved-template-card">
+    <div><b>${esc(x.name||`${x.origin||''} → ${x.place||''}`)}</b><span>${esc(x.origin||'')} → ${esc(x.place||'')} ${x.mode?`• ${esc(x.mode)}`:''}</span></div>
+    <div class="saved-template-actions">
+      <button type="button" class="ghost" onclick="app.loadTravelTemplate('${x.id}')">Load</button>
+      <button type="button" class="ghost" onclick="app.shareTravelTemplate('${x.id}')">Share</button>
+      <button type="button" class="ghost danger-lite" onclick="app.deleteTravelTemplate('${x.id}')">Delete</button>
+    </div>
+  </div>`).join('');
+}
+function captureCurrentTravelBasics(){
+  return {
+    origin:$('#tr_origin')?.value.trim()||$('#tr_discovery_from')?.value.trim()||'',
+    place:$('#tr_place')?.value.trim()||$('#tr_discovery_to')?.value.trim()||'',
+    mode:$('#tr_mode')?.value||'',
+    startDate:$('#tr_start')?.value||$('#tr_discovery_date')?.value||'',
+    returnDate:$('#tr_return')?.value||'',
+    trainNo:$('#tr_train_no')?.value.trim()||'',trainName:$('#tr_train_name')?.value.trim()||'',pnr:$('#tr_pnr')?.value.trim()||'',
+    trainTicketStatus:$('#tr_train_ticket_status')?.value||'',trainQuota:$('#tr_train_quota')?.value||'',journeyDate:$('#tr_journey_date')?.value||'',
+    trainClass:$('#tr_train_class')?.value||'',coach:$('#tr_coach')?.value.trim()||'',seat:$('#tr_seat')?.value.trim()||'',berthType:$('#tr_berth_type')?.value||'',
+    trainBoard:$('#tr_train_board')?.value.trim()||'',trainBoardCode:$('#tr_train_board_code')?.value.trim()||'',trainDest:$('#tr_train_dest')?.value.trim()||'',trainDestCode:$('#tr_train_dest_code')?.value.trim()||'',
+    busOperator:$('#tr_bus_operator')?.value.trim()||'',busNo:$('#tr_bus_no')?.value.trim()||'',busType:$('#tr_bus_type')?.value||'',busTicketStatus:$('#tr_bus_ticket_status')?.value||'',busSeat:$('#tr_bus_seat')?.value.trim()||'',busDate:$('#tr_bus_date')?.value||'',busBoard:$('#tr_bus_board')?.value.trim()||'',busDrop:$('#tr_bus_drop')?.value.trim()||'',
+    stayType:$('#tr_stay_type')?.value||'',stay:$('#tr_stay')?.value.trim()||'',foodType:$('#tr_food_type')?.value||'',sleepType:$('#tr_sleep_type')?.value||''
+  }
+}
+function saveCurrentJourneyTemplate(){
+  const d=captureCurrentTravelBasics();
+  if(!d.origin||!d.place){alert('Enter origin and destination first.');return}
+  const name=prompt('Name this reusable journey:',`${d.origin} → ${d.place}`); if(name===null)return;
+  const list=getJourneyTemplates();
+  list.push({...d,id:'jt_'+Date.now(),name:name.trim()||`${d.origin} → ${d.place}`,savedAt:new Date().toISOString()});
+  setJourneyTemplates(list.slice(-30));
+  showSavedJourneyTemplates();
+  $('#tr_route_discovery_result').innerHTML=`✅ Reusable journey saved: <b>${esc(name.trim()||`${d.origin} → ${d.place}`)}</b>.`;
+}
+function loadTravelTemplate(id){
+  const x=getJourneyTemplates().find(a=>a.id===id);if(!x)return;
+  const set=(sel,val)=>{const el=$(sel);if(el && val!==undefined && val!==null)el.value=val};
+  set('#tr_origin',x.origin);set('#tr_place',x.place);set('#tr_mode',x.mode);set('#tr_start',x.startDate);set('#tr_return',x.returnDate);
+  set('#tr_discovery_from',x.origin);set('#tr_discovery_to',x.place);set('#tr_discovery_date',x.startDate);
+  set('#tr_train_no',x.trainNo);set('#tr_train_name',x.trainName);set('#tr_pnr',x.pnr);set('#tr_train_ticket_status',x.trainTicketStatus);set('#tr_train_quota',x.trainQuota);
+  set('#tr_journey_date',x.journeyDate);set('#tr_train_class',x.trainClass);set('#tr_coach',x.coach);set('#tr_seat',x.seat);set('#tr_berth_type',x.berthType);set('#tr_train_board',x.trainBoard);set('#tr_train_board_code',x.trainBoardCode);set('#tr_train_dest',x.trainDest);set('#tr_train_dest_code',x.trainDestCode);
+  set('#tr_bus_operator',x.busOperator);set('#tr_bus_no',x.busNo);set('#tr_bus_type',x.busType);set('#tr_bus_ticket_status',x.busTicketStatus);set('#tr_bus_seat',x.busSeat);set('#tr_bus_date',x.busDate);set('#tr_bus_board',x.busBoard);set('#tr_bus_drop',x.busDrop);
+  set('#tr_stay_type',x.stayType);set('#tr_stay',x.stay);set('#tr_food_type',x.foodType);set('#tr_sleep_type',x.sleepType);
+  $('#tr_route_discovery_result').innerHTML=`✅ Loaded saved journey <b>${esc(x.name||'')}</b>. Edit only what changed, then save the trip.`;
+}
+function deleteTravelTemplate(id){
+  if(!confirm('Delete this saved reusable journey?'))return;
+  setJourneyTemplates(getJourneyTemplates().filter(x=>x.id!==id));showSavedJourneyTemplates();
+}
+function shareTravelTemplate(id){
+  const x=getJourneyTemplates().find(a=>a.id===id);if(!x)return;
+  shareText(`${x.name}\n${x.origin} → ${x.place}\nMode: ${x.mode||'-'}\nTrain: ${x.trainNo||'-'} ${x.trainName||''}\nBus: ${x.busOperator||'-'} ${x.busNo||''}`,'Saved Journey');
+}
+function copyDiscoveryToPlanner(){
+  const a=$('#tr_discovery_from').value.trim(),b=$('#tr_discovery_to').value.trim(),d=$('#tr_discovery_date').value;
+  $('#tr_origin').value=a;$('#tr_place').value=b;$('#tr_start').value=d;
+  if($('#tr_journey_date')&&!$('#tr_journey_date').value)$('#tr_journey_date').value=d;
+  if($('#tr_bus_date')&&!$('#tr_bus_date').value)$('#tr_bus_date').value=d;
+  $('#tr_route_discovery_result').innerHTML='✅ Route details copied into the planner. Continue with train/bus/ticket details.';
+}
+async function discoverRouteHub(){
+  const a=$('#tr_discovery_from').value.trim(),b=$('#tr_discovery_to').value.trim(),d=$('#tr_discovery_date').value,mode=$('#tr_discovery_mode').value;
+  const box=$('#tr_route_discovery_result');
+  if(!a||!b){alert('Enter From and To first.');return}
+  box.textContent='🔎 Estimating route and preparing live search options…';
+  try{
+    const getGeo=async q=>{
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q+', India')}`,{headers:{'Accept':'application/json'}});
+      const j=await r.json();return j?.[0]?{lat:+j[0].lat,lon:+j[0].lon,name:j[0].display_name}:null;
+    };
+    const [ga,gb]=await Promise.all([getGeo(a),getGeo(b)]);
+    let dist='Unavailable';
+    if(ga&&gb)dist=`~${haversineKm(ga.lat,ga.lon,gb.lat,gb.lon).toFixed(0)} km straight-line`;
+    box.innerHTML=`<div class="route-summary-card"><b>${esc(a)} → ${esc(b)}</b>
+      <span>📅 ${esc(d||'Date not selected')} • ${esc(mode)}</span>
+      <span>📏 ${esc(dist)}</span>
+      <small>Road/rail distance, journey duration, fares and actual available services must be confirmed on the booking provider.</small></div>
+      <div class="route-search-shortcuts">
+        <button type="button" class="ghost" onclick="app.searchLiveOption('train')">🚆 Search trains for this date</button>
+        <button type="button" class="ghost" onclick="app.searchLiveOption('bus')">🚌 Search buses for this date</button>
+        <button type="button" class="ghost" onclick="app.searchLiveOption('route')">🗺 Route & distance</button>
+      </div>`;
+  }catch(e){
+    box.innerHTML='⚠ Could not estimate the route automatically. Your entered data is safe; use the booking/search buttons below.';
+  }
+}
+function searchLiveOption(kind){
+  const a=$('#tr_discovery_from')?.value.trim()||'',b=$('#tr_discovery_to')?.value.trim()||'',d=$('#tr_discovery_date')?.value||'';
+  let q='';
+  if(kind==='train')q=`${a} to ${b} trains ${d} availability train number timing fare`;
+  if(kind==='bus')q=`${a} to ${b} buses ${d} operator sleeper seater timing fare`;
+  if(kind==='route')q=`${a} to ${b} distance route travel time`;
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener');
+}
+function openIRCTCBooking(){window.open('https://www.irctc.co.in/nget/train-search','_blank','noopener')}
+function openRailOne(){window.open('https://play.google.com/store/apps/details?id=org.cris.aikyam','_blank','noopener')}
+function openBookingSearch(kind){
+  if(kind==='redbus')window.open('https://www.redbus.in/bus-tickets','_blank','noopener');
+  if(kind==='paytm-bus')window.open('https://tickets.paytm.com/bus/','_blank','noopener');
+  if(kind==='paytm-train')window.open('https://tickets.paytm.com/trains/','_blank','noopener');
+}
+function openGoogleRouteFromHub(){
+  const a=$('#tr_discovery_from').value.trim(),b=$('#tr_discovery_to').value.trim();
+  if(!a||!b){alert('Enter From and To first.');return}
+  window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(a)}&destination=${encodeURIComponent(b)}`,'_blank','noopener');
+}
+function buildTrainSummary(){
+  const d=captureCurrentTravelBasics();
+  return `TRAIN JOURNEY
+${d.origin||'-'} → ${d.place||'-'}
+Train: ${d.trainNo||'-'} ${d.trainName||''}
+PNR: ${d.pnr||'-'} | Status: ${d.trainTicketStatus||'-'}
+Date: ${d.journeyDate||d.startDate||'-'} | Class: ${d.trainClass||'-'} | Quota: ${d.trainQuota||'-'}
+Coach: ${d.coach||'-'} | Seat/Berth: ${d.seat||'-'} | Type: ${d.berthType||'-'}
+Boarding: ${d.trainBoard||'-'} ${d.trainBoardCode||''}
+Destination: ${d.trainDest||'-'} ${d.trainDestCode||''}`;
+}
+function buildBusSummary(){
+  const d=captureCurrentTravelBasics();
+  return `BUS JOURNEY
+${d.origin||'-'} → ${d.place||'-'}
+Operator: ${d.busOperator||'-'}
+Bus / Service: ${d.busNo||'-'} | Type: ${d.busType||'-'}
+Status: ${d.busTicketStatus||'-'} | Seat/Berth: ${d.busSeat||'-'}
+Date: ${d.busDate||d.startDate||'-'}
+Boarding: ${d.busBoard||'-'}
+Dropping: ${d.busDrop||'-'}`;
+}
+function buildFullTravelSummary(){
+  const d=captureCurrentTravelBasics();
+  return `SAO WORKPLACE — COMPLETE TRAVEL PLAN
+Route: ${d.origin||'-'} → ${d.place||'-'}
+Start: ${d.startDate||'-'} | Return: ${d.returnDate||'-'} | Mode: ${d.mode||'-'}
+
+${buildTrainSummary()}
+
+${buildBusSummary()}
+
+Stay: ${d.stayType||'-'} ${d.stay||''}
+Food: ${d.foodType||'-'}
+Sleep: ${d.sleepType||'-'}`;
+}
+function saveTrainSnapshot(){
+  const x={id:'train_'+Date.now(),type:'train',summary:buildTrainSummary(),data:captureCurrentTravelBasics(),savedAt:new Date().toISOString()};
+  const arr=JSON.parse(localStorage.getItem('saoSavedTravelSnapshotsV1')||'[]');arr.push(x);localStorage.setItem('saoSavedTravelSnapshotsV1',JSON.stringify(arr.slice(-100)));
+  $('#tr_train_save_status').textContent='✅ Train details saved on this device. Complete Travel Plan save will also preserve the trip record.';
+}
+function saveBusSnapshot(){
+  const x={id:'bus_'+Date.now(),type:'bus',summary:buildBusSummary(),data:captureCurrentTravelBasics(),savedAt:new Date().toISOString()};
+  const arr=JSON.parse(localStorage.getItem('saoSavedTravelSnapshotsV1')||'[]');arr.push(x);localStorage.setItem('saoSavedTravelSnapshotsV1',JSON.stringify(arr.slice(-100)));
+  $('#tr_bus_save_status').textContent='✅ Bus details saved on this device. Complete Travel Plan save will also preserve the trip record.';
+}
+async function shareText(text,title='SAO Workplace'){
+  try{
+    if(navigator.share){await navigator.share({title,text});return}
+  }catch(e){if(e?.name==='AbortError')return}
+  await copyText(text,'Sharing is not available here, so the details were copied.');
+}
+async function copyText(text,msg='Copied.'){
+  try{await navigator.clipboard.writeText(text);alert(msg)}
+  catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert(msg)}
+}
+function printTextCard(title,text){
+  const w=window.open('','_blank','width=820,height=900');
+  if(!w){alert('Pop-up blocked. Allow pop-ups for printing.');return}
+  w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#17324a}h1{font-size:24px}pre{white-space:pre-wrap;font:16px/1.5 Arial,sans-serif;border:1px solid #dfe7ec;border-radius:14px;padding:20px;background:#f9fcfe}</style></head><body><h1>${esc(title)}</h1><pre>${esc(text)}</pre><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+function openBusRouteSearch(){
+  const a=$('#tr_bus_board').value.trim()||$('#tr_origin').value.trim(),b=$('#tr_bus_drop').value.trim()||$('#tr_place').value.trim(),op=$('#tr_bus_operator').value.trim();
+  window.open(`https://www.google.com/search?q=${encodeURIComponent([a,'to',b,op,'bus schedule stops fare boarding dropping points'].filter(Boolean).join(' '))}`,'_blank','noopener');
+}
+function buildTrainMealPlan(){
+  const journey=$('#tr_journey_date').value||$('#tr_start').value;
+  const stops=collectTrainStops();
+  if(!journey){alert('Enter date of journey first.');return}
+  const meals=[
+    ['Breakfast',$('#tr_breakfast_time').value],
+    ['Lunch',$('#tr_lunch_time').value],
+    ['Evening Snack',$('#tr_snack_time').value],
+    ['Dinner',$('#tr_dinner_time').value]
+  ];
+  const source=$('#tr_train_food_source').value;
+  const cards=[];
+  meals.forEach(([name,time])=>{
+    if(!time)return;
+    const target=dtOf(journey,time); if(!target)return;
+    const c=nearestTrainContext(target,stops);
+    let where='Route context unavailable — add verified station times.';
+    let action='Keep packed food / pantry as fallback.';
+    if(c.kind==='station'){
+      const s=c.stop; where=`Near ${s.station||'station'}${s.code?` (${s.code})`:''} • ${c.diffMin} min from meal time`;
+      action=s.food||`Check IRCTC eCatering / station food availability for ${s.station||s.code||'this station'}.`;
+    }else if(c.kind==='between'){
+      where=`On train between ${c.prev.station||c.prev.code||'previous stop'} → ${c.next.station||c.next.code||'next stop'}`;
+      action=`Plan delivery at ${c.next.station||c.next.code||'next suitable stop'} if available; otherwise use on-board/packed food.`;
+    }else if(c.kind==='after'){
+      where=`After ${c.prev.station||c.prev.code||'last entered stop'} — add later stoppages for better prediction.`;
+    }else if(c.kind==='before'){
+      where=`Before ${c.next.station||c.next.code||'first entered stop'}.`;
+    }
+    cards.push(`<div class="train-meal-card"><div class="train-meal-title"><b>${name}</b><span>${time}</span></div>
+      <div class="train-meal-where">📍 ${esc(where)}</div>
+      <div class="train-meal-source">🍱 Preferred: ${esc(source)}</div>
+      <div class="train-meal-action">${esc(action)}</div></div>`);
+  });
+  $('#tr_train_meal_plan').innerHTML=cards.join('');
+}
+function openOfficialPNR(){
+  window.open('https://indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en','_blank','noopener');
+}
+function openTrainScheduleSearch(){
+  const no=$('#tr_train_no').value.trim(),name=$('#tr_train_name').value.trim(),board=$('#tr_train_board').value.trim(),dest=$('#tr_train_dest').value.trim();
+  const q=[no,name,board,'to',dest,'Indian Railways route schedule stoppages halt minutes'].filter(Boolean).join(' ');
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener');
+}
+function openIRCTCEcatering(){
+  window.open('https://www.ecatering.irctc.co.in/','_blank','noopener');
+}
+function openISKCONTrainFoodSearch(){
+  const no=$('#tr_train_no').value.trim(),board=$('#tr_train_board').value.trim(),dest=$('#tr_train_dest').value.trim();
+  const q=['ISKCON Govinda prasadam food on train',no,board,dest].filter(Boolean).join(' ');
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener');
+}
+function openTravelSearch(kind){
+  const city=$('#tr_place').value.trim(),locality=$('#tr_locality').value.trim();
+  if(!city){alert('Enter destination city first.');return}
+  let q='';
+  if(kind==='stay')q=`hotel lodge guest house ${locality} ${city}`;
+  if(kind==='iskcon')q=`ISKCON guest house ashram accommodation ${city}`;
+  if(kind==='food')q=`pure vegetarian restaurant no onion garlic Jain food ${locality} ${city}`;
+  if(kind==='govinda')q=`ISKCON Govinda restaurant prasadam tiffin ${city}`;
+  window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`,'_blank','noopener');
+}
+function openLiveRouteSearch(){
+  const a=$('#tr_origin').value.trim(),b=$('#tr_place').value.trim(),mode=$('#tr_mode').value;
+  if(!a||!b){alert('Enter origin and destination first.');return}
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(a+' to '+b+' '+mode+' schedule fare availability')}`,'_blank','noopener');
+}
+function openNamedPlace(q){window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank','noopener')}
 function openTravelMap(){
   const city=$('#tr_place').value.trim(),locality=$('#tr_locality').value.trim();
   if(!city){alert('Enter destination city first.');return}
@@ -763,6 +1721,184 @@ function renderSummary(){const open=db.tasks.filter(t=>!isDone(t)),byPri=p=>open
 function summaryTasks(a){return a.length?`<table class="summary-table"><thead><tr><th>Task</th><th>Area</th><th>Priority</th><th>Status</th><th>Start</th><th>Due</th></tr></thead><tbody>${a.slice(0,30).map(t=>`<tr><td>${esc(t.title)}</td><td>${esc(t.category)}</td><td>${esc(t.priority)}</td><td>${esc(t.status)}</td><td>${esc(t.horizon)}</td><td>${fmt(t.dueDate)}</td></tr>`).join('')}</tbody></table>`:'<p class="muted">None.</p>'}async function shareSummary(){const text=$('#masterSummary').innerText;if(navigator.share)await navigator.share({title:'SAO Workplace Summary',text});else{await navigator.clipboard.writeText(text);alert('Summary copied.')}}
 let fileDB,picked=[];function openFileDB(){return new Promise((res,rej)=>{const r=indexedDB.open(FILE_DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('files',{keyPath:'id'});r.onsuccess=()=>{fileDB=r.result;res()};r.onerror=()=>rej(r.error)})}async function putFile(x){if(!fileDB)await openFileDB();return new Promise((res,rej)=>{const tx=fileDB.transaction('files','readwrite');tx.objectStore('files').put(x);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}async function allFiles(){if(!fileDB)await openFileDB();return new Promise((res,rej)=>{const r=fileDB.transaction('files').objectStore('files').getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}async function getFile(id){return (await allFiles()).find(x=>x.id===id)}async function delFile(id){if(!fileDB)await openFileDB();return new Promise((res,rej)=>{const tx=fileDB.transaction('files','readwrite');tx.objectStore('files').delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
 async function renderFiles(){fillOptions($('#fileCategory'),CATEGORIES);fillOptions($('#fileFilter'),CATEGORIES,true,'All Areas');$('#fileTask').innerHTML='<option value="">General / not linked</option>'+db.tasks.map(t=>`<option value="${t.id}">${esc(t.title)}</option>`).join('');picked=[];$('#fileInput').onchange=e=>{picked.push(...e.target.files);$('#pickedFiles').innerHTML=picked.map(f=>`<span class="filechip">${esc(f.name)}</span>`).join('')};$('#saveFiles').onclick=saveFiles;$('#fileFilter').onchange=drawFiles;drawFiles()}async function saveFiles(){if(!picked.length){alert('Select file(s).');return}for(const f of picked)await putFile({id:uid(),category:$('#fileCategory').value,taskId:$('#fileTask').value,note:$('#fileNote').value,name:f.name,type:f.type,size:f.size,date:today(),blob:f});picked=[];$('#pickedFiles').innerHTML='';$('#fileInput').value='';drawFiles()}async function drawFiles(){const filter=$('#fileFilter')?.value||'',a=(await allFiles()).filter(f=>!filter||f.category===filter).reverse();$('#filesList').innerHTML=a.map(f=>`<div class="fileitem"><b>${esc(f.name)}</b><div class="tiny muted">${esc(f.category)} • ${fmt(f.date)} • ${Math.round(f.size/1024)} KB</div><div>${esc(f.note||'')}</div><div class="actionrow"><button class="ghost" onclick="app.openFile('${f.id}')">Open</button><button class="ghost" onclick="app.downloadFile('${f.id}')">Download</button><button class="ghost" onclick="app.removeFile('${f.id}')">Delete</button></div></div>`).join('')||'<p class="muted">No file.</p>'}async function openFile(id){const f=await getFile(id);if(f)window.open(URL.createObjectURL(f.blob),'_blank')}async function downloadFile(id){const f=await getFile(id);if(!f)return;const a=document.createElement('a');a.href=URL.createObjectURL(f.blob);a.download=f.name;a.click()}async function removeFile(id){if(confirm('Delete file?')){await delFile(id);drawFiles()}}
+
+const HEALTH_PROVIDER_TYPES=['Hospital','Multispeciality Hospital','Nursing Home','Diagnostic Centre','Pathology Lab','Imaging Centre','CT / MRI Centre','PET Scan Centre','Endoscopy / GI Centre','Biopsy / Histopathology','Microbiology / Culture','Blood Bank','Physiotherapy / Rehab','Other'];
+const HEALTH_CONTACT_ROLES=['Consultant Doctor','Visiting Doctor','Owner / Director','Medical Superintendent','PRO','Referral Coordinator','Admission Desk','Reception','Nursing Staff','Dresser','Radiologist','Pathologist','Lab Technician','CT / MRI Technician','Endoscopy Staff','Insurance / TPA Desk','Ayushman Desk','Billing Desk','Ambulance','Other'];
+
+function renderReferralNetwork(){
+  const root=$('#view'); root.innerHTML=''; root.appendChild(tpl('referralsTpl'));
+  fillOptions($('#ref_type_filter'),HEALTH_PROVIDER_TYPES,true,'All Provider Types');
+  fillOptions($('#rp_type'),HEALTH_PROVIDER_TYPES);
+  fillOptions($('#rc_role'),HEALTH_CONTACT_ROLES);
+  $('#rp_verified').value=today(); $('#rc_verified').value=today(); $('#rr_date').value=today();
+  bindReferralTabs(); bindReferralActions(); refreshReferralProviderSelects(); drawReferralNetwork(); updateReferralKpis();
+  const picker=$('#rc_contact_picker');
+  if(picker && !navigator.contacts?.select){picker.textContent='📱 Phone Picker unavailable here';picker.disabled=true;picker.title='Use CSV/VCF import or manual entry on this browser.'}
+}
+function bindReferralTabs(){
+  $$('.referral-tabs button').forEach(b=>b.onclick=()=>{
+    $$('.referral-tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+    const key=b.dataset.refTab; $$('.ref-tab-pane').forEach(p=>p.hidden=true); $('#ref_tab_'+key).hidden=false;
+  });
+}
+function bindReferralActions(){
+  $('#ref_new_provider').onclick=()=>{switchRefTab('directory');clearProviderForm();$('#rp_name').focus()};
+  $('#rp_save').onclick=saveHealthProvider; $('#rp_clear').onclick=clearProviderForm;
+  $('#rc_save').onclick=saveHealthContact; $('#rc_clear').onclick=clearContactForm; $('#rc_import_btn').onclick=importHealthContactsFile; $('#rc_contact_picker').onclick=pickHealthContact;
+  $('#rr_save').onclick=savePatientReferral; $('#rr_clear').onclick=clearReferralForm; $('#rr_share').onclick=()=>shareText(buildReferralFormSummary(),'Patient Referral'); $('#rr_print').onclick=()=>printTextCard('Patient Referral',buildReferralFormSummary()); $('#rr_attach').onclick=attachReferralFile;
+  $('#ref_search').oninput=drawReferralNetwork; $('#ref_type_filter').onchange=drawReferralNetwork; $('#ref_status_filter').onchange=drawReferralNetwork;
+  $('#ref_print_directory').onclick=()=>printTextCard('SAO Provider Directory',buildProviderDirectorySummary());
+  $('#rr_provider').onchange=()=>refreshReferralContacts();
+  $$('.diagnostic-service-filter button').forEach(b=>b.onclick=()=>drawDiagnosticNetwork(b.dataset.diag));
+}
+function switchRefTab(key){
+  const b=$(`.referral-tabs button[data-ref-tab="${key}"]`); if(b)b.click()
+}
+function refreshReferralProviderSelects(){
+  const opts=(db.healthProviders||[]).slice().sort((a,b)=>(a.status==='Active'?-1:1)-(b.status==='Active'?-1:1)||a.name.localeCompare(b.name));
+  const html='<option value="">Select provider</option>'+opts.map(x=>`<option value="${x.id}">${esc(x.name)} • ${esc(x.city||'')}</option>`).join('');
+  ['#rc_provider','#rr_provider'].forEach(s=>{const el=$(s);if(el){const old=el.value;el.innerHTML=html;el.value=old}});
+  refreshReferralContacts();
+}
+function refreshReferralContacts(){
+  const p=$('#rr_provider')?.value||'';
+  const list=(db.healthContacts||[]).filter(x=>x.status==='Active'&&(!p||x.providerId===p));
+  const el=$('#rr_contact');if(!el)return;el.innerHTML='<option value="">Select contacted person</option>'+list.map(x=>`<option value="${x.id}">${esc(x.name)} • ${esc(x.role)}${x.specialty?` • ${esc(x.specialty)}`:''}</option>`).join('');
+}
+function providerFromForm(){
+  return {id:$('#rp_id').value||uid(),type:$('#rp_type').value,name:$('#rp_name').value.trim(),city:$('#rp_city').value.trim(),address:$('#rp_address').value.trim(),phone:$('#rp_phone').value.trim(),whatsapp:$('#rp_whatsapp').value.trim(),website:$('#rp_website').value.trim(),maps:$('#rp_maps').value.trim(),timings:$('#rp_timings').value.trim(),emergency:$('#rp_emergency').value.trim(),beds:+($('#rp_beds').value||0),doctorsCount:+($('#rp_doctors_count').value||0),owner:$('#rp_owner').value.trim(),bookingDesk:$('#rp_bookingdesk').value.trim(),ayushman:$('#rp_ayushman').value,insurance:$('#rp_insurance').value,status:$('#rp_status').value,verified:$('#rp_verified').value,specialties:$('#rp_specialties').value.trim(),services:$('#rp_services').value.trim(),schemes:$('#rp_schemes').value.trim(),notes:$('#rp_notes').value.trim(),updatedAt:new Date().toISOString()}
+}
+function saveHealthProvider(){
+  const x=providerFromForm();if(!x.name){alert('Provider name is required.');return}
+  const i=db.healthProviders.findIndex(a=>a.id===x.id); if(i>=0)db.healthProviders[i]=x; else db.healthProviders.push(x);
+  save();clearProviderForm();refreshReferralProviderSelects();drawReferralNetwork();updateReferralKpis();
+}
+function clearProviderForm(){['#rp_id','#rp_name','#rp_city','#rp_address','#rp_phone','#rp_whatsapp','#rp_website','#rp_maps','#rp_timings','#rp_emergency','#rp_beds','#rp_doctors_count','#rp_owner','#rp_bookingdesk','#rp_specialties','#rp_services','#rp_schemes','#rp_notes'].forEach(s=>{const e=$(s);if(e)e.value=''});$('#rp_status').value='Active';$('#rp_verified').value=today();$('#ref_provider_title').textContent='Add Hospital / Diagnostic Centre'}
+function editHealthProvider(id){
+  const x=db.healthProviders.find(a=>a.id===id);if(!x)return;switchRefTab('directory');
+  const set=(s,v)=>{const e=$(s);if(e)e.value=v??''};set('#rp_id',x.id);set('#rp_type',x.type);set('#rp_name',x.name);set('#rp_city',x.city);set('#rp_address',x.address);set('#rp_phone',x.phone);set('#rp_whatsapp',x.whatsapp);set('#rp_website',x.website);set('#rp_maps',x.maps);set('#rp_timings',x.timings);set('#rp_emergency',x.emergency);set('#rp_beds',x.beds);set('#rp_doctors_count',x.doctorsCount);set('#rp_owner',x.owner);set('#rp_bookingdesk',x.bookingDesk);set('#rp_ayushman',x.ayushman);set('#rp_insurance',x.insurance);set('#rp_status',x.status);set('#rp_verified',x.verified);set('#rp_specialties',x.specialties);set('#rp_services',x.services);set('#rp_schemes',x.schemes);set('#rp_notes',x.notes);$('#ref_provider_title').textContent='Edit Provider';$('#rp_name').scrollIntoView({behavior:'smooth',block:'center'})
+}
+function deleteHealthProvider(id){if(confirm('Delete provider? Staff/referral history will remain but lose its direct provider card link.')){db.healthProviders=db.healthProviders.filter(x=>x.id!==id);save();refreshReferralProviderSelects();drawReferralNetwork();updateReferralKpis()}}
+function providerShareText(x){return `${x.name}\n${x.type} • ${x.city||'-'}\nAddress: ${x.address||'-'}\nPhone: ${x.phone||'-'}${x.whatsapp?`\nWhatsApp: ${x.whatsapp}`:''}\nTimings: ${x.timings||'-'}\nSpecialties: ${x.specialties||'-'}\nServices: ${x.services||'-'}\nAyushman: ${x.ayushman||'Unknown'} | Insurance/TPA: ${x.insurance||'Unknown'}\nWebsite: ${x.website||'-'}\nMap: ${x.maps||'-'}`}
+function shareHealthProvider(id){const x=db.healthProviders.find(a=>a.id===id);if(x)shareText(providerShareText(x),'Hospital / Diagnostic Centre')}
+function drawReferralNetwork(){
+  const q=($('#ref_search')?.value||'').toLowerCase().trim(),type=$('#ref_type_filter')?.value||'',st=$('#ref_status_filter')?.value||'';
+  const contactIndex=(db.healthContacts||[]).map(c=>({...c,providerName:db.healthProviders.find(p=>p.id===c.providerId)?.name||''}));
+  const referralIndex=(db.patientReferrals||[]);
+  const providers=(db.healthProviders||[]).filter(x=>{
+    const extra=contactIndex.filter(c=>c.providerId===x.id).map(c=>`${c.name} ${c.role} ${c.specialty} ${c.phone}`).join(' ');
+    const pts=referralIndex.filter(r=>r.providerId===x.id).map(r=>`${r.patient} ${r.reason}`).join(' ');
+    const hay=`${x.name} ${x.type} ${x.city} ${x.address} ${x.specialties} ${x.services} ${x.owner} ${extra} ${pts}`.toLowerCase();
+    return (!q||hay.includes(q))&&(!type||x.type===type)&&(!st||x.status===st)
+  }).sort((a,b)=>(a.status==='Active'?0:1)-(b.status==='Active'?0:1)||a.name.localeCompare(b.name));
+  const box=$('#rp_list');if(box)box.innerHTML=providers.map(x=>{
+    const n=(db.healthContacts||[]).filter(c=>c.providerId===x.id&&c.status==='Active').length;
+    return `<div class="provider-card ${x.status==='Inactive'?'inactive':''}">
+      <div class="provider-head"><div><b>${esc(x.name)}</b><span>${esc(x.type)} • ${esc(x.city||'')}</span></div><span class="provider-status ${x.status.toLowerCase()}">${esc(x.status)}</span></div>
+      <div class="provider-tags">${(x.specialties||'').split(/[,;\n]/).filter(Boolean).slice(0,5).map(s=>`<span>${esc(s.trim())}</span>`).join('')}</div>
+      <div class="provider-meta">☎ ${esc(x.phone||'-')} • 👥 ${n} active contacts • 🛏 ${x.beds||0} beds • Ayushman: ${esc(x.ayushman||'Unknown')}</div>
+      <div class="provider-actions">
+        ${x.phone?`<a href="tel:${esc(x.phone)}">☎ Call</a>`:''}
+        ${x.whatsapp?`<a target="_blank" rel="noopener" href="https://wa.me/${esc((x.whatsapp||'').replace(/\D/g,''))}">🟢 WhatsApp</a>`:''}
+        ${x.maps?`<a target="_blank" rel="noopener" href="${esc(x.maps)}">📍 Map</a>`:''}
+        ${x.website?`<a target="_blank" rel="noopener" href="${esc(x.website)}">🌐 Website</a>`:''}
+        <button class="ghost" onclick="app.shareHealthProvider('${x.id}')">↗ Share</button>
+        <button class="ghost" onclick="app.editHealthProvider('${x.id}')">Edit</button>
+        <button class="ghost danger-lite" onclick="app.deleteHealthProvider('${x.id}')">Delete</button>
+      </div></div>`
+  }).join('')||'<p class="muted">No matching provider.</p>';
+  drawHealthContacts(q);drawReferralWorklist(q);drawDiagnosticNetwork();
+}
+function contactFromForm(){return{id:$('#rc_id').value||uid(),providerId:$('#rc_provider').value,name:$('#rc_name').value.trim(),role:$('#rc_role').value,degree:$('#rc_degree').value.trim(),specialty:$('#rc_specialty').value.trim(),phone:$('#rc_phone').value.trim(),whatsapp:$('#rc_whatsapp').value.trim(),timing:$('#rc_timing').value.trim(),status:$('#rc_status').value,verified:$('#rc_verified').value,notes:$('#rc_notes').value.trim(),updatedAt:new Date().toISOString()}}
+function saveHealthContact(){const x=contactFromForm();if(!x.name||!x.phone){alert('Name and phone are required.');return}const i=db.healthContacts.findIndex(a=>a.id===x.id);if(i>=0)db.healthContacts[i]=x;else db.healthContacts.push(x);save();clearContactForm();refreshReferralContacts();drawReferralNetwork();updateReferralKpis()}
+function clearContactForm(){['#rc_id','#rc_name','#rc_degree','#rc_specialty','#rc_phone','#rc_whatsapp','#rc_timing','#rc_notes'].forEach(s=>{const e=$(s);if(e)e.value=''});$('#rc_status').value='Active';$('#rc_verified').value=today()}
+function editHealthContact(id){const x=db.healthContacts.find(a=>a.id===id);if(!x)return;switchRefTab('contacts');const set=(s,v)=>{const e=$(s);if(e)e.value=v??''};set('#rc_id',x.id);set('#rc_provider',x.providerId);set('#rc_name',x.name);set('#rc_role',x.role);set('#rc_degree',x.degree);set('#rc_specialty',x.specialty);set('#rc_phone',x.phone);set('#rc_whatsapp',x.whatsapp);set('#rc_timing',x.timing);set('#rc_status',x.status);set('#rc_verified',x.verified);set('#rc_notes',x.notes)}
+function deleteHealthContact(id){if(confirm('Delete contact?')){db.healthContacts=db.healthContacts.filter(x=>x.id!==id);save();refreshReferralContacts();drawReferralNetwork();updateReferralKpis()}}
+function drawHealthContacts(q=''){
+  const box=$('#rc_list');if(!box)return;const pmap=Object.fromEntries((db.healthProviders||[]).map(p=>[p.id,p]));
+  const list=(db.healthContacts||[]).filter(x=>!q||`${x.name} ${x.role} ${x.degree} ${x.specialty} ${x.phone} ${pmap[x.providerId]?.name||''}`.toLowerCase().includes(q)).sort((a,b)=>(a.status==='Active'?0:1)-(b.status==='Active'?0:1)||a.name.localeCompare(b.name));
+  box.innerHTML=list.map(x=>`<div class="contact-card ${x.status==='Inactive'?'inactive':''}"><div><b>${esc(x.name)}</b><span>${esc(x.role)}${x.specialty?` • ${esc(x.specialty)}`:''}${x.degree?` • ${esc(x.degree)}`:''}</span><small>${esc(pmap[x.providerId]?.name||'Unlinked provider')} • ${esc(x.timing||'')}</small></div><div class="contact-phone"><a href="tel:${esc(x.phone)}">${esc(x.phone)}</a>${x.whatsapp?`<a target="_blank" rel="noopener" href="https://wa.me/${esc(x.whatsapp.replace(/\D/g,''))}">WhatsApp</a>`:''}</div><div><span class="provider-status ${x.status.toLowerCase()}">${esc(x.status)}</span><button class="ghost" onclick="app.editHealthContact('${x.id}')">Edit</button><button class="ghost danger-lite" onclick="app.deleteHealthContact('${x.id}')">×</button></div></div>`).join('')||'<p class="muted">No contact saved.</p>'
+}
+async function pickHealthContact(){
+  if(!navigator.contacts?.select){alert('Direct phone contact access is not supported in this browser. Use Import CSV / VCF instead.');return}
+  try{const a=await navigator.contacts.select(['name','tel'],{multiple:false});if(a?.[0]){$('#rc_name').value=a[0].name?.[0]||'';$('#rc_phone').value=a[0].tel?.[0]||''}}catch(e){}
+}
+async function importHealthContactsFile(){
+  const f=$('#rc_import_file').files?.[0];if(!f){alert('Choose a CSV or VCF file first.');return}
+  const text=await f.text();let rows=[];
+  if(/\.vcf$/i.test(f.name)||/BEGIN:VCARD/i.test(text)){
+    const cards=text.split(/END:VCARD/i);for(const c of cards){const name=(c.match(/\nFN:(.+)/i)||[])[1]?.trim();const phone=(c.match(/\nTEL[^:]*:(.+)/i)||[])[1]?.trim();if(name&&phone)rows.push({name,phone})}
+  }else{
+    const lines=text.split(/\r?\n/).filter(Boolean);const head=(lines.shift()||'').split(',').map(x=>x.trim().toLowerCase());
+    const ni=head.findIndex(x=>/name/.test(x)),pi=head.findIndex(x=>/phone|mobile|tel/.test(x)),ri=head.findIndex(x=>/role/.test(x)),si=head.findIndex(x=>/special/.test(x));
+    for(const line of lines){const cols=line.split(',').map(x=>x.replace(/^"|"$/g,'').trim());if(cols[ni]&&cols[pi])rows.push({name:cols[ni],phone:cols[pi],role:cols[ri]||'Other',specialty:cols[si]||''})}
+  }
+  const providerId=$('#rc_provider').value;for(const r of rows){db.healthContacts.push({id:uid(),providerId,name:r.name,role:HEALTH_CONTACT_ROLES.includes(r.role)?r.role:'Other',degree:'',specialty:r.specialty||'',phone:r.phone,whatsapp:'',timing:'',status:'Active',verified:today(),notes:'Imported from '+f.name,updatedAt:new Date().toISOString()})}
+  save();$('#rc_import_file').value='';refreshReferralContacts();drawReferralNetwork();updateReferralKpis();alert(`Imported ${rows.length} contact(s).`)
+}
+function referralFromForm(){return{id:$('#rr_id').value||uid(),patient:$('#rr_patient').value.trim(),patientId:$('#rr_patient_id').value.trim(),mobile:$('#rr_mobile').value.trim(),reason:$('#rr_reason').value.trim(),urgency:$('#rr_urgency').value,date:$('#rr_date').value,time:$('#rr_time').value,providerId:$('#rr_provider').value,consultant:$('#rr_consultant').value.trim(),contactId:$('#rr_contact').value,communication:$('#rr_communication').value,status:$('#rr_status').value,appt:$('#rr_appt').value,reminder:$('#rr_reminder').value,note:$('#rr_note').value.trim(),ward:$('#rr_ward').value.trim(),bed:$('#rr_bed').value.trim(),discharge:$('#rr_discharge').value,totalCost:+($('#rr_total_cost').value||0),schemePaid:+($('#rr_scheme_paid').value||0),insurancePaid:+($('#rr_insurance_paid').value||0),patientPaid:+($('#rr_patient_paid').value||0),discount:+($('#rr_discount').value||0),outcome:$('#rr_outcome').value.trim(),updatedAt:new Date().toISOString()}}
+function savePatientReferral(){
+  const x=referralFromForm();if(!x.patient||!x.reason){alert('Patient name and referral reason are required.');return}
+  const old=db.patientReferrals.find(a=>a.id===x.id);if(old?.attachments)x.attachments=old.attachments;
+  const i=db.patientReferrals.findIndex(a=>a.id===x.id);if(i>=0)db.patientReferrals[i]=x;else db.patientReferrals.push(x);
+  if(x.reminder){db.tasks.push({id:uid(),title:`Referral follow-up: ${x.patient}`,category:'Doctor / Clinical',project:'Referral Network',priority:x.urgency==='Emergency'?'Red':x.urgency==='Urgent'?'Orange':'Yellow',status:'Waiting',horizon:'Custom Date',startDate:x.reminder.slice(0,10),dueDate:x.reminder.slice(0,10),reminderDate:x.reminder.slice(0,10),owner:'Dr Rajesh Sao',context:x.reason,tags:'referral follow-up',notes:`Follow up ${x.patient} referral status / appointment / admission.`})}
+  save();clearReferralForm();drawReferralNetwork();updateReferralKpis();
+}
+function clearReferralForm(){['#rr_id','#rr_patient','#rr_patient_id','#rr_mobile','#rr_reason','#rr_consultant','#rr_note','#rr_ward','#rr_bed','#rr_total_cost','#rr_scheme_paid','#rr_insurance_paid','#rr_patient_paid','#rr_discount','#rr_outcome','#rr_appt','#rr_reminder','#rr_discharge'].forEach(s=>{const e=$(s);if(e)e.value=''});$('#rr_date').value=today();$('#rr_status').value='Planned';$('#rr_communication').value='Not contacted';$('#rr_file_status').textContent=''}
+function editPatientReferral(id){const x=db.patientReferrals.find(a=>a.id===id);if(!x)return;switchRefTab('referrals');const set=(s,v)=>{const e=$(s);if(e)e.value=v??''};set('#rr_id',x.id);set('#rr_patient',x.patient);set('#rr_patient_id',x.patientId);set('#rr_mobile',x.mobile);set('#rr_reason',x.reason);set('#rr_urgency',x.urgency);set('#rr_date',x.date);set('#rr_time',x.time);set('#rr_provider',x.providerId);refreshReferralContacts();set('#rr_consultant',x.consultant);set('#rr_contact',x.contactId);set('#rr_communication',x.communication);set('#rr_status',x.status);set('#rr_appt',x.appt);set('#rr_reminder',x.reminder);set('#rr_note',x.note);set('#rr_ward',x.ward);set('#rr_bed',x.bed);set('#rr_discharge',x.discharge);set('#rr_total_cost',x.totalCost);set('#rr_scheme_paid',x.schemePaid);set('#rr_insurance_paid',x.insurancePaid);set('#rr_patient_paid',x.patientPaid);set('#rr_discount',x.discount);set('#rr_outcome',x.outcome)}
+function deletePatientReferral(id){if(confirm('Delete referral record?')){db.patientReferrals=db.patientReferrals.filter(x=>x.id!==id);save();drawReferralNetwork();updateReferralKpis()}}
+function referralSummary(x){
+  const p=db.healthProviders.find(a=>a.id===x.providerId),c=db.healthContacts.find(a=>a.id===x.contactId);
+  return `PATIENT REFERRAL SUMMARY
+Patient: ${x.patient} ${x.patientId?`• ${x.patientId}`:''}
+Mobile: ${x.mobile||'-'}
+Reason: ${x.reason}
+Urgency: ${x.urgency}
+Referral: ${x.date||'-'} ${x.time||''}
+Provider: ${p?.name||'-'} • ${p?.city||''}
+Consultant/Department: ${x.consultant||'-'}
+Contacted: ${c?.name||'-'} ${c?.role?`(${c.role})`:''} ${c?.phone||''}
+Communication: ${x.communication}
+Status: ${x.status}
+Appointment/Admission: ${x.appt||'-'}
+Ward/Bed: ${x.ward||'-'} / ${x.bed||'-'}
+Clinical note: ${x.note||'-'}
+Outcome/Treatment: ${x.outcome||'-'}
+Total cost: ₹${x.totalCost||0}
+Scheme: ₹${x.schemePaid||0} • Insurance: ₹${x.insurancePaid||0} • Patient paid: ₹${x.patientPaid||0} • Discount/Waiver: ₹${x.discount||0}`
+}
+function buildReferralFormSummary(){return referralSummary(referralFromForm())}
+function sharePatientReferral(id){const x=db.patientReferrals.find(a=>a.id===id);if(x)shareText(referralSummary(x),'Patient Referral')}
+function printPatientReferral(id){const x=db.patientReferrals.find(a=>a.id===id);if(x)printTextCard('Patient Referral',referralSummary(x))}
+function drawReferralWorklist(q=''){
+  const box=$('#rr_list');if(!box)return;const pmap=Object.fromEntries((db.healthProviders||[]).map(p=>[p.id,p]));
+  const list=(db.patientReferrals||[]).filter(x=>!q||`${x.patient} ${x.reason} ${x.consultant} ${pmap[x.providerId]?.name||''} ${x.status}`.toLowerCase().includes(q)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  box.innerHTML=list.map(x=>`<div class="referral-work-card"><div class="referral-work-head"><div><b>${esc(x.patient)}</b><span>${esc(x.reason)} • ${esc(x.urgency)}</span></div><span class="ref-status">${esc(x.status)}</span></div><div class="provider-meta">${fmt(x.date)} • ${esc(pmap[x.providerId]?.name||'Provider not selected')} • ${esc(x.consultant||'')}</div><div class="provider-actions"><button class="ghost" onclick="app.sharePatientReferral('${x.id}')">↗ Share</button><button class="ghost" onclick="app.printPatientReferral('${x.id}')">🖨 PDF</button><button class="ghost" onclick="app.editPatientReferral('${x.id}')">Edit</button><button class="ghost danger-lite" onclick="app.deletePatientReferral('${x.id}')">Delete</button></div></div>`).join('')||'<p class="muted">No referral records yet.</p>'
+}
+async function attachReferralFile(){
+  const f=$('#rr_file').files?.[0];if(!f){alert('Choose referral/prescription PDF or image first.');return}
+  let rid=$('#rr_id').value;if(!rid){const temp=referralFromForm();if(!temp.patient||!temp.reason){alert('Enter patient name and referral reason first.');return}rid=temp.id;$('#rr_id').value=rid;db.patientReferrals.push(temp);save()}
+  const fileId='referral_'+uid();await putFile({id:fileId,category:'Doctor / Clinical',taskId:'',note:'Referral / prescription attachment',name:f.name,type:f.type,size:f.size,date:today(),blob:f});
+  const r=db.patientReferrals.find(x=>x.id===rid);r.attachments=r.attachments||[];const meta={id:uid(),fileId,name:f.name,type:f.type,size:f.size,cloudStatus:'Local only'};r.attachments.push(meta);save();$('#rr_file').value='';$('#rr_file_status').textContent='✅ Referral file saved locally. Attempting cloud backup if available…';
+  try{if(window.SAOCloudFiles?.uploadClinicalFile){const res=await window.SAOCloudFiles.uploadClinicalFile(fileId,f,{name:f.name,recordId:rid});if(res?.path){meta.cloudPath=res.path;meta.cloudStatus='Cloud backed up';save();$('#rr_file_status').textContent='✅ Referral file saved locally + cloud backup complete.'}}}catch(e){console.warn(e);$('#rr_file_status').textContent='✅ Saved locally. Cloud file backup unavailable; referral record metadata still syncs.'}
+}
+function drawDiagnosticNetwork(service=''){
+  const box=$('#diagnostic_network_list');if(!box)return;
+  const diagTypes=['Diagnostic Centre','Pathology Lab','Imaging Centre','CT / MRI Centre','PET Scan Centre','Endoscopy / GI Centre','Biopsy / Histopathology','Microbiology / Culture','Blood Bank'];
+  let list=(db.healthProviders||[]).filter(x=>x.status==='Active'&&(diagTypes.includes(x.type)||/path|x-ray|xray|ct|mri|pet|endosc|biopsy|culture|blood bank/i.test(`${x.services} ${x.specialties}`)));
+  if(service){const rx=new RegExp(service.replace('-','.?'),'i');list=list.filter(x=>rx.test(`${x.type} ${x.services} ${x.specialties}`))}
+  box.innerHTML=list.map(x=>`<div class="diagnostic-card"><div><b>${esc(x.name)}</b><span>${esc(x.city||'')} • ${esc(x.type)}</span><small>${esc(x.services||x.specialties||'')}</small></div><div class="provider-actions">${x.phone?`<a href="tel:${esc(x.phone)}">☎ Call</a>`:''}${x.whatsapp?`<a target="_blank" rel="noopener" href="https://wa.me/${esc(x.whatsapp.replace(/\D/g,''))}">WhatsApp</a>`:''}<button class="ghost" onclick="app.shareHealthProvider('${x.id}')">Share</button></div></div>`).join('')||'<p class="muted">No matching diagnostic provider saved yet.</p>'
+}
+function updateReferralKpis(){
+  const p=db.healthProviders||[],c=db.healthContacts||[],r=db.patientReferrals||[];
+  const active=p.filter(x=>x.status==='Active').length,diag=p.filter(x=>/Diagnostic|Pathology|Imaging|CT|MRI|PET|Endoscopy|Biopsy|Culture|Blood Bank/i.test(x.type)).length,pending=r.filter(x=>!['Completed','Cancelled','Lost to follow-up'].includes(x.status)).length;
+  const box=$('#ref_kpis');if(box)box.innerHTML=`<div class="metric"><b>${p.length}</b><span>Total Providers</span></div><div class="metric"><b>${active}</b><span>Active</span></div><div class="metric"><b>${c.filter(x=>x.status==='Active').length}</b><span>Active Contacts</span></div><div class="metric"><b>${diag}</b><span>Diagnostics</span></div><div class="metric"><b>${pending}</b><span>Open Referrals</span></div>`;
+  if($('#referralNetworkCount'))$('#referralNetworkCount').textContent=p.length
+}
+function buildProviderDirectorySummary(){
+  return (db.healthProviders||[]).filter(x=>x.status==='Active').map(providerShareText).join('\n\n---------------------------\n\n')||'No active providers saved.'
+}
+
 function renderBackup(){$('#backupBtn').onclick=()=>{db.settings.lastBackupAt=new Date().toISOString();save();download('SAO-Workplace-backup-'+today()+'.json',JSON.stringify(db,null,2),'application/json');};$('#restoreInput').onchange=async e=>{try{db=JSON.parse(await e.target.files[0].text());db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));save();alert('Restored.');showView('dashboard')}catch{alert('Invalid backup.')}};$('#csvBtn').onclick=()=>{const h=['Title','Area','Project','Priority','Status','Start Horizon','Start Date','Due Date','Reminder','Responsible','Context','Tags','Notes'];const rows=db.tasks.map(t=>[t.title,t.category,t.project,t.priority,t.status,t.horizon,t.startDate,t.dueDate,t.reminderDate,t.owner,t.context,t.tags,t.notes]);download('SAO-Workplace-tasks.csv',[h,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv')}}function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
 function renderSettings(){
   $('#settingsForm').innerHTML=`<div class="formgrid"><label>App Name<input id="set_name" value="${esc(db.settings.appName)}"></label><label>Owner Name<input id="set_owner" value="${esc(db.settings.ownerName)}"></label><label>Daily Naam Japa Target<input id="set_japa" type="number" value="${db.settings.dailyJapaTarget}"></label><label>Week Starts<select id="set_week"><option>Monday</option><option ${db.settings.weekStarts==='Sunday'?'selected':''}>Sunday</option></select></label><label>Appearance<select id="set_theme"><option ${db.settings.theme!=='Dark'?'selected':''}>Soft Blue</option><option ${db.settings.theme==='Dark'?'selected':''}>Dark</option></select></label></div><div class="actionrow"><button id="saveSettings">Save Settings</button></div>`;
@@ -771,6 +1907,11 @@ function renderSettings(){
   $('#notificationBtn').onclick=async()=>{if(!window.Notification){alert('Notifications not supported in this browser.');return}const p=await Notification.requestPermission();$('#notificationState').textContent='Current permission: '+p;if(p==='granted')new Notification('SAO Workplace',{body:'Notifications enabled. In-app due reminders will be shown while the app is active.'})};
 }
 function checkReminders(){const due=db.tasks.filter(t=>!isDone(t)&&t.reminderDate===today());if(!due.length)return;const key='sao_reminder_seen_'+today();if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');if(window.Notification&&Notification.permission==='granted')new Notification('SAO Workplace Reminder',{body:`${due.length} task${due.length===1?'':'s'} need attention today.`})}
-function init(){applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
-return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
+function init(){
+  document.documentElement.classList.toggle('touch-device', matchMedia('(pointer:coarse)').matches);
+  document.documentElement.classList.toggle('standalone-mode', matchMedia('(display-mode:standalone)').matches || navigator.standalone===true);
+  const setViewportClass=()=>{document.documentElement.dataset.viewport=innerWidth<700?'mobile':innerWidth<1100?'tablet':'desktop'};
+  setViewportClass(); addEventListener('resize',()=>{clearTimeout(window.__saoResize);window.__saoResize=setTimeout(setViewportClass,120)},{passive:true});
+applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
+return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,loadTravelTemplate,shareTravelTemplate,deleteTravelTemplate,searchLiveOption,shareStay,deleteStay,openTravelDoc,downloadTravelDoc,shareTravelDoc,deleteTravelDoc,deleteEmergencyContact,deleteTravelFinance,editHealthProvider,deleteHealthProvider,shareHealthProvider,editHealthContact,deleteHealthContact,editPatientReferral,deletePatientReferral,sharePatientReferral,printPatientReferral,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
 document.addEventListener('DOMContentLoaded',app.init);

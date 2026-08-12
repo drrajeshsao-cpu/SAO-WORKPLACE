@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><radialGradient id="bg"><stop stop-color="#18376f"/><stop offset="1" stop-color="#040917"/></radialGradient><linearGradient id="g"><stop stop-color="#fff2a6"/><stop offset=".5" stop-color="#f1bd50"/><stop offset="1" stop-color="#9b5d18"/></linearGradient></defs><rect width="512" height="512" rx="118" fill="url(#bg)"/><circle cx="256" cy="246" r="150" fill="none" stroke="#dba947" stroke-width="8"/><circle cx="256" cy="246" r="126" fill="none" stroke="#23d7dc" stroke-width="3" opacity=".55"/><text x="256" y="310" text-anchor="middle" font-family="Georgia" font-size="190" font-weight="bold" fill="url(#g)">S</text><path d="M175 348c50 6 83 34 81 74-42-20-68-40-81-74zm162 0c-50 6-83 34-81 74 42-20 68-40 81-74z" fill="#35d79d"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect x="28" y="28" width="456" height="456" rx="116" fill="#eef8fb" stroke="#1f647e" stroke-width="8"/>
+<circle cx="256" cy="256" r="176" fill="#ffffff" stroke="#d8e8ed" stroke-width="8"/>
+<path d="M141 112v82M100 153h82" stroke="#198776" stroke-width="30" stroke-linecap="round"/>
+<path d="M332 174l94-46-64 74-18-21-38 17z" fill="#356aa9"/>
+<path d="M325 342c36-18 68-13 86 0v83c-22-13-49-14-86 3zM325 342c-36-18-68-13-86 0v83c22-13 49-14 86 3z" fill="#fff5d8" stroke="#b08423" stroke-width="8"/>
+<rect x="91" y="326" width="116" height="82" rx="16" fill="#f3ecfb" stroke="#67488e" stroke-width="8"/>
+<path d="M126 326v-26h46v26" fill="none" stroke="#67488e" stroke-width="8" stroke-linecap="round"/>
+<circle cx="256" cy="256" r="92" fill="#fff" stroke="#204d66" stroke-width="8"/>
+<text x="256" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="120" fill="#134660">S</text>
+</svg>
