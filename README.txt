@@ -116,3 +116,26 @@ New train planning fields:
 
 GitHub commit:
 Add Train Journey Intelligence with PNR coach seat stoppage timeline and meal planning to SAO Workplace V5.7
+
+SAO WORKPLACE V5.8 — SMART TRAIN & BUS ROUTE INTELLIGENCE
+Updated: 12 Aug 2026 • 18:42 IST
+
+Added:
+- Train ticket status: CNF, RAC, GNWL, RLWL, PQWL, TQWL, CKWL, WL etc.
+- Train quota, coach, seat/berth and berth type saved with the trip.
+- Smart pasted-ticket parser for common PNR/train/date/class/status/coach/seat fields.
+- Full train route visual timeline.
+- Automatic highlighting of the longest entered halt.
+- Major-stop highlighting and green food/opportunity symbols.
+- Meal planner remains linked to breakfast/lunch/snack/dinner times.
+- Bus operator, bus/service no., type, ticket status, seat, date, boarding and dropping point.
+- Smart pasted bus-ticket parser.
+- Major bus stop / halt / food-break timeline and longest-halt highlighting.
+- Route/schedule search launchers use entered origin/destination/train/bus information.
+- Existing Firebase authentication and cloud sync preserved.
+
+Important:
+Automatic real-time PNR, train delays/platforms, bus inventories, fares and seat availability require an authorized live provider/API. This build avoids unsafe scraping and instead stores identifiers, parses pasted booking data, and launches targeted official/live searches.
+
+GitHub commit:
+Add smart train and bus route intelligence with ticket parser halt highlights and food markers V5.8

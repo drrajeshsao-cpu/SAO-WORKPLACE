@@ -1,8 +1,8 @@
 {
-  "name": "SAO Workplace V5.7 — Train Journey Intelligence",
+  "name": "SAO Workplace V5.8 — Smart Train & Bus Route Intelligence",
   "short_name": "SAO Workplace",
-  "description": "SAO Workplace travel planner with train PNR, coach/seat, stoppage timeline, meal-window planning and IRCTC food planning.",
-  "start_url": "./?v=5.7",
+  "description": "Travel planner with ticket parsing, train/bus route timelines, major halt highlighting, food opportunity markers and structured journey records.",
+  "start_url": "./?v=5.8",
   "display": "standalone",
   "background_color": "#f4f9fc",
   "theme_color": "#eaf4fb",
