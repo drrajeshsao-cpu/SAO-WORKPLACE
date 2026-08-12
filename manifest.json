@@ -1,8 +1,8 @@
 {
-  "name": "SAO Workplace V5.8 — Smart Train & Bus Route Intelligence",
+  "name": "SAO Workplace V5.9 — Smart Route Discovery",
   "short_name": "SAO Workplace",
-  "description": "Travel planner with ticket parsing, train/bus route timelines, major halt highlighting, food opportunity markers and structured journey records.",
-  "start_url": "./?v=5.8",
+  "description": "SAO Workplace with reusable journey templates, smart route discovery, train/bus booking launchers, saved snapshots, sharing and printable travel summaries.",
+  "start_url": "./?v=5.9",
   "display": "standalone",
   "background_color": "#f4f9fc",
   "theme_color": "#eaf4fb",

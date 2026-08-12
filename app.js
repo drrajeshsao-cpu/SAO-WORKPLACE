@@ -271,6 +271,50 @@ function travelPlanTemplate(t={}){
   return `
   <input id="tr_id" type="hidden" value="${esc(t.id||'')}">
 
+  <div class="travel-section route-discovery-hub">
+    <div class="travel-section-title"><span>0</span><div><b>🧠 Smart Route Discovery & Booking Hub</b><small>Start here: From → To → Date. Reuse saved travel details, compare train/bus options, check route, then continue planning.</small></div></div>
+
+    <div class="formgrid route-discovery-grid">
+      <label>From<input id="tr_discovery_from" value="${esc(t.origin||'Raipur')}" placeholder="Raipur"></label>
+      <label>To<input id="tr_discovery_to" value="${esc(t.place||'')}" placeholder="Pune"></label>
+      <label>Journey date<input id="tr_discovery_date" type="date" value="${t.startDate||t.journeyDate||''}"></label>
+      <label>Preferred mode
+        <select id="tr_discovery_mode">
+          <option>Compare Train + Bus</option>
+          <option>Train</option>
+          <option>Bus</option>
+          <option>Car</option>
+          <option>Flight</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="route-discovery-actions">
+      <button type="button" id="tr_discover_route" class="travel-ai-btn">✨ Discover Route Options</button>
+      <button type="button" id="tr_copy_route_to_plan" class="ghost">↓ Use These Details in Planner</button>
+      <button type="button" id="tr_load_saved_template" class="ghost">📂 Load Saved Journey</button>
+      <button type="button" id="tr_save_as_template" class="ghost">💾 Save as Reusable Journey</button>
+    </div>
+
+    <div id="tr_route_discovery_result" class="route-discovery-result">
+      Enter From, To and Date. The app can estimate straight-line distance and open live search/booking services. Exact road/rail distance, fares, availability and timetable remain provider-verified.
+    </div>
+
+    <div class="booking-launch-grid">
+      <button type="button" id="tr_book_irctc" class="booking-btn rail">🚆 IRCTC Train Booking</button>
+      <button type="button" id="tr_open_railone" class="booking-btn railone">📱 RailOne</button>
+      <button type="button" id="tr_book_paytm_train" class="booking-btn paytm">🚆 Paytm Trains</button>
+      <button type="button" id="tr_book_redbus" class="booking-btn bus">🚌 redBus</button>
+      <button type="button" id="tr_book_paytm_bus" class="booking-btn paytm">🚌 Paytm Bus</button>
+      <button type="button" id="tr_open_google_route" class="booking-btn map">🗺 Google Route</button>
+    </div>
+
+    <div class="saved-travel-panel">
+      <div class="train-subhead"><div><b>Saved Journey Templates</b><small>Frequent routes can be loaded without typing again.</small></div></div>
+      <div id="tr_saved_template_list" class="saved-template-list"></div>
+    </div>
+  </div>
+
   <div class="travel-section">
     <div class="travel-section-title"><span>1</span><div><b>Trip identity</b><small>Where, why, dates and companion</small></div></div>
     <div class="formgrid">
@@ -369,6 +413,13 @@ function travelPlanTemplate(t={}){
       <div id="tr_train_meal_plan" class="train-meal-plan"></div>
     </div>
 
+    <div class="travel-record-actions">
+      <button type="button" id="tr_save_train_snapshot">💾 Save Train Details</button>
+      <button type="button" id="tr_share_train_snapshot" class="ghost">↗ Share Train Details</button>
+      <button type="button" id="tr_copy_train_snapshot" class="ghost">📋 Copy</button>
+      <button type="button" id="tr_print_train_snapshot" class="ghost">🖨 Print</button>
+    </div>
+    <div id="tr_train_save_status" class="travel-online-status"></div>
     <div class="travel-live-data-note">
       <b>Important:</b> PNR status, platform, delays, live stoppage times, pantry/eCatering availability and vendor menus can change. Keep the train number + PNR here, but verify final live details with Indian Railways / IRCTC before travel or ordering food.
     </div>
@@ -402,6 +453,13 @@ function travelPlanTemplate(t={}){
       <div class="travel-smart-actions"><button type="button" id="tr_build_bus_visual" class="travel-ai-btn secondary">🗺 Build Bus Route Timeline</button></div>
       <div id="tr_bus_route_visual" class="train-route-visual">${t.busRouteVisualHtml||''}</div>
     </div>
+    <div class="travel-record-actions">
+      <button type="button" id="tr_save_bus_snapshot">💾 Save Bus Details</button>
+      <button type="button" id="tr_share_bus_snapshot" class="ghost">↗ Share Bus Details</button>
+      <button type="button" id="tr_copy_bus_snapshot" class="ghost">📋 Copy</button>
+      <button type="button" id="tr_print_bus_snapshot" class="ghost">🖨 Print</button>
+    </div>
+    <div id="tr_bus_save_status" class="travel-online-status"></div>
   </div>
 
   <div class="travel-section travel-stay-section">
@@ -504,6 +562,9 @@ function travelPlanTemplate(t={}){
 
   <div class="actionrow travel-save-row">
     <button id="saveTravel">💾 Save Complete Travel Plan</button>
+    <button type="button" id="tr_share_full_plan" class="ghost">↗ Share Full Plan</button>
+    <button type="button" id="tr_print_full_plan" class="ghost">🖨 Print / Save PDF</button>
+    <button type="button" id="tr_copy_full_plan" class="ghost">📋 Copy Summary</button>
     <button class="ghost" id="cancelTravel">Cancel</button>
   </div>`;
 }
@@ -540,6 +601,28 @@ function editTravel(id=''){
   $('#tr_bus_route_search').onclick=openBusRouteSearch;
   $('#tr_add_bus_stop').onclick=()=>addBusStopRow();
   $('#tr_build_bus_visual').onclick=buildBusRouteVisual;
+  $('#tr_discover_route').onclick=discoverRouteHub;
+  $('#tr_copy_route_to_plan').onclick=copyDiscoveryToPlanner;
+  $('#tr_save_as_template').onclick=saveCurrentJourneyTemplate;
+  $('#tr_load_saved_template').onclick=showSavedJourneyTemplates;
+  $('#tr_book_irctc').onclick=openIRCTCBooking;
+  $('#tr_open_railone').onclick=openRailOne;
+  $('#tr_book_paytm_train').onclick=()=>openBookingSearch('paytm-train');
+  $('#tr_book_redbus').onclick=()=>openBookingSearch('redbus');
+  $('#tr_book_paytm_bus').onclick=()=>openBookingSearch('paytm-bus');
+  $('#tr_open_google_route').onclick=openGoogleRouteFromHub;
+  $('#tr_save_train_snapshot').onclick=saveTrainSnapshot;
+  $('#tr_share_train_snapshot').onclick=()=>shareText(buildTrainSummary(),'Train Journey Details');
+  $('#tr_copy_train_snapshot').onclick=()=>copyText(buildTrainSummary(),'Train details copied.');
+  $('#tr_print_train_snapshot').onclick=()=>printTextCard('Train Journey Details',buildTrainSummary());
+  $('#tr_save_bus_snapshot').onclick=saveBusSnapshot;
+  $('#tr_share_bus_snapshot').onclick=()=>shareText(buildBusSummary(),'Bus Journey Details');
+  $('#tr_copy_bus_snapshot').onclick=()=>copyText(buildBusSummary(),'Bus details copied.');
+  $('#tr_print_bus_snapshot').onclick=()=>printTextCard('Bus Journey Details',buildBusSummary());
+  $('#tr_share_full_plan').onclick=()=>shareText(buildFullTravelSummary(),'Complete Travel Plan');
+  $('#tr_copy_full_plan').onclick=()=>copyText(buildFullTravelSummary(),'Travel summary copied.');
+  $('#tr_print_full_plan').onclick=()=>printTextCard('Complete Travel Plan',buildFullTravelSummary());
+  showSavedJourneyTemplates();
   $('#tr_add_stop').onclick=()=>addTrainStopRow();
   $('#tr_build_meal_plan').onclick=buildTrainMealPlan;
   $('#tr_find_stay').onclick=()=>openTravelSearch('stay');
@@ -552,6 +635,9 @@ function editTravel(id=''){
   renderBusStopRows(Array.isArray(t?.busStops)?t.busStops:[]);
   if(t?.trainRouteVisualHtml) $('#tr_train_route_visual').innerHTML=t.trainRouteVisualHtml;
   if(t?.busRouteVisualHtml) $('#tr_bus_route_visual').innerHTML=t.busRouteVisualHtml;
+  if($('#tr_discovery_from')) $('#tr_discovery_from').value=t?.origin||'Raipur';
+  if($('#tr_discovery_to')) $('#tr_discovery_to').value=t?.place||'';
+  if($('#tr_discovery_date')) $('#tr_discovery_date').value=t?.startDate||t?.journeyDate||'';
 
 
   $('#saveTravel').onclick=()=>{
@@ -828,6 +914,185 @@ function buildBusRouteVisual(){
   $('#tr_bus_route_visual').innerHTML=stops.map((s,i)=>{const h=+s.halt||0,food=!!s.food,max=h===maxHalt&&h>0,major=h>=20;
     return `<div class="route-stop-card ${max?'max-halt':''} ${major?'major-stop':''}"><div class="route-seq">${i+1}</div><div class="route-main"><b>${esc(s.city||'Bus stop')}</b><span>${s.date||''}</span><small>${s.arrival?`Arr ${s.arrival}`:''}${s.departure?` • Dep ${s.departure}`:''}${s.halt?` • Halt ${s.halt} min`:''}</small></div><div class="route-icons">${max?'<span>⏱️ MAX HALT</span>':''}${major?'<span>🏙️</span>':''}${food?'<span>🍱</span>':''}</div>${food?`<div class="route-food-note">🥗 ${esc(s.food)}</div>`:''}</div>`;
   }).join('');
+}
+
+function getJourneyTemplates(){
+  try{return JSON.parse(localStorage.getItem('saoTravelJourneyTemplatesV1')||'[]')}catch(e){return[]}
+}
+function setJourneyTemplates(x){
+  localStorage.setItem('saoTravelJourneyTemplatesV1',JSON.stringify(x||[]));
+}
+function showSavedJourneyTemplates(){
+  const box=$('#tr_saved_template_list'); if(!box)return;
+  const list=getJourneyTemplates();
+  if(!list.length){box.innerHTML='<div class="empty-template">No reusable journey saved yet.</div>';return}
+  box.innerHTML=list.slice().reverse().map(x=>`<div class="saved-template-card">
+    <div><b>${esc(x.name||`${x.origin||''} → ${x.place||''}`)}</b><span>${esc(x.origin||'')} → ${esc(x.place||'')} ${x.mode?`• ${esc(x.mode)}`:''}</span></div>
+    <div class="saved-template-actions">
+      <button type="button" class="ghost" onclick="app.loadTravelTemplate('${x.id}')">Load</button>
+      <button type="button" class="ghost" onclick="app.shareTravelTemplate('${x.id}')">Share</button>
+      <button type="button" class="ghost danger-lite" onclick="app.deleteTravelTemplate('${x.id}')">Delete</button>
+    </div>
+  </div>`).join('');
+}
+function captureCurrentTravelBasics(){
+  return {
+    origin:$('#tr_origin')?.value.trim()||$('#tr_discovery_from')?.value.trim()||'',
+    place:$('#tr_place')?.value.trim()||$('#tr_discovery_to')?.value.trim()||'',
+    mode:$('#tr_mode')?.value||'',
+    startDate:$('#tr_start')?.value||$('#tr_discovery_date')?.value||'',
+    returnDate:$('#tr_return')?.value||'',
+    trainNo:$('#tr_train_no')?.value.trim()||'',trainName:$('#tr_train_name')?.value.trim()||'',pnr:$('#tr_pnr')?.value.trim()||'',
+    trainTicketStatus:$('#tr_train_ticket_status')?.value||'',trainQuota:$('#tr_train_quota')?.value||'',journeyDate:$('#tr_journey_date')?.value||'',
+    trainClass:$('#tr_train_class')?.value||'',coach:$('#tr_coach')?.value.trim()||'',seat:$('#tr_seat')?.value.trim()||'',berthType:$('#tr_berth_type')?.value||'',
+    trainBoard:$('#tr_train_board')?.value.trim()||'',trainBoardCode:$('#tr_train_board_code')?.value.trim()||'',trainDest:$('#tr_train_dest')?.value.trim()||'',trainDestCode:$('#tr_train_dest_code')?.value.trim()||'',
+    busOperator:$('#tr_bus_operator')?.value.trim()||'',busNo:$('#tr_bus_no')?.value.trim()||'',busType:$('#tr_bus_type')?.value||'',busTicketStatus:$('#tr_bus_ticket_status')?.value||'',busSeat:$('#tr_bus_seat')?.value.trim()||'',busDate:$('#tr_bus_date')?.value||'',busBoard:$('#tr_bus_board')?.value.trim()||'',busDrop:$('#tr_bus_drop')?.value.trim()||'',
+    stayType:$('#tr_stay_type')?.value||'',stay:$('#tr_stay')?.value.trim()||'',foodType:$('#tr_food_type')?.value||'',sleepType:$('#tr_sleep_type')?.value||''
+  }
+}
+function saveCurrentJourneyTemplate(){
+  const d=captureCurrentTravelBasics();
+  if(!d.origin||!d.place){alert('Enter origin and destination first.');return}
+  const name=prompt('Name this reusable journey:',`${d.origin} → ${d.place}`); if(name===null)return;
+  const list=getJourneyTemplates();
+  list.push({...d,id:'jt_'+Date.now(),name:name.trim()||`${d.origin} → ${d.place}`,savedAt:new Date().toISOString()});
+  setJourneyTemplates(list.slice(-30));
+  showSavedJourneyTemplates();
+  $('#tr_route_discovery_result').innerHTML=`✅ Reusable journey saved: <b>${esc(name.trim()||`${d.origin} → ${d.place}`)}</b>.`;
+}
+function loadTravelTemplate(id){
+  const x=getJourneyTemplates().find(a=>a.id===id);if(!x)return;
+  const set=(sel,val)=>{const el=$(sel);if(el && val!==undefined && val!==null)el.value=val};
+  set('#tr_origin',x.origin);set('#tr_place',x.place);set('#tr_mode',x.mode);set('#tr_start',x.startDate);set('#tr_return',x.returnDate);
+  set('#tr_discovery_from',x.origin);set('#tr_discovery_to',x.place);set('#tr_discovery_date',x.startDate);
+  set('#tr_train_no',x.trainNo);set('#tr_train_name',x.trainName);set('#tr_pnr',x.pnr);set('#tr_train_ticket_status',x.trainTicketStatus);set('#tr_train_quota',x.trainQuota);
+  set('#tr_journey_date',x.journeyDate);set('#tr_train_class',x.trainClass);set('#tr_coach',x.coach);set('#tr_seat',x.seat);set('#tr_berth_type',x.berthType);set('#tr_train_board',x.trainBoard);set('#tr_train_board_code',x.trainBoardCode);set('#tr_train_dest',x.trainDest);set('#tr_train_dest_code',x.trainDestCode);
+  set('#tr_bus_operator',x.busOperator);set('#tr_bus_no',x.busNo);set('#tr_bus_type',x.busType);set('#tr_bus_ticket_status',x.busTicketStatus);set('#tr_bus_seat',x.busSeat);set('#tr_bus_date',x.busDate);set('#tr_bus_board',x.busBoard);set('#tr_bus_drop',x.busDrop);
+  set('#tr_stay_type',x.stayType);set('#tr_stay',x.stay);set('#tr_food_type',x.foodType);set('#tr_sleep_type',x.sleepType);
+  $('#tr_route_discovery_result').innerHTML=`✅ Loaded saved journey <b>${esc(x.name||'')}</b>. Edit only what changed, then save the trip.`;
+}
+function deleteTravelTemplate(id){
+  if(!confirm('Delete this saved reusable journey?'))return;
+  setJourneyTemplates(getJourneyTemplates().filter(x=>x.id!==id));showSavedJourneyTemplates();
+}
+function shareTravelTemplate(id){
+  const x=getJourneyTemplates().find(a=>a.id===id);if(!x)return;
+  shareText(`${x.name}\n${x.origin} → ${x.place}\nMode: ${x.mode||'-'}\nTrain: ${x.trainNo||'-'} ${x.trainName||''}\nBus: ${x.busOperator||'-'} ${x.busNo||''}`,'Saved Journey');
+}
+function copyDiscoveryToPlanner(){
+  const a=$('#tr_discovery_from').value.trim(),b=$('#tr_discovery_to').value.trim(),d=$('#tr_discovery_date').value;
+  $('#tr_origin').value=a;$('#tr_place').value=b;$('#tr_start').value=d;
+  if($('#tr_journey_date')&&!$('#tr_journey_date').value)$('#tr_journey_date').value=d;
+  if($('#tr_bus_date')&&!$('#tr_bus_date').value)$('#tr_bus_date').value=d;
+  $('#tr_route_discovery_result').innerHTML='✅ Route details copied into the planner. Continue with train/bus/ticket details.';
+}
+async function discoverRouteHub(){
+  const a=$('#tr_discovery_from').value.trim(),b=$('#tr_discovery_to').value.trim(),d=$('#tr_discovery_date').value,mode=$('#tr_discovery_mode').value;
+  const box=$('#tr_route_discovery_result');
+  if(!a||!b){alert('Enter From and To first.');return}
+  box.textContent='🔎 Estimating route and preparing live search options…';
+  try{
+    const getGeo=async q=>{
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q+', India')}`,{headers:{'Accept':'application/json'}});
+      const j=await r.json();return j?.[0]?{lat:+j[0].lat,lon:+j[0].lon,name:j[0].display_name}:null;
+    };
+    const [ga,gb]=await Promise.all([getGeo(a),getGeo(b)]);
+    let dist='Unavailable';
+    if(ga&&gb)dist=`~${haversineKm(ga.lat,ga.lon,gb.lat,gb.lon).toFixed(0)} km straight-line`;
+    box.innerHTML=`<div class="route-summary-card"><b>${esc(a)} → ${esc(b)}</b>
+      <span>📅 ${esc(d||'Date not selected')} • ${esc(mode)}</span>
+      <span>📏 ${esc(dist)}</span>
+      <small>Road/rail distance, journey duration, fares and actual available services must be confirmed on the booking provider.</small></div>
+      <div class="route-search-shortcuts">
+        <button type="button" class="ghost" onclick="app.searchLiveOption('train')">🚆 Search trains for this date</button>
+        <button type="button" class="ghost" onclick="app.searchLiveOption('bus')">🚌 Search buses for this date</button>
+        <button type="button" class="ghost" onclick="app.searchLiveOption('route')">🗺 Route & distance</button>
+      </div>`;
+  }catch(e){
+    box.innerHTML='⚠ Could not estimate the route automatically. Your entered data is safe; use the booking/search buttons below.';
+  }
+}
+function searchLiveOption(kind){
+  const a=$('#tr_discovery_from')?.value.trim()||'',b=$('#tr_discovery_to')?.value.trim()||'',d=$('#tr_discovery_date')?.value||'';
+  let q='';
+  if(kind==='train')q=`${a} to ${b} trains ${d} availability train number timing fare`;
+  if(kind==='bus')q=`${a} to ${b} buses ${d} operator sleeper seater timing fare`;
+  if(kind==='route')q=`${a} to ${b} distance route travel time`;
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener');
+}
+function openIRCTCBooking(){window.open('https://www.irctc.co.in/nget/train-search','_blank','noopener')}
+function openRailOne(){window.open('https://play.google.com/store/apps/details?id=org.cris.aikyam','_blank','noopener')}
+function openBookingSearch(kind){
+  if(kind==='redbus')window.open('https://www.redbus.in/bus-tickets','_blank','noopener');
+  if(kind==='paytm-bus')window.open('https://tickets.paytm.com/bus/','_blank','noopener');
+  if(kind==='paytm-train')window.open('https://tickets.paytm.com/trains/','_blank','noopener');
+}
+function openGoogleRouteFromHub(){
+  const a=$('#tr_discovery_from').value.trim(),b=$('#tr_discovery_to').value.trim();
+  if(!a||!b){alert('Enter From and To first.');return}
+  window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(a)}&destination=${encodeURIComponent(b)}`,'_blank','noopener');
+}
+function buildTrainSummary(){
+  const d=captureCurrentTravelBasics();
+  return `TRAIN JOURNEY
+${d.origin||'-'} → ${d.place||'-'}
+Train: ${d.trainNo||'-'} ${d.trainName||''}
+PNR: ${d.pnr||'-'} | Status: ${d.trainTicketStatus||'-'}
+Date: ${d.journeyDate||d.startDate||'-'} | Class: ${d.trainClass||'-'} | Quota: ${d.trainQuota||'-'}
+Coach: ${d.coach||'-'} | Seat/Berth: ${d.seat||'-'} | Type: ${d.berthType||'-'}
+Boarding: ${d.trainBoard||'-'} ${d.trainBoardCode||''}
+Destination: ${d.trainDest||'-'} ${d.trainDestCode||''}`;
+}
+function buildBusSummary(){
+  const d=captureCurrentTravelBasics();
+  return `BUS JOURNEY
+${d.origin||'-'} → ${d.place||'-'}
+Operator: ${d.busOperator||'-'}
+Bus / Service: ${d.busNo||'-'} | Type: ${d.busType||'-'}
+Status: ${d.busTicketStatus||'-'} | Seat/Berth: ${d.busSeat||'-'}
+Date: ${d.busDate||d.startDate||'-'}
+Boarding: ${d.busBoard||'-'}
+Dropping: ${d.busDrop||'-'}`;
+}
+function buildFullTravelSummary(){
+  const d=captureCurrentTravelBasics();
+  return `SAO WORKPLACE — COMPLETE TRAVEL PLAN
+Route: ${d.origin||'-'} → ${d.place||'-'}
+Start: ${d.startDate||'-'} | Return: ${d.returnDate||'-'} | Mode: ${d.mode||'-'}
+
+${buildTrainSummary()}
+
+${buildBusSummary()}
+
+Stay: ${d.stayType||'-'} ${d.stay||''}
+Food: ${d.foodType||'-'}
+Sleep: ${d.sleepType||'-'}`;
+}
+function saveTrainSnapshot(){
+  const x={id:'train_'+Date.now(),type:'train',summary:buildTrainSummary(),data:captureCurrentTravelBasics(),savedAt:new Date().toISOString()};
+  const arr=JSON.parse(localStorage.getItem('saoSavedTravelSnapshotsV1')||'[]');arr.push(x);localStorage.setItem('saoSavedTravelSnapshotsV1',JSON.stringify(arr.slice(-100)));
+  $('#tr_train_save_status').textContent='✅ Train details saved on this device. Complete Travel Plan save will also preserve the trip record.';
+}
+function saveBusSnapshot(){
+  const x={id:'bus_'+Date.now(),type:'bus',summary:buildBusSummary(),data:captureCurrentTravelBasics(),savedAt:new Date().toISOString()};
+  const arr=JSON.parse(localStorage.getItem('saoSavedTravelSnapshotsV1')||'[]');arr.push(x);localStorage.setItem('saoSavedTravelSnapshotsV1',JSON.stringify(arr.slice(-100)));
+  $('#tr_bus_save_status').textContent='✅ Bus details saved on this device. Complete Travel Plan save will also preserve the trip record.';
+}
+async function shareText(text,title='SAO Workplace'){
+  try{
+    if(navigator.share){await navigator.share({title,text});return}
+  }catch(e){if(e?.name==='AbortError')return}
+  await copyText(text,'Sharing is not available here, so the details were copied.');
+}
+async function copyText(text,msg='Copied.'){
+  try{await navigator.clipboard.writeText(text);alert(msg)}
+  catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert(msg)}
+}
+function printTextCard(title,text){
+  const w=window.open('','_blank','width=820,height=900');
+  if(!w){alert('Pop-up blocked. Allow pop-ups for printing.');return}
+  w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:Arial,sans-serif;padding:32px;color:#17324a}h1{font-size:24px}pre{white-space:pre-wrap;font:16px/1.5 Arial,sans-serif;border:1px solid #dfe7ec;border-radius:14px;padding:20px;background:#f9fcfe}</style></head><body><h1>${esc(title)}</h1><pre>${esc(text)}</pre><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
 }
 function openBusRouteSearch(){
   const a=$('#tr_bus_board').value.trim()||$('#tr_origin').value.trim(),b=$('#tr_bus_drop').value.trim()||$('#tr_place').value.trim(),op=$('#tr_bus_operator').value.trim();
@@ -1217,5 +1482,5 @@ function renderSettings(){
 }
 function checkReminders(){const due=db.tasks.filter(t=>!isDone(t)&&t.reminderDate===today());if(!due.length)return;const key='sao_reminder_seen_'+today();if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');if(window.Notification&&Notification.permission==='granted')new Notification('SAO Workplace Reminder',{body:`${due.length} task${due.length===1?'':'s'} need attention today.`})}
 function init(){applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
-return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
+return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,loadTravelTemplate,shareTravelTemplate,deleteTravelTemplate,searchLiveOption,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
 document.addEventListener('DOMContentLoaded',app.init);

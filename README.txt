@@ -139,3 +139,27 @@ Automatic real-time PNR, train delays/platforms, bus inventories, fares and seat
 
 GitHub commit:
 Add smart train and bus route intelligence with ticket parser halt highlights and food markers V5.8
+
+SAO WORKPLACE V5.9 — SMART ROUTE DISCOVERY + REUSABLE TRAVEL PROFILES
+Updated: 12 Aug 2026 • 19:02 IST
+
+NEW
+- Smart Route Discovery & Booking Hub placed at the start of Travel Planner.
+- From / To / Date / Preferred mode input.
+- Approximate straight-line distance estimation when public geocoding is available.
+- One-tap targeted live searches for train, bus and route.
+- Direct launchers for IRCTC, RailOne, Paytm Trains, redBus, Paytm Bus and Google Maps route.
+- Reusable Journey Templates: save frequent routes and travel details once, load them later without retyping.
+- Saved templates include core train/bus, stay, food and sleep details.
+- Train details: Save / Share / Copy / Print.
+- Bus details: Save / Share / Copy / Print.
+- Complete Travel Plan: Save / Share / Copy / Print / Save PDF through browser printing.
+- Local saved snapshots for quick retrieval in addition to the complete travel plan record.
+- Existing Firebase login and cloud sync code preserved.
+- Mobile/tablet responsive route discovery and booking dashboard.
+
+IMPORTANT
+Exact road/rail distance, timetable, fare, seat availability, PNR, running status and bus availability require the live booking/service provider. V5.9 prepares the query and opens official/popular booking services rather than claiming unverified live data.
+
+GITHUB COMMIT MESSAGE
+Add reusable journey templates smart route discovery booking hub and share print travel records V5.9

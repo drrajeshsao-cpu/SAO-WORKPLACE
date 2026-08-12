@@ -239,3 +239,26 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .bus-stop-row{padding:7px 0;border-top:1px solid #edf2f5}.bus-stop-row input{width:100%;min-width:0}
 @media(max-width:1050px){.bus-stop-head{display:none}.bus-stop-row{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px;border:1px solid #e3edf3;border-radius:12px;margin:8px 0}}
 @media(max-width:700px){.route-stop-card{grid-template-columns:34px 1fr}.route-icons{grid-column:2;justify-content:flex-start}.route-food-note{grid-column:2}.bus-stop-row{grid-template-columns:1fr}}
+
+/* ===== SAO WORKPLACE V5.9 — SMART ROUTE DISCOVERY + REUSABLE JOURNEYS ===== */
+.route-discovery-hub{border:1px solid #b9d8e7;background:linear-gradient(135deg,#f1fbff 0%,#fffdf4 100%);box-shadow:0 12px 30px rgba(39,85,116,.08)}
+.route-discovery-grid{grid-template-columns:1.2fr 1.2fr 1fr 1fr}
+.route-discovery-actions,.travel-record-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.route-discovery-result{border:1px solid #dce8ef;background:#fff;border-radius:15px;padding:14px;margin:10px 0;color:#526b7c;min-height:62px}
+.route-summary-card{display:flex;flex-direction:column;gap:5px}.route-summary-card b{font-size:18px;color:#183d59}.route-summary-card span{font-weight:700;color:#355c72}.route-summary-card small{color:#778995}
+.route-search-shortcuts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.booking-launch-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:12px 0}
+.booking-btn{border:1px solid #d3e2eb;border-radius:13px;background:#fff;padding:11px 10px;font-weight:800;color:#234a65;cursor:pointer}
+.booking-btn.rail{background:#eef7ff}.booking-btn.railone{background:#effaf6}.booking-btn.bus{background:#fff5f3}.booking-btn.paytm{background:#f2f8ff}.booking-btn.map{background:#f6fbf2}
+.saved-travel-panel{border-top:1px solid #dfebf1;margin-top:12px;padding-top:12px}
+.saved-template-list{display:grid;gap:8px}.saved-template-card{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #dde8ee;background:#fff;border-radius:13px;padding:10px 12px}
+.saved-template-card>div:first-child{display:flex;flex-direction:column;gap:3px}.saved-template-card span{font-size:12px;color:#748795}.saved-template-actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty-template{padding:12px;border:1px dashed #d6e1e7;border-radius:12px;color:#7b8992;background:#fbfdfe}
+.danger-lite{color:#9a3434!important;background:#fff5f5!important}
+.travel-record-actions button:first-child{background:#265f85;color:white}
+@media(max-width:1100px){.booking-launch-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.route-discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+  .booking-launch-grid,.route-discovery-grid{grid-template-columns:1fr}
+  .route-discovery-actions>*,.travel-record-actions>*{flex:1 1 100%}
+  .saved-template-card{grid-template-columns:1fr}.saved-template-actions{justify-content:stretch}.saved-template-actions>*{flex:1}
+}
