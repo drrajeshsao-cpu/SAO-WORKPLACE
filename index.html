@@ -4,17 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#eaf4fb">
-  <title>SAO Workplace V6.1 • Referral Network</title>
+  <title>SAO Workplace V5 • Final Stable</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css?v=6.1.0">
+  <link rel="stylesheet" href="styles.css?v=5.3.0">
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
     <div class="brand"><div class="logo future-logo"><span>S</span></div><div><strong>SAO Workplace</strong><span>Office • Home • Life</span></div></div><div class="vision-chip">FINAL STABLE • 50 YEARS VISION IN AI</div>
       <div class="release-badge-row">
-        <span class="release-badge">Version V6.1</span>
-        <span class="release-badge updated">Updated 12 Aug 2026 • 20:18 IST</span>
+        <span class="release-badge">Version V5.5</span>
+        <span class="release-badge updated">Updated 12 Aug 2026 • 17:45 IST</span>
       </div>
     <nav id="nav">
       <button class="active" data-view="dashboard">⌂ Dashboard</button>
@@ -25,7 +25,6 @@
       <button data-view="study">📚 Study Planner</button>
       <button data-view="wellness">🧘 Wellness & Sadhana</button>
       <button data-view="travel">✈ Travel & Seminar</button>
-      <button data-view="referrals">🏥 Referral Network</button>
       <button data-view="review">↻ Review Center</button><button data-view="ai">◈ AI Insights</button>
       <button data-view="summary">▤ Master Summary</button>
       <button data-view="files">📎 Files & Notes</button>
@@ -104,12 +103,12 @@
 <template id="travelTpl">
   <section class="travel-ai-hero">
     <div>
-      <span class="eyebrow">SAO TRAVEL LIFE INTELLIGENCE • JOURNEY → STAY → FOOD → SLEEP → DARSHAN / EXPLORE → RETURN</span>
-      <h2>🧭✨ AI-Integrated Tour & Life Planner</h2>
-      <p>Plan the complete round trip, daily stay, food, sleep, nearby darshan/exploration and return journey. Build a date-wise visual travel diary while keeping every choice editable.</p>
+      <span class="eyebrow">SAO TRAVEL INTELLIGENCE • ROUTE → STAY → EXPLORE → RETURN</span>
+      <h2>🧭 AI-Integrated Tour Planner</h2>
+      <p>Plan the complete journey from origin to destination and back, calculate stay duration, discover nearby places, and generate a practical day-wise itinerary.</p>
     </div>
     <div class="travel-ai-badges">
-      <span>🚆 Multi-mode route</span><span>🏨 Stay & sleep</span><span>🥗 Food preferences</span><span>🛕 Spiritual-first discovery</span><span>🗓 Day-wise visual plan</span>
+      <span>🚆 Multi-mode travel</span><span>🏨 Stay duration</span><span>📍 Nearby discovery</span><span>🗓 Auto itinerary</span>
     </div>
   </section>
 
@@ -138,178 +137,6 @@
   </div>
 </template>
 
-
-
-<template id="referralsTpl">
-  <section class="referral-hero">
-    <div>
-      <span class="eyebrow">SAO CLINICAL REFERRAL NETWORK • PROVIDER DIRECTORY • CLOSED-LOOP FOLLOW-UP</span>
-      <h2>🏥 Hospitals, Diagnostics & Referral Coordination</h2>
-      <p>Keep hospitals, diagnostic centres, doctors, PRO/staff contacts, referral notes, attachments, admission outcomes and patient-facing share cards in one searchable workspace.</p>
-      <div class="referral-hero-badges">
-        <span>🏥 Provider directory</span><span>👨‍⚕️ Doctors & PRO</span><span>🧪 Diagnostics</span><span>📤 Referrals</span><span>📎 Documents</span><span>🔁 Follow-up</span>
-      </div>
-    </div>
-    <div class="referral-stat-orb"><b id="referralNetworkCount">0</b><span>Providers</span></div>
-  </section>
-
-  <div class="referral-global-search card">
-    <div class="cardhead">
-      <div><h3>🔎 Smart Directory Search</h3><p class="muted">Search hospital, diagnostic centre, doctor, PRO, specialty, location, service or referred patient.</p></div>
-      <button id="ref_new_provider">+ Add Provider</button>
-    </div>
-    <div class="toolbar">
-      <input id="ref_search" placeholder="Hospital / doctor / PRO / location / specialty / patient…">
-      <select id="ref_type_filter"><option value="">All Provider Types</option></select>
-      <select id="ref_status_filter"><option value="">All Status</option><option>Active</option><option>Inactive</option></select>
-      <button class="ghost" id="ref_print_directory">🖨 Directory PDF</button>
-    </div>
-    <div id="ref_kpis" class="kpis compact"></div>
-  </div>
-
-  <div class="referral-tabs">
-    <button class="active" data-ref-tab="directory">🏥 Provider Directory</button>
-    <button data-ref-tab="contacts">👥 Doctors / PRO / Staff</button>
-    <button data-ref-tab="referrals">📤 Patient Referrals</button>
-    <button data-ref-tab="diagnostics">🧪 Diagnostic Network</button>
-  </div>
-
-  <div id="ref_tab_directory" class="ref-tab-pane">
-    <div class="referral-layout">
-      <div class="card referral-editor">
-        <div class="cardhead"><div><span class="eyebrow">PROVIDER MASTER</span><h3 id="ref_provider_title">Add Hospital / Diagnostic Centre</h3></div><span class="status-chip">100–200+ records supported</span></div>
-        <input type="hidden" id="rp_id">
-        <div class="formgrid">
-          <label>Provider type<select id="rp_type"></select></label>
-          <label>Name *<input id="rp_name" placeholder="Hospital / diagnostic centre name"></label>
-          <label>City / locality<input id="rp_city" placeholder="Raipur / Bhatagaon"></label>
-          <label>Full address<input id="rp_address" placeholder="Full postal address"></label>
-          <label>Main phone<input id="rp_phone" inputmode="tel"></label>
-          <label>WhatsApp<input id="rp_whatsapp" inputmode="tel"></label>
-          <label>Website<input id="rp_website" placeholder="https://…"></label>
-          <label>Google Maps / location link<input id="rp_maps" placeholder="Google Maps URL"></label>
-          <label>Timings<input id="rp_timings" placeholder="24x7 / OPD 9 AM–8 PM"></label>
-          <label>Emergency / admission phone<input id="rp_emergency" inputmode="tel"></label>
-          <label>Bed count<input id="rp_beds" type="number" min="0"></label>
-          <label>No. of doctors<input id="rp_doctors_count" type="number" min="0"></label>
-          <label>Owner / director<input id="rp_owner"></label>
-          <label>Referral / booking desk<input id="rp_bookingdesk" inputmode="tel"></label>
-          <label>Ayushman / PM-JAY<select id="rp_ayushman"><option>Unknown</option><option>Available</option><option>Not available</option></select></label>
-          <label>Insurance / TPA<select id="rp_insurance"><option>Unknown</option><option>Available</option><option>Limited</option><option>Not available</option></select></label>
-          <label>Status<select id="rp_status"><option>Active</option><option>Inactive</option></select></label>
-          <label>Last verified<input id="rp_verified" type="date"></label>
-        </div>
-        <label>Specialties / key doctors<textarea id="rp_specialties" placeholder="Orthopedics, Neurosurgery, Neurology, Cardiology…"></textarea></label>
-        <label>Services / facilities<textarea id="rp_services" placeholder="ICU, OT, ventilator, CT, MRI, blood bank, dialysis, ambulance…"></textarea></label>
-        <label>Cards / schemes / packages<textarea id="rp_schemes" placeholder="Ayushman, insurance, corporate cards, discounts, packages…"></textarea></label>
-        <label>Notes<textarea id="rp_notes" placeholder="Admission process, best contact, timings, limitations, special coordination notes…"></textarea></label>
-        <div class="actionrow">
-          <button id="rp_save">💾 Save Provider</button>
-          <button id="rp_clear" class="ghost">Clear</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="cardhead"><div><h3>Provider Directory</h3><p class="muted">Active entries appear first. Open, share, call, WhatsApp or map directly.</p></div></div>
-        <div id="rp_list"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="ref_tab_contacts" class="ref-tab-pane" hidden>
-    <div class="referral-layout">
-      <div class="card referral-editor">
-        <div class="cardhead"><div><span class="eyebrow">CONTACT DIRECTORY</span><h3>Doctor / PRO / Staff Record</h3></div></div>
-        <input type="hidden" id="rc_id">
-        <div class="formgrid">
-          <label>Provider<select id="rc_provider"></select></label>
-          <label>Name *<input id="rc_name"></label>
-          <label>Role<select id="rc_role"></select></label>
-          <label>Degree / qualification<input id="rc_degree"></label>
-          <label>Specialty / department<input id="rc_specialty"></label>
-          <label>Phone *<input id="rc_phone" inputmode="tel"></label>
-          <label>WhatsApp<input id="rc_whatsapp" inputmode="tel"></label>
-          <label>Availability / timing<input id="rc_timing"></label>
-          <label>Status<select id="rc_status"><option>Active</option><option>Inactive</option></select></label>
-          <label>Last verified<input id="rc_verified" type="date"></label>
-        </div>
-        <label>Notes<textarea id="rc_notes" placeholder="Best time to call, admission desk role, relationship/context, alternate contact…"></textarea></label>
-        <div class="contact-import-row">
-          <input id="rc_import_file" type="file" accept=".csv,.vcf,text/csv,text/vcard">
-          <button type="button" class="ghost" id="rc_import_btn">📥 Import CSV / VCF</button>
-          <button type="button" class="ghost" id="rc_contact_picker">📱 Phone Contact Picker</button>
-        </div>
-        <div class="actionrow"><button id="rc_save">💾 Save Contact</button><button id="rc_clear" class="ghost">Clear</button></div>
-      </div>
-      <div class="card">
-        <div class="cardhead"><div><h3>Active Contacts</h3><p class="muted">Inactive/left staff stay in history but are visually de-emphasized.</p></div></div>
-        <div id="rc_list"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="ref_tab_referrals" class="ref-tab-pane" hidden>
-    <div class="referral-layout">
-      <div class="card referral-editor">
-        <div class="cardhead"><div><span class="eyebrow">CLOSED-LOOP REFERRAL</span><h3>Patient Referral Record</h3></div><span class="status-chip">Clinical + coordination + outcome</span></div>
-        <input type="hidden" id="rr_id">
-        <div class="formgrid">
-          <label>Patient name *<input id="rr_patient"></label>
-          <label>Patient ID / UHID<input id="rr_patient_id"></label>
-          <label>Mobile<input id="rr_mobile" inputmode="tel"></label>
-          <label>Disease / reason *<input id="rr_reason" placeholder="Diagnosis / working diagnosis / procedure needed"></label>
-          <label>Urgency<select id="rr_urgency"><option>Routine</option><option>Priority</option><option>Urgent</option><option>Emergency</option></select></label>
-          <label>Referral date<input id="rr_date" type="date"></label>
-          <label>Referral time<input id="rr_time" type="time"></label>
-          <label>Hospital / centre<select id="rr_provider"></select></label>
-          <label>Consultant / department<input id="rr_consultant"></label>
-          <label>Contacted doctor / PRO / staff<select id="rr_contact"></select></label>
-          <label>Communication<select id="rr_communication"><option>Not contacted</option><option>Phone discussed</option><option>WhatsApp informed</option><option>Message sent</option><option>Appointment confirmed</option><option>Admission coordinated</option></select></label>
-          <label>Referral status<select id="rr_status"><option>Planned</option><option>Sent</option><option>Appointment fixed</option><option>Admitted</option><option>Completed</option><option>Cancelled</option><option>Lost to follow-up</option></select></label>
-          <label>Appointment / admission date<input id="rr_appt" type="datetime-local"></label>
-          <label>Follow-up reminder<input id="rr_reminder" type="datetime-local"></label>
-        </div>
-        <label>Clinical referral note<textarea id="rr_note" placeholder="Key symptoms, red flags, investigations, reason for referral, desired specialty/procedure…"></textarea></label>
-        <div class="formgrid">
-          <label>Ward / unit<input id="rr_ward"></label>
-          <label>Bed no.<input id="rr_bed"></label>
-          <label>Discharge date<input id="rr_discharge" type="date"></label>
-          <label>Total hospital cost ₹<input id="rr_total_cost" type="number" min="0"></label>
-          <label>Ayushman / scheme paid ₹<input id="rr_scheme_paid" type="number" min="0"></label>
-          <label>Insurance paid ₹<input id="rr_insurance_paid" type="number" min="0"></label>
-          <label>Patient cash/UPI paid ₹<input id="rr_patient_paid" type="number" min="0"></label>
-          <label>Patient discount / waiver ₹<input id="rr_discount" type="number" min="0"></label>
-        </div>
-        <label>Treatment / outcome<textarea id="rr_outcome" placeholder="Admission, procedure/surgery, treatment, discharge status, follow-up plan…"></textarea></label>
-        <div class="ref-compliance-note"><b>Financial integrity:</b> record patient billing, discounts, reimbursements or other lawful documented transactions only. Do not use this module to arrange or track improper referral inducements.</div>
-        <div class="ref-attachment-row">
-          <input id="rr_file" type="file" accept="image/*,application/pdf">
-          <button type="button" id="rr_attach">📎 Save Referral / Prescription File</button>
-        </div>
-        <div id="rr_file_status" class="travel-online-status"></div>
-        <div class="actionrow">
-          <button id="rr_save">💾 Save Referral</button>
-          <button id="rr_share" class="ghost">↗ Share Referral Summary</button>
-          <button id="rr_print" class="ghost">🖨 Print / Save PDF</button>
-          <button id="rr_clear" class="ghost">Clear</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="cardhead"><div><h3>Referral Worklist</h3><p class="muted">Track planned → sent → appointment/admission → completed.</p></div></div>
-        <div id="rr_list"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="ref_tab_diagnostics" class="ref-tab-pane" hidden>
-    <div class="card">
-      <div class="cardhead"><div><span class="eyebrow">DIAGNOSTIC DIRECTORY</span><h3>🧪 Pathology • X-ray • CT • MRI • PET • Endoscopy • Biopsy • Culture</h3><p class="muted">Filtered from the same provider master, so contact changes need to be updated only once.</p></div></div>
-      <div class="diagnostic-service-filter">
-        <button data-diag="Pathology">🩸 Pathology</button><button data-diag="X-ray">🩻 X-ray</button><button data-diag="CT">CT</button><button data-diag="MRI">MRI</button><button data-diag="PET">PET</button><button data-diag="Endoscopy">Endoscopy</button><button data-diag="Biopsy">Biopsy</button><button data-diag="Culture">Culture</button>
-      </div>
-      <div id="diagnostic_network_list"></div>
-    </div>
-  </div>
-</template>
 
 <template id="ideasTpl">
   <section class="ideas-hero">
@@ -538,7 +365,7 @@
 <template id="filesTpl"><div class="grid2"><div class="card"><h3>Files, Images, PDFs & Notes</h3><div class="formgrid"><label>Area<select id="fileCategory"></select></label><label>Linked Task / Project<select id="fileTask"><option value="">General / not linked</option></select></label><label>Note<input id="fileNote" placeholder="What is this file?"></label></div><label class="uploadbox">📎 Add Image / PDF / Document<input id="fileInput" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"></label><div id="pickedFiles"></div><button id="saveFiles">Save Files</button></div><div class="card"><div class="cardhead"><h3>Saved Files</h3><select id="fileFilter"><option value="">All Areas</option></select></div><div id="filesList"></div></div></div></template>
 <template id="backupTpl"><div class="card"><h3>Backup, Restore & Export</h3><p class="muted">Keep a backup before major changes or switching devices.</p><div class="actionrow"><button id="backupBtn">Download JSON Backup</button><label class="buttonlike">Restore JSON<input type="file" id="restoreInput" accept=".json" hidden></label><button class="ghost" id="csvBtn">Export Tasks CSV</button></div></div></template>
 <template id="settingsTpl"><div class="card"><div class="cardhead"><div><span class="eyebrow">FINAL STABLE CONFIGURATION</span><h3>Workplace Settings</h3></div><span class="stable-badge">V5 FINAL</span></div><div id="settingsForm"></div></div><div class="card"><h3>App Health & Installation</h3><div id="appHealth"></div><div class="actionrow"><button id="settingsInstallBtn" class="install-app-btn">Install / App Instructions</button><button id="testDataBtn" class="ghost">Run Data Health Check</button></div></div><div class="card"><h3>Reminder Permission</h3><p class="muted">In-app reminders work whenever the app is opened. Browser notifications can also appear while the app is active if permission is granted.</p><button id="notificationBtn">Enable Notifications</button><div id="notificationState" class="note"></div></div></template>
-<script src="app.js?v=6.1.0"></script>
-<script type="module" src="cloud-sync.js?v=6.1.0"></script>
+<script src="app.js?v=5.5.0"></script>
+<script type="module" src="cloud-sync.js?v=5.5.0"></script>
 </body>
 </html>
