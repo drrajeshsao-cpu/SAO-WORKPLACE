@@ -163,3 +163,35 @@ Exact road/rail distance, timetable, fare, seat availability, PNR, running statu
 
 GITHUB COMMIT MESSAGE
 Add reusable journey templates smart route discovery booking hub and share print travel records V5.9
+
+SAO WORKPLACE V6.0 — ETERNAL TRAVEL COMPANION FOUNDATION
+Updated 12 Aug 2026 • 19:36 IST
+
+Major design principle:
+Keep the daily interface simple while building durable modules that can survive changing travel providers.
+
+Added:
+- Travel Command Center with Trip Readiness score.
+- Stay / ISKCON / Ashram Booking Vault: property, booking ref, check-in/out, room, charges, advance, balance, facilities, authorized contact, life-membership ID, notes.
+- Secure Travel Document Vault for Masked Aadhaar, PAN, DL, Passport, ISKCON Life Membership, Visiting Card, Insurance, RC, tickets and medical documents.
+- Image/PDF attachment stored in IndexedDB, with optional authenticated Firebase Storage backup when Storage rules permit.
+- Document open/download/share and cloud restore attempt on a new device.
+- Emergency Top 10 / Top 50 contact registry.
+- Contact Picker support when the browser/device supports it; manual entry remains universal.
+- Masked financial recovery plan: bank/payment nickname + only last 4 digits + official help number + fallback method + emergency cash reserve.
+- Explicit prohibition on storing PIN/CVV/OTP/full card numbers.
+- Emergency Pack: printable/shareable recovery sheet.
+- DigiLocker and MyAadhaar quick links.
+- One-click Trip Pack combining route, stay, document index and emergency recovery information.
+- Existing reusable journeys, train/bus intelligence, Firebase login and structured cloud sync retained.
+
+IMPORTANT SECURITY NOTE
+For Aadhaar use Masked Aadhaar where practical. For debit/credit cards store only nickname/last 4/help number. Never store PIN, CVV, OTP or full card number.
+
+FIREBASE STORAGE
+Optional travel document cloud backup uses:
+users/{uid}/travel-docs/**
+Storage rules must separately permit only the authenticated matching uid.
+
+GITHUB COMMIT
+Build V6.0 Eternal Travel Companion with stay vault document recovery emergency pack and reusable journey foundation

@@ -7,6 +7,9 @@ import {
   getFirestore, doc, getDocFromServer, setDoc, onSnapshot,
   enableMultiTabIndexedDbPersistence, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import {
+  getStorage, ref as storageRef, uploadBytes, getBlob
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfVzYtazHUzwRaoGAi4KLdvfdILF0zkmk",
@@ -20,6 +23,7 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
 const firestore = getFirestore(fbApp);
+const storage = getStorage(fbApp);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 enableMultiTabIndexedDbPersistence(firestore).catch((e)=>{
   console.warn("Firestore persistence fallback:", e?.code || e);
@@ -61,7 +65,7 @@ function cleanForCloud(data){
   copy._cloud={
     schema:1,
     clientUpdatedAt:Date.now(),
-    appVersion:'5.4-ideas-cloud'
+    appVersion:'6.0-eternal-travel-companion-cloud'
   };
   return copy;
 }
@@ -321,3 +325,20 @@ onAuthStateChanged(auth,async user=>{
     setLoginMessage('Sign in to start automatic laptop ↔ mobile synchronization.');
   }
 });
+
+// V6.0 optional authenticated travel-document file bridge.
+// Requires Firebase Storage rules permitting only users/{uid}/travel-docs/** for the signed-in uid.
+window.SAOCloudFiles={
+  async uploadTravelDocument(localFileId,blob,meta={}){
+    if(!currentUser) throw new Error('Sign in to cloud first.');
+    const safeName=(meta.name||'document').replace(/[^a-zA-Z0-9._-]+/g,'_').slice(-120);
+    const path=`users/${currentUser.uid}/travel-docs/${localFileId}-${safeName}`;
+    const r=storageRef(storage,path);
+    await uploadBytes(r,blob,{contentType:blob.type||'application/octet-stream',customMetadata:{label:String(meta.label||''),type:String(meta.type||'')}});
+    return {path};
+  },
+  async downloadTravelDocument(path){
+    if(!currentUser) throw new Error('Sign in to cloud first.');
+    return await getBlob(storageRef(storage,path));
+  }
+};

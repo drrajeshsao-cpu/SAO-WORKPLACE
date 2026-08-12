@@ -18,14 +18,14 @@ const WORKSPACES={
   ai:{label:'App Development & AI',icon:'🤖',color:'ai',categories:['App Development & AI','App Development'],quickCategory:'App Development & AI',subtitle:'Apps, websites, AI experiments, GitHub work and technology projects.'}
 };
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{tasks:[],study:[],wellness:[],travel:[],settings:defaultSettings};
-db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.ideas=db.ideas||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.ideas=db.ideas||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
+db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.ideas=db.ideas||[];db.travelStays=db.travelStays||[];db.travelDocs=db.travelDocs||[];db.emergencyContacts=db.emergencyContacts||[];db.travelFinance=db.travelFinance||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.ideas=db.ideas||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 let currentView='dashboard';
 const normalizeDb=x=>{
   x=x||{};
-  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];x.ideas=x.ideas||[];
+  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];x.ideas=x.ideas||[];x.travelStays=x.travelStays||[];x.travelDocs=x.travelDocs||[];x.emergencyContacts=x.emergencyContacts||[];x.travelFinance=x.travelFinance||[];
   x.reflections=x.reflections||[];
   x.settings={...defaultSettings,...(x.settings||{})};
   x.tasks=x.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
@@ -271,7 +271,25 @@ function travelPlanTemplate(t={}){
   return `
   <input id="tr_id" type="hidden" value="${esc(t.id||'')}">
 
-  <div class="travel-section route-discovery-hub">
+  <div class="travel-v6-command">
+    <div class="travel-v6-hero">
+      <div>
+        <div class="eyebrow">SAO TRAVEL COMPANION • V6 FOUNDATION</div>
+        <h3>Plan once. Carry everything. Recover fast.</h3>
+        <p>Route → booking → stay → food → documents → emergency → memories, with reusable records and offline-first access.</p>
+      </div>
+      <div class="travel-readiness-ring"><b id="travelReadinessScore">--</b><span>Trip Readiness</span></div>
+    </div>
+    <div class="travel-v6-shortcuts">
+      <button type="button" id="tr_jump_plan">🗺 Plan Trip<small>Route & tickets</small></button>
+      <button type="button" id="tr_jump_stay">🛕 Stay & Ashram<small>Booking details</small></button>
+      <button type="button" id="tr_jump_vault">🪪 Travel Vault<small>ID & membership</small></button>
+      <button type="button" id="tr_jump_emergency">🆘 Emergency Pack<small>Contacts & recovery</small></button>
+      <button type="button" id="tr_generate_trip_pack">📄 Trip Pack<small>Print / PDF / share</small></button>
+    </div>
+  </div>
+
+  <div class="travel-section route-discovery-hub" id="travelPlanHub">
     <div class="travel-section-title"><span>0</span><div><b>🧠 Smart Route Discovery & Booking Hub</b><small>Start here: From → To → Date. Reuse saved travel details, compare train/bus options, check route, then continue planning.</small></div></div>
 
     <div class="formgrid route-discovery-grid">
@@ -462,6 +480,34 @@ function travelPlanTemplate(t={}){
     <div id="tr_bus_save_status" class="travel-online-status"></div>
   </div>
 
+
+  <div class="travel-section stay-booking-vault" id="travelStayVault">
+    <div class="travel-section-title"><span>3A</span><div><b>🛕 Stay / ISKCON / Ashram Booking Vault</b><small>Save accommodation once, keep booking, room, charges, facilities and authorized contact together.</small></div></div>
+    <div class="formgrid">
+      <label>Stay type<select id="sv_type"><option>ISKCON Guest House</option><option>Ashram</option><option>Dharamshala</option><option>Hotel</option><option>Lodge</option><option>Friend / Relative Home</option><option>Other Guest House</option></select></label>
+      <label>Temple / property name<input id="sv_name" placeholder="ISKCON Pune / Guest House"></label>
+      <label>City / address<input id="sv_city" placeholder="City / address"></label>
+      <label>Booking reference<input id="sv_booking" placeholder="Booking / reservation ID"></label>
+      <label>Check-in<input id="sv_checkin" type="datetime-local"></label>
+      <label>Check-out<input id="sv_checkout" type="datetime-local"></label>
+      <label>Room / bed no.<input id="sv_room" placeholder="Room / bed"></label>
+      <label>Total charges ₹<input id="sv_charges" type="number" min="0" placeholder="0"></label>
+      <label>Advance / token ₹<input id="sv_advance" type="number" min="0" placeholder="0"></label>
+      <label>Balance ₹<input id="sv_balance" type="number" min="0" placeholder="0"></label>
+      <label>Authorized person / desk<input id="sv_contact_name" placeholder="Name / reception"></label>
+      <label>Contact number<input id="sv_contact_phone" inputmode="tel" placeholder="Phone / WhatsApp"></label>
+      <label>Membership / LTM ID<input id="sv_membership" placeholder="ISKCON Life Membership ID"></label>
+      <label>Facilities<input id="sv_facilities" placeholder="Prasadam, parking, lift, hot water, Wi-Fi..."></label>
+    </div>
+    <label>Booking / stay notes<textarea id="sv_notes" placeholder="Rules, check-in instructions, darshan timing, gate, food timing, special requirements..."></textarea></label>
+    <div class="travel-record-actions">
+      <button type="button" id="sv_save">💾 Save Stay Booking</button>
+      <button type="button" id="sv_share" class="ghost">↗ Share</button>
+      <button type="button" id="sv_print" class="ghost">🖨 Print / PDF</button>
+    </div>
+    <div id="sv_saved_list" class="saved-template-list"></div>
+  </div>
+
   <div class="travel-section travel-stay-section">
     <div class="travel-section-title"><span>3</span><div><b>Stay + Sleep Plan</b><small>Destination residence and nightly sleep preference</small></div></div>
     <div class="formgrid">
@@ -560,6 +606,64 @@ function travelPlanTemplate(t={}){
     <b>Live-data safety:</b> current train/flight/bus availability, fares, exact opening hours, ticket rules and seasonal restrictions can change. The planner can organize and launch targeted searches; confirm final details with the actual operator/venue before booking.
   </div>
 
+
+  <div class="travel-section travel-security-vault" id="travelDocVault">
+    <div class="travel-section-title"><span>8</span><div><b>🪪 Secure Travel Document Vault</b><small>Keep essential travel documents discoverable. Prefer masked Aadhaar. Files stay local-first; optional Firebase Storage backup is attempted when signed in.</small></div></div>
+    <div class="travel-security-warning"><b>Financial safety:</b> Do not store card PIN, CVV, OTP or full debit/credit-card numbers here. Save only bank/card nickname + last 4 digits + blocking helpline.</div>
+    <div class="formgrid">
+      <label>Document type<select id="td_type"><option>Masked Aadhaar</option><option>PAN Card</option><option>Driving Licence</option><option>Passport</option><option>ISKCON Life Membership Card</option><option>Visiting Card</option><option>Travel Insurance</option><option>Vehicle RC</option><option>Rail / Bus Ticket</option><option>Medical / Prescription</option><option>Other</option></select></label>
+      <label>Document label<input id="td_label" placeholder="e.g. Masked Aadhaar / LTM Pune"></label>
+      <label>ID / last 4 / reference<input id="td_number" placeholder="Avoid unnecessary full sensitive numbers"></label>
+      <label>Expiry / valid until<input id="td_expiry" type="date"></label>
+    </div>
+    <label>Notes<input id="td_note" placeholder="Issuer, emergency use, where accepted, etc."></label>
+    <div class="travel-doc-upload">
+      <input id="td_file" type="file" accept="image/*,application/pdf">
+      <button type="button" id="td_pick_contact" class="ghost">👤 Pick Contact (supported phones)</button>
+      <button type="button" id="td_save">💾 Save Document</button>
+    </div>
+    <div id="td_status" class="travel-online-status"></div>
+    <div id="td_list" class="travel-doc-list"></div>
+  </div>
+
+  <div class="travel-section emergency-pack" id="travelEmergencyPack">
+    <div class="travel-section-title"><span>9</span><div><b>🆘 Emergency & Recovery Pack</b><small>What you need if phone, wallet, documents or connectivity are lost.</small></div></div>
+    <div class="emergency-grid">
+      <div class="emergency-card">
+        <h4>☎ Essential Contacts</h4>
+        <div class="formgrid">
+          <label>Name<input id="ec_name" placeholder="Person / service"></label>
+          <label>Relation / role<input id="ec_role" placeholder="Family / doctor / bank / host"></label>
+          <label>Phone<input id="ec_phone" inputmode="tel"></label>
+          <label>Priority<select id="ec_priority"><option>Top 10</option><option>Top 50</option><option>Normal</option></select></label>
+        </div>
+        <button type="button" id="ec_save">＋ Save Contact</button>
+        <div id="ec_list" class="emergency-contact-list"></div>
+      </div>
+      <div class="emergency-card">
+        <h4>💳 Financial Recovery — masked only</h4>
+        <div class="formgrid">
+          <label>Bank / payment method<input id="tf_bank" placeholder="SBI / ICICI / UPI backup"></label>
+          <label>Card/account nickname<input id="tf_name" placeholder="Travel backup card"></label>
+          <label>Last 4 digits<input id="tf_last4" maxlength="4" inputmode="numeric" placeholder="1234"></label>
+          <label>Lost-card / help number<input id="tf_help" inputmode="tel" placeholder="Official helpline"></label>
+          <label>Fallback<select id="tf_fallback"><option>Secondary bank / card</option><option>UPI backup</option><option>Emergency cash</option><option>Trusted family transfer</option><option>Other</option></select></label>
+          <label>Cash reserve ₹<input id="tf_cash" type="number" min="0" placeholder="Optional"></label>
+        </div>
+        <label>Recovery note<input id="tf_note" placeholder="What to do first if wallet/phone is lost"></label>
+        <button type="button" id="tf_save">💾 Save Recovery Method</button>
+        <div id="tf_list" class="emergency-contact-list"></div>
+      </div>
+    </div>
+    <div class="emergency-actions">
+      <button type="button" id="ec_contact_picker" class="ghost">📱 Import selected phone contacts</button>
+      <button type="button" id="ec_print">📄 Print / Save Emergency Pack PDF</button>
+      <button type="button" id="ec_share" class="ghost">↗ Share Emergency Pack</button>
+      <button type="button" id="ec_digilocker" class="ghost">🔐 Open DigiLocker</button>
+      <button type="button" id="ec_myaadhaar" class="ghost">🪪 Open MyAadhaar</button>
+    </div>
+  </div>
+
   <div class="actionrow travel-save-row">
     <button id="saveTravel">💾 Save Complete Travel Plan</button>
     <button type="button" id="tr_share_full_plan" class="ghost">↗ Share Full Plan</button>
@@ -623,6 +727,19 @@ function editTravel(id=''){
   $('#tr_copy_full_plan').onclick=()=>copyText(buildFullTravelSummary(),'Travel summary copied.');
   $('#tr_print_full_plan').onclick=()=>printTextCard('Complete Travel Plan',buildFullTravelSummary());
   showSavedJourneyTemplates();
+  $('#tr_jump_plan').onclick=()=>$('#travelPlanHub')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_jump_stay').onclick=()=>$('#travelStayVault')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_jump_vault').onclick=()=>$('#travelDocVault')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_jump_emergency').onclick=()=>$('#travelEmergencyPack')?.scrollIntoView({behavior:'smooth'});
+  $('#tr_generate_trip_pack').onclick=()=>printTextCard('SAO Travel Trip Pack',buildTripPackSummary());
+  $('#sv_save').onclick=saveStayBooking; $('#sv_share').onclick=()=>shareText(buildCurrentStaySummary(),'Stay Booking'); $('#sv_print').onclick=()=>printTextCard('Stay Booking',buildCurrentStaySummary());
+  $('#td_save').onclick=saveTravelDocument; $('#td_pick_contact').onclick=pickTravelContact;
+  $('#ec_save').onclick=saveEmergencyContact; $('#tf_save').onclick=saveTravelFinance;
+  $('#ec_contact_picker').onclick=pickEmergencyContacts; $('#ec_print').onclick=()=>printTextCard('Emergency Travel Pack',buildEmergencyPack());
+  $('#ec_share').onclick=()=>shareText(buildEmergencyPack(),'Emergency Travel Pack');
+  $('#ec_digilocker').onclick=()=>window.open('https://www.digilocker.gov.in/','_blank','noopener');
+  $('#ec_myaadhaar').onclick=()=>window.open('https://myaadhaar.uidai.gov.in/','_blank','noopener');
+  renderStayBookings(); renderTravelDocs(); renderEmergencyContacts(); renderTravelFinance(); updateTravelReadiness();
   $('#tr_add_stop').onclick=()=>addTrainStopRow();
   $('#tr_build_meal_plan').onclick=buildTrainMealPlan;
   $('#tr_find_stay').onclick=()=>openTravelSearch('stay');
@@ -916,6 +1033,125 @@ function buildBusRouteVisual(){
   }).join('');
 }
 
+
+function stayObjFromForm(){
+  return {id:uid(),type:$('#sv_type').value,name:$('#sv_name').value.trim(),city:$('#sv_city').value.trim(),booking:$('#sv_booking').value.trim(),checkin:$('#sv_checkin').value,checkout:$('#sv_checkout').value,room:$('#sv_room').value.trim(),charges:$('#sv_charges').value,advance:$('#sv_advance').value,balance:$('#sv_balance').value,contactName:$('#sv_contact_name').value.trim(),contactPhone:$('#sv_contact_phone').value.trim(),membership:$('#sv_membership').value.trim(),facilities:$('#sv_facilities').value.trim(),notes:$('#sv_notes').value.trim(),savedAt:new Date().toISOString()}
+}
+function buildCurrentStaySummary(){
+  const x=stayObjFromForm();
+  return `STAY BOOKING
+Type: ${x.type}
+Property: ${x.name||'-'}
+City / Address: ${x.city||'-'}
+Booking Ref: ${x.booking||'-'}
+Check-in: ${x.checkin||'-'}
+Check-out: ${x.checkout||'-'}
+Room / Bed: ${x.room||'-'}
+Charges: ₹${x.charges||0} | Advance: ₹${x.advance||0} | Balance: ₹${x.balance||0}
+Authorized person: ${x.contactName||'-'} ${x.contactPhone||''}
+Membership/LTM: ${x.membership||'-'}
+Facilities: ${x.facilities||'-'}
+Notes: ${x.notes||'-'}`;
+}
+function saveStayBooking(){
+  const x=stayObjFromForm(); if(!x.name&&!x.city){alert('Enter stay/property or city first.');return}
+  db.travelStays.push(x); save(); renderStayBookings(); updateTravelReadiness();
+}
+function renderStayBookings(){
+  const box=$('#sv_saved_list'); if(!box)return;
+  box.innerHTML=(db.travelStays||[]).slice().reverse().slice(0,15).map(x=>`<div class="saved-template-card"><div><b>${esc(x.name||x.type)}</b><span>${esc(x.city||'')} • ${esc(x.checkin||'')} → ${esc(x.checkout||'')} • Room ${esc(x.room||'-')}</span></div><div class="saved-template-actions"><button type="button" class="ghost" onclick="app.shareStay('${x.id}')">Share</button><button type="button" class="ghost danger-lite" onclick="app.deleteStay('${x.id}')">Delete</button></div></div>`).join('')||'<div class="empty-template">No stay booking saved yet.</div>'
+}
+function shareStay(id){const x=(db.travelStays||[]).find(a=>a.id===id);if(x)shareText(`STAY BOOKING\n${x.name}\n${x.city}\nBooking: ${x.booking||'-'}\nCheck-in: ${x.checkin||'-'}\nCheck-out: ${x.checkout||'-'}\nRoom: ${x.room||'-'}\nContact: ${x.contactName||'-'} ${x.contactPhone||''}\nFacilities: ${x.facilities||'-'}`,'Stay Booking')}
+function deleteStay(id){if(confirm('Delete saved stay?')){db.travelStays=(db.travelStays||[]).filter(x=>x.id!==id);save();renderStayBookings();updateTravelReadiness()}}
+
+async function saveTravelDocument(){
+  const f=$('#td_file').files?.[0]; const type=$('#td_type').value,label=$('#td_label').value.trim()||type,number=$('#td_number').value.trim(),expiry=$('#td_expiry').value,note=$('#td_note').value.trim();
+  if(!f){alert('Choose an image or PDF first.');return}
+  const fileId='traveldoc_'+uid();
+  await putFile({id:fileId,category:'Travel / Seminar',taskId:'',note:`TRAVEL VAULT • ${type} • ${note}`,name:f.name,type:f.type,size:f.size,date:today(),blob:f});
+  const meta={id:uid(),fileId,type,label,number,expiry,note,name:f.name,size:f.size,savedAt:new Date().toISOString(),cloudStatus:'Local only'};
+  db.travelDocs.push(meta);save();$('#td_file').value='';$('#td_status').textContent='✅ Saved locally. Attempting optional encrypted-account cloud file backup if Firebase Storage is available…';
+  try{
+    if(window.SAOCloudFiles?.uploadTravelDocument){
+      const res=await window.SAOCloudFiles.uploadTravelDocument(fileId,f,{type,label,name:f.name});
+      if(res?.path){meta.cloudPath=res.path;meta.cloudStatus='Cloud backed up';save();$('#td_status').textContent='✅ Saved locally + cloud file backup complete.'}
+    }
+  }catch(e){console.warn(e);$('#td_status').textContent='✅ Saved locally. Cloud file backup unavailable; structured metadata still syncs.'}
+  renderTravelDocs();updateTravelReadiness();
+}
+async function renderTravelDocs(){
+  const box=$('#td_list');if(!box)return;
+  box.innerHTML=(db.travelDocs||[]).slice().reverse().map(x=>`<div class="travel-doc-card"><div class="travel-doc-icon">${docIcon(x.type)}</div><div><b>${esc(x.label)}</b><span>${esc(x.type)}${x.number?` • ${esc(x.number)}`:''}${x.expiry?` • valid to ${esc(x.expiry)}`:''}</span><small>${esc(x.cloudStatus||'Local only')} • ${esc(x.name||'')}</small></div><div class="saved-template-actions"><button type="button" class="ghost" onclick="app.openTravelDoc('${x.id}')">Open</button><button type="button" class="ghost" onclick="app.shareTravelDoc('${x.id}')">Share</button><button type="button" class="ghost" onclick="app.downloadTravelDoc('${x.id}')">Download</button><button type="button" class="ghost danger-lite" onclick="app.deleteTravelDoc('${x.id}')">Delete</button></div></div>`).join('')||'<div class="empty-template">No travel document saved yet.</div>'
+}
+function docIcon(t){if(/Aadhaar|PAN|Licence|Passport|RC/.test(t))return '🪪';if(/ISKCON/.test(t))return '🛕';if(/Insurance/.test(t))return '🛡️';if(/Ticket/.test(t))return '🎟️';if(/Medical/.test(t))return '🩺';return '📄'}
+async function openTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;let f=await getFile(x.fileId);if(!f&&x.cloudPath&&window.SAOCloudFiles?.downloadTravelDocument){try{const blob=await window.SAOCloudFiles.downloadTravelDocument(x.cloudPath);if(blob){await putFile({id:x.fileId,category:'Travel / Seminar',taskId:'',note:'Restored from cloud',name:x.name||'travel-document',type:blob.type,size:blob.size,date:today(),blob});f=await getFile(x.fileId)}}catch(e){}}if(f)window.open(URL.createObjectURL(f.blob),'_blank');else alert('File is not on this device and cloud restore was unavailable.')}
+async function downloadTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;await openTravelDoc(id);const f=await getFile(x.fileId);if(f){const a=document.createElement('a');a.href=URL.createObjectURL(f.blob);a.download=f.name;a.click()}}
+async function shareTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;let f=await getFile(x.fileId);if(f&&navigator.share&&navigator.canShare?.({files:[new File([f.blob],f.name,{type:f.type})]})){try{await navigator.share({title:x.label,text:`${x.type}${x.number?` • ${x.number}`:''}`,files:[new File([f.blob],f.name,{type:f.type})]});return}catch(e){if(e?.name==='AbortError')return}}shareText(`${x.label}\n${x.type}\nReference: ${x.number||'-'}\nExpiry: ${x.expiry||'-'}`,'Travel Document')}
+async function deleteTravelDoc(id){const x=db.travelDocs.find(a=>a.id===id);if(!x)return;if(confirm('Delete this travel document from this device record?')){try{await delFile(x.fileId)}catch(e){}db.travelDocs=db.travelDocs.filter(a=>a.id!==id);save();renderTravelDocs();updateTravelReadiness()}}
+async function pickTravelContact(){if(!navigator.contacts?.select){alert('Contact Picker is not supported in this browser. You can add contacts manually.');return}try{const a=await navigator.contacts.select(['name','tel'],{multiple:false});if(a?.[0]){$('#td_note').value=[a[0].name?.[0],a[0].tel?.[0]].filter(Boolean).join(' • ')}}catch(e){}}
+
+function saveEmergencyContact(){
+  const x={id:uid(),name:$('#ec_name').value.trim(),role:$('#ec_role').value.trim(),phone:$('#ec_phone').value.trim(),priority:$('#ec_priority').value,savedAt:new Date().toISOString()};if(!x.name||!x.phone){alert('Enter contact name and phone.');return}db.emergencyContacts.push(x);save();renderEmergencyContacts();updateTravelReadiness()
+}
+function renderEmergencyContacts(){
+  const box=$('#ec_list');if(!box)return;
+  const rank={'Top 10':1,'Top 50':2,'Normal':3};
+  box.innerHTML=(db.emergencyContacts||[]).slice().sort((a,b)=>(rank[a.priority]||9)-(rank[b.priority]||9)).map(x=>`<div class="emergency-line"><div><b>${esc(x.name)}</b><span>${esc(x.role||'')} • ${esc(x.priority)}</span></div><a href="tel:${esc(x.phone)}">${esc(x.phone)}</a><button type="button" class="ghost danger-lite" onclick="app.deleteEmergencyContact('${x.id}')">×</button></div>`).join('')||'<div class="empty-template">No emergency contact saved yet.</div>'
+}
+function deleteEmergencyContact(id){db.emergencyContacts=(db.emergencyContacts||[]).filter(x=>x.id!==id);save();renderEmergencyContacts();updateTravelReadiness()}
+async function pickEmergencyContacts(){
+  if(!navigator.contacts?.select){alert('This browser cannot access the phone contact picker. Add Top 10/Top 50 contacts manually.');return}
+  try{const a=await navigator.contacts.select(['name','tel'],{multiple:true});for(const c of a||[]){const name=c.name?.[0]||'Contact',phone=c.tel?.[0]||'';if(phone)db.emergencyContacts.push({id:uid(),name,role:'Imported selected contact',phone,priority:'Top 50',savedAt:new Date().toISOString()})}save();renderEmergencyContacts();updateTravelReadiness()}catch(e){}
+}
+function saveTravelFinance(){
+  const last4=$('#tf_last4').value.trim();if(last4&&!/^\d{4}$/.test(last4)){alert('Use only the last 4 digits. Do not store a full card number.');return}
+  const x={id:uid(),bank:$('#tf_bank').value.trim(),name:$('#tf_name').value.trim(),last4,help:$('#tf_help').value.trim(),fallback:$('#tf_fallback').value,cash:$('#tf_cash').value,note:$('#tf_note').value.trim(),savedAt:new Date().toISOString()};if(!x.bank&&!x.name){alert('Enter bank or payment method.');return}db.travelFinance.push(x);save();renderTravelFinance();updateTravelReadiness()
+}
+function renderTravelFinance(){
+  const box=$('#tf_list');if(!box)return;
+  box.innerHTML=(db.travelFinance||[]).map(x=>`<div class="emergency-line"><div><b>${esc(x.bank||x.name)}</b><span>${esc(x.name||'')}${x.last4?` • •••• ${esc(x.last4)}`:''} • ${esc(x.fallback||'')}</span></div><span>${x.help?`☎ ${esc(x.help)}`:''}</span><button type="button" class="ghost danger-lite" onclick="app.deleteTravelFinance('${x.id}')">×</button></div>`).join('')||'<div class="empty-template">No recovery payment method saved yet.</div>'
+}
+function deleteTravelFinance(id){db.travelFinance=(db.travelFinance||[]).filter(x=>x.id!==id);save();renderTravelFinance();updateTravelReadiness()}
+function buildEmergencyPack(){
+  const contacts=(db.emergencyContacts||[]).map(x=>`${x.priority} • ${x.name} (${x.role||'-'}): ${x.phone}`).join('\n')||'No emergency contacts saved.';
+  const finance=(db.travelFinance||[]).map(x=>`${x.bank||x.name} ${x.name||''}${x.last4?` ••••${x.last4}`:''} | Help: ${x.help||'-'} | Fallback: ${x.fallback||'-'} | Cash reserve: ₹${x.cash||0}`).join('\n')||'No recovery method saved.';
+  return `SAO TRAVEL — EMERGENCY & RECOVERY PACK
+
+ESSENTIAL CONTACTS
+${contacts}
+
+FINANCIAL RECOVERY (MASKED)
+${finance}
+
+DOCUMENT RECOVERY
+Use DigiLocker / MyAadhaar where applicable. Keep only masked/reference data in shared copies.
+
+FIRST ACTIONS IF PHONE/WALLET IS LOST
+1. Move to a safe place and contact a trusted person.
+2. Block SIM/payment instruments using official channels.
+3. Use secondary payment/cash/family transfer.
+4. Access DigiLocker or cloud-backed travel documents on a trusted device.
+5. Re-check current bookings, stay contact and onward journey.`
+}
+function buildTripPackSummary(){
+  return `${buildFullTravelSummary()}
+
+LATEST STAYS
+${(db.travelStays||[]).slice(-3).map(x=>`${x.name||x.type} • ${x.city||'-'} • ${x.checkin||'-'} → ${x.checkout||'-'} • ${x.contactPhone||''}`).join('\n')||'None'}
+
+TRAVEL DOCUMENT INDEX
+${(db.travelDocs||[]).map(x=>`${x.type}: ${x.label}${x.number?` • ${x.number}`:''}${x.expiry?` • valid to ${x.expiry}`:''}`).join('\n')||'None'}
+
+${buildEmergencyPack()}`
+}
+function updateTravelReadiness(){
+  const el=$('#travelReadinessScore');if(!el)return;
+  let score=0;
+  const d=captureCurrentTravelBasics();
+  if(d.origin&&d.place)score+=20;if(d.startDate)score+=10;if(d.trainNo||d.busNo)score+=15;
+  if((db.travelStays||[]).length)score+=15;if((db.travelDocs||[]).length>=2)score+=15;if((db.emergencyContacts||[]).length>=2)score+=15;if((db.travelFinance||[]).length)score+=10;
+  el.textContent=Math.min(score,100)+'%';
+}
 function getJourneyTemplates(){
   try{return JSON.parse(localStorage.getItem('saoTravelJourneyTemplatesV1')||'[]')}catch(e){return[]}
 }
@@ -1482,5 +1718,5 @@ function renderSettings(){
 }
 function checkReminders(){const due=db.tasks.filter(t=>!isDone(t)&&t.reminderDate===today());if(!due.length)return;const key='sao_reminder_seen_'+today();if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');if(window.Notification&&Notification.permission==='granted')new Notification('SAO Workplace Reminder',{body:`${due.length} task${due.length===1?'':'s'} need attention today.`})}
 function init(){applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
-return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,loadTravelTemplate,shareTravelTemplate,deleteTravelTemplate,searchLiveOption,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
+return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,loadTravelTemplate,shareTravelTemplate,deleteTravelTemplate,searchLiveOption,shareStay,deleteStay,openTravelDoc,downloadTravelDoc,shareTravelDoc,deleteTravelDoc,deleteEmergencyContact,deleteTravelFinance,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
 document.addEventListener('DOMContentLoaded',app.init);
