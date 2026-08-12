@@ -1,0 +1,18 @@
+SAO Workplace V6.5 — Travel Packing & Departure Readiness
+Build 2026-08-12 23:12 IST
+
+• Universal reusable master packing checklist
+• Smart selection by traveler profile, travel mode and trip duration
+• Separate Include vs Packed/Done states
+• Medical/first-aid reminders with prescription-only safety labeling
+• Menstrual/female care
+• Hygiene, electronics, clothing, footwear, food/water
+• IDs, exam/professional documents, cash/cards
+• Bags/bedding, stationery, gifts/puja
+• Home shutdown and last-mile departure checklist
+• Custom items for sweets/gifts/special needs
+• Final trip-specific filtered list + Copy + Share/WhatsApp + Print/Save PDF
+• Saved per travel record; existing login/cloud structure preserved
+
+Commit:
+Add V6.5 universal travel packing checklist smart trip filter medical first aid home shutdown departure readiness PDF share and saved packing state

@@ -1,8 +1,8 @@
 {
-  "name": "SAO Workplace V6.4 \u2014 Journey Purpose Intelligence",
+  "name": "SAO Workplace V6.5 — Travel Readiness & Packing Intelligence",
   "short_name": "SAO Workplace",
-  "description": "Travel, seminar/CME, exam/interview/joining/duty and family/festival/health special journey planning.",
-  "start_url": "./?v=6.4",
+  "description": "Journey planning with universal trip-specific packing, medical/first-aid reminders, documents, electronics, food, home shutdown and departure readiness.",
+  "start_url": "./?v=6.5",
   "display": "standalone",
   "background_color": "#f5fafc",
   "theme_color": "#eaf4fb",

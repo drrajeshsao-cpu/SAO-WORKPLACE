@@ -247,3 +247,14 @@ FINAL STABILITY / UX PASS
 
 FINAL GITHUB COMMIT
 Finalize V6.2 cross-device operational dashboard responsive PWA polish integrated icon and stable referral travel workflow
+
+
+SAO WORKPLACE V6.5 — TRAVEL PACKING & DEPARTURE READINESS
+Updated 12 Aug 2026 • 23:12 IST
+
+Adds a universal master checklist with trip-specific selection and packed/done status. Categories include Medical & First Aid, Female/Menstrual Care, Hygiene, Electronics, Clothing, Footwear, Food & Water, Documents, Finance, Bags/Bedding, Stationery, Gifts/Puja, Home Shutdown, and Departure Readiness. Smart Select adapts by traveler profile, duration and mode. Custom items support gifts/sweets/special instruments. Final filtered list supports Copy, Share/WhatsApp and Print/Save PDF. Packing state is stored inside each travel plan and therefore follows existing travel/cloud sync.
+
+Medical items are reminders only; prescription-only medicines are explicitly marked clinician-defined. No dosing engine was added.
+
+Exact GitHub commit:
+Add V6.5 universal travel packing checklist smart trip filter medical first aid home shutdown departure readiness PDF share and saved packing state
