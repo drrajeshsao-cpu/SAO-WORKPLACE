@@ -1,8 +1,8 @@
 {
-  "name": "SAO Workplace V6.2 — Final Stable",
+  "name": "SAO Workplace V6.3 \u2014 Seminar Workshop Intelligence",
   "short_name": "SAO Workplace",
-  "description": "Integrated work, clinic/referral, travel, study, wellbeing, ideas and long-term planning workspace.",
-  "start_url": "./?v=6.2",
+  "description": "Travel plus structured seminar, conference, CME, workshop, hands-on training and meeting planner.",
+  "start_url": "./?v=6.3",
   "display": "standalone",
   "background_color": "#f5fafc",
   "theme_color": "#eaf4fb",

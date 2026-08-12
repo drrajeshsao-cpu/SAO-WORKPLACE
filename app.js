@@ -18,14 +18,14 @@ const WORKSPACES={
   ai:{label:'App Development & AI',icon:'🤖',color:'ai',categories:['App Development & AI','App Development'],quickCategory:'App Development & AI',subtitle:'Apps, websites, AI experiments, GitHub work and technology projects.'}
 };
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{tasks:[],study:[],wellness:[],travel:[],settings:defaultSettings};
-db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.ideas=db.ideas||[];db.travelStays=db.travelStays||[];db.travelDocs=db.travelDocs||[];db.emergencyContacts=db.emergencyContacts||[];db.travelFinance=db.travelFinance||[];db.healthProviders=db.healthProviders||[];db.healthContacts=db.healthContacts||[];db.patientReferrals=db.patientReferrals||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.ideas=db.ideas||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
+db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.ideas=db.ideas||[];db.travelStays=db.travelStays||[];db.travelDocs=db.travelDocs||[];db.emergencyContacts=db.emergencyContacts||[];db.travelFinance=db.travelFinance||[];db.healthProviders=db.healthProviders||[];db.healthContacts=db.healthContacts||[];db.patientReferrals=db.patientReferrals||[];db.professionalEvents=db.professionalEvents||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.ideas=db.ideas||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 let currentView='dashboard';
 const normalizeDb=x=>{
   x=x||{};
-  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];x.ideas=x.ideas||[];x.travelStays=x.travelStays||[];x.travelDocs=x.travelDocs||[];x.emergencyContacts=x.emergencyContacts||[];x.travelFinance=x.travelFinance||[];x.healthProviders=x.healthProviders||[];x.healthContacts=x.healthContacts||[];x.patientReferrals=x.patientReferrals||[];
+  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];x.ideas=x.ideas||[];x.travelStays=x.travelStays||[];x.travelDocs=x.travelDocs||[];x.emergencyContacts=x.emergencyContacts||[];x.travelFinance=x.travelFinance||[];x.healthProviders=x.healthProviders||[];x.healthContacts=x.healthContacts||[];x.patientReferrals=x.patientReferrals||[];x.professionalEvents=x.professionalEvents||[];
   x.reflections=x.reflections||[];
   x.settings={...defaultSettings,...(x.settings||{})};
   x.tasks=x.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
@@ -242,6 +242,7 @@ function renderTravel(){
   $('#travelStatusFilter').onchange=drawTravel;
   $('#newTravelBtn').onclick=()=>editTravel();
   drawTravel(); renderTravelKpis();
+peInit();
 }
 function renderTravelKpis(){
   const arr=db.travel||[];
@@ -1899,6 +1900,61 @@ function buildProviderDirectorySummary(){
   return (db.healthProviders||[]).filter(x=>x.status==='Active').map(providerShareText).join('\n\n---------------------------\n\n')||'No active providers saved.'
 }
 
+
+const PE_IDS="domain formality type orgtype name theme startdate starttime enddate endtime tithi city venue address map organizer coorganizer contact phone email url status priority with reason competing regopen early reglast latelast onspot category fee latefee tax paid paymode payref paydate regid batch cme feenotes refund chief guest trainer keynote speakers agenda paper poster abstract submission objectives handson route connect distance stayin stay local foodnotes attendance certstatus certno certdate useful skill learning change followup feedback recommend sr sl sf sh st sc".split(" ");
+const PE_CHECKS="breakfast lunch snacks dinner kit material".split(" ");
+function peVal(k){return $('#pe_'+k)?.value||''} function peSet(k,v){let e=$('#pe_'+k);if(e)e.value=v??''}
+function peRecord(){let x={id:peVal('id')||uid(),updatedAt:new Date().toISOString()};PE_IDS.forEach(k=>x[k]=peVal(k));PE_CHECKS.forEach(k=>x[k]=!!$('#pe_'+k)?.checked);x.priorityScore=['sr','sl','sf','sh','st','sc'].reduce((a,k)=>a+(+x[k]||0),0);let old=db.professionalEvents.find(z=>z.id===x.id);if(old?.documents)x.documents=old.documents;return x}
+function peInit(){let p=$('#proEventPanel'),t=$('#travelPrimary'),bt=$('#proTravelMode'),be=$('#proEventMode');if(!p)return;
+ bt.onclick=()=>{p.hidden=true;if(t)t.hidden=false;bt.classList.add('active');be.classList.remove('active')};
+ be.onclick=()=>{p.hidden=false;if(t)t.hidden=true;be.classList.add('active');bt.classList.remove('active');peDraw();peCount()};
+ $$('.event-tabs button').forEach(b=>b.onclick=()=>{$$('.event-tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.pe-pane').forEach(x=>x.hidden=true);$('#petab_'+b.dataset.petab).hidden=false});
+ ['sr','sl','sf','sh','st','sc'].forEach(k=>$('#pe_'+k)?.addEventListener('input',peScore));
+ $('#pe_save').onclick=peSave;$('#pe_clear').onclick=peClear;$('#pe_share').onclick=()=>shareText(peSummary(peRecord()),'Professional Event');$('#pe_print').onclick=()=>printTextCard('Professional Event',peSummary(peRecord()));
+ $('#pe_search').oninput=peDraw;$('#pe_fdomain').onchange=peDraw;$('#pe_fstatus').onchange=peDraw;$('#pe_attach').onclick=peAttach;$('#pe_autoread').onclick=peAutoRead;$('#pe_apply').onclick=peApply;$('#pe_discard').onclick=()=>{$('#pe_reviewbox').hidden=true;window.__peSug=null};
+ if(!peVal('startdate'))peSet('startdate',today());peScore();peCount();peDraw()
+}
+function peScore(){let n=['sr','sl','sf','sh','st','sc'].reduce((a,k)=>a+(+peVal(k)||0),0),label=n>=24?'Excellent fit':n>=18?'Strong option':n>=12?'Compare carefully':'Low priority / incomplete';if($('#peScore'))$('#peScore').textContent=`Priority score: ${n} / 30 • ${label}`}
+function peSave(){let x=peRecord();if(!x.name)return alert('Event / workshop name is required.');let i=db.professionalEvents.findIndex(z=>z.id===x.id);if(i>=0)db.professionalEvents[i]=x;else db.professionalEvents.push(x);save();peSet('id',x.id);peDraw();peCount();alert('Professional event saved successfully.')}
+function peClear(){peSet('id','');PE_IDS.forEach(k=>{let e=$('#pe_'+k);if(!e)return;e.tagName==='SELECT'?e.selectedIndex=0:e.value=''});PE_CHECKS.forEach(k=>{let e=$('#pe_'+k);if(e)e.checked=false});['sr','sl','sf','sh','st','sc'].forEach(k=>peSet(k,0));peSet('startdate',today());if($('#pe_doclist'))$('#pe_doclist').innerHTML='';peScore()}
+function peEdit(id){let x=db.professionalEvents.find(z=>z.id===id);if(!x)return;$('#proEventMode')?.click();peSet('id',x.id);PE_IDS.forEach(k=>peSet(k,x[k]));PE_CHECKS.forEach(k=>{let e=$('#pe_'+k);if(e)e.checked=!!x[k]});peScore();peDocs(id);scrollTo({top:0,behavior:'smooth'})}
+function peDelete(id){if(confirm('Delete this professional event?')){db.professionalEvents=db.professionalEvents.filter(x=>x.id!==id);save();peDraw();peCount()}}
+function peCount(){if($('#peCount'))$('#peCount').textContent=db.professionalEvents.length}
+function peSummary(x){return `${x.domain} • ${x.formality} • ${x.type}
+${x.name||'Untitled'}
+Theme: ${x.theme||'-'}
+Date/time: ${x.startdate||'-'} ${x.starttime||''} → ${x.enddate||'-'} ${x.endtime||''}
+Tithi: ${x.tithi||'-'}
+Venue: ${x.venue||'-'}, ${x.city||'-'}
+Address: ${x.address||'-'}
+Organizer: ${x.organizer||'-'} • ${x.orgtype||'-'}
+Contact: ${x.contact||'-'} ${x.phone||''}
+Registration: ${x.status||'-'} • ${x.category||'-'} • ID ${x.regid||'-'}
+Deadline: Early ${x.early||'-'} • Regular ${x.reglast||'-'} • Late ${x.latelast||'-'} • On-spot ${x.onspot||'-'}
+Fees: ₹${x.fee||0} + late ₹${x.latefee||0}; paid ₹${x.paid||0} by ${x.paymode||'-'} ${x.payref||''}
+CME points: ${x.cme||'-'} • Priority ${x.priority||'-'} • score ${x.priorityScore||0}/30
+Master trainer: ${x.trainer||'-'} • Keynote: ${x.keynote||'-'}
+Speakers: ${x.speakers||'-'}
+Agenda: ${x.agenda||'-'}
+Paper/Poster: ${x.paper||'-'} / ${x.poster||'-'} • Abstract ${x.abstract||'-'} • ${x.submission||'-'}
+Route/connectivity: ${x.route||'-'} • ${x.connect||'-'}
+Stay: ${x.stayin||'-'} • ${x.stay||'-'}
+Meals: Breakfast ${x.breakfast?'Yes':'No'} • Lunch ${x.lunch?'Yes':'No'} • Snacks ${x.snacks?'Yes':'No'} • Dinner ${x.dinner?'Yes':'No'} • Kit ${x.kit?'Yes':'No'}
+Food notes: ${x.foodnotes||'-'}
+Attendance: ${x.attendance||'-'} • Certificate ${x.certstatus||'-'} ${x.certno||''}
+Learning: ${x.learning||'-'}
+Practice/study change: ${x.change||'-'}
+Feedback: ${x.feedback||'-'}`}
+function peDraw(){let b=$('#pe_archive');if(!b)return;let q=(peValSearch()||'').toLowerCase(),d=$('#pe_fdomain')?.value||'',s=$('#pe_fstatus')?.value||'';let L=db.professionalEvents.filter(x=>(!q||`${x.name} ${x.city} ${x.organizer} ${x.trainer} ${x.keynote} ${x.speakers} ${x.theme}`.toLowerCase().includes(q))&&(!d||x.domain===d)&&(!s||x.status===s)).sort((a,b)=>(b.startdate||'').localeCompare(a.startdate||''));b.innerHTML=L.map(x=>`<div class="professional-event-card"><div class="provider-head"><div><b>${esc(x.name||'Untitled')}</b><span>${esc(x.type||'')} • ${esc(x.domain||'')} • ${esc(x.city||'')}</span></div><span class="ref-status">${esc(x.status||'')}</span></div><div class="provider-meta">${fmt(x.startdate)} → ${fmt(x.enddate)} • ${esc(x.organizer||'')} • Score ${x.priorityScore||0}/30</div><div class="provider-actions"><button class="ghost" onclick="app.peEdit('${x.id}')">Open / Edit</button><button class="ghost" onclick="app.peShare('${x.id}')">↗ Share</button><button class="ghost" onclick="app.pePrint('${x.id}')">🖨 PDF</button><button class="ghost danger-lite" onclick="app.peDelete('${x.id}')">Delete</button></div></div>`).join('')||'<p class="muted">No professional event saved yet.</p>'}
+function peValSearch(){return $('#pe_search')?.value||''}
+function peShare(id){let x=db.professionalEvents.find(z=>z.id===id);if(x)shareText(peSummary(x),'Professional Event')}
+function pePrint(id){let x=db.professionalEvents.find(z=>z.id===id);if(x)printTextCard('Professional Event',peSummary(x))}
+async function peAttach(){let f=$('#pe_file')?.files?.[0];if(!f)return alert('Choose a document first.');let id=peVal('id');if(!id){let x=peRecord();if(!x.name)return alert('Enter event name first.');db.professionalEvents.push(x);save();id=x.id;peSet('id',id)}let fid='pe_'+uid();await putFile({id:fid,category:'Travel & Seminar',taskId:'',note:peVal('doctype'),name:f.name,type:f.type,size:f.size,date:today(),blob:f});let e=db.professionalEvents.find(x=>x.id===id);e.documents=e.documents||[];e.documents.push({id:uid(),fileId:fid,name:f.name,docType:peVal('doctype'),size:f.size});save();$('#pe_file').value='';$('#pe_docstatus').textContent='✅ Document saved locally.';peDocs(id)}
+function peDocs(id){let b=$('#pe_doclist');if(!b)return;let e=db.professionalEvents.find(x=>x.id===id),D=e?.documents||[];b.innerHTML=D.map(d=>`<div class="contact-card"><div><b>${esc(d.docType)}</b><span>${esc(d.name)}</span></div><div class="provider-actions"><button class="ghost" onclick="app.openFile('${d.fileId}')">Open</button><button class="ghost" onclick="app.downloadFile('${d.fileId}')">Download</button></div></div>`).join('')||'<p class="muted">No event documents saved.</p>'}
+async function peAutoRead(){let f=$('#pe_file')?.files?.[0];if(!f)return alert('Choose brochure PDF/text first.');let text='';if(f.type==='text/plain')text=await f.text();else if(f.type==='application/pdf'){let raw=new TextDecoder('latin1').decode(new Uint8Array(await f.arrayBuffer()));text=(raw.match(/[\x20-\x7E]{6,}/g)||[]).join(' ').replace(/\s+/g,' ').slice(0,30000)}else{$('#pe_docstatus').textContent='Image OCR is not included in this offline stable build. Save the image and verify manually, or use a digital PDF/text brochure.';return}window.__peSug=peExtract(text);$('#pe_reviewbox').hidden=false;$('#pe_suggestions').value=JSON.stringify(window.__peSug,null,2);$('#pe_docstatus').textContent='✅ Suggestions ready — verify against original brochure.'}
+function peExtract(t){t=(t||'').replace(/\s+/g,' ');let p=r=>((t.match(r)||[])[1]||'').trim();return{name:(t.match(/(?:CME|WORKSHOP|SEMINAR|CONFERENCE|HANDS-ON TRAINING)[^|]{0,120}/i)||[])[0]||'',date:p(/(?:date|on)\s*[:\-]?\s*((?:0?[1-9]|[12]\d|3[01])[\-\/.](?:0?[1-9]|1[0-2])[\-\/.](?:20)?\d{2})/i),phone:p(/(?:contact|mobile|phone)\s*[:\-]?\s*(\+?\d[\d\s-]{8,16})/i),email:p(/([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})/i),fee:p(/(?:registration fee|delegate fee|fees?)\s*[:₹Rs.\s-]*([\d,]+)/i),venue:p(/(?:venue|place)\s*[:\-]\s*([^|]{4,100}?)(?=(?:date|time|contact|registration|fee|organised|organized|$))/i),organizer:p(/(?:organised by|organized by|organiser|organizer)\s*[:\-]\s*([^|]{3,120}?)(?=(?:venue|date|time|contact|registration|fee|$))/i),theme:p(/(?:theme|topic|aim)\s*[:\-]\s*([^|]{4,160}?)(?=(?:venue|date|time|contact|registration|fee|$))/i)}}
+function peApply(){let s=window.__peSug||{},set=(k,v)=>{if(v&&!peVal(k))peSet(k,v)};set('name',s.name);set('phone',s.phone);set('email',s.email);set('venue',s.venue);set('organizer',s.organizer);set('theme',s.theme);set('fee',(s.fee||'').replace(/,/g,''));if(s.date){let a=s.date.split(/[-/.]/);if(a.length===3)set('startdate',`${a[2].length===2?'20'+a[2]:a[2]}-${a[1].padStart(2,'0')}-${a[0].padStart(2,'0')}`)}$('#pe_reviewbox').hidden=true;$('#pe_docstatus').textContent='✅ Suggestions applied. Verify every field before saving.'}
+
 function renderBackup(){$('#backupBtn').onclick=()=>{db.settings.lastBackupAt=new Date().toISOString();save();download('SAO-Workplace-backup-'+today()+'.json',JSON.stringify(db,null,2),'application/json');};$('#restoreInput').onchange=async e=>{try{db=JSON.parse(await e.target.files[0].text());db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));save();alert('Restored.');showView('dashboard')}catch{alert('Invalid backup.')}};$('#csvBtn').onclick=()=>{const h=['Title','Area','Project','Priority','Status','Start Horizon','Start Date','Due Date','Reminder','Responsible','Context','Tags','Notes'];const rows=db.tasks.map(t=>[t.title,t.category,t.project,t.priority,t.status,t.horizon,t.startDate,t.dueDate,t.reminderDate,t.owner,t.context,t.tags,t.notes]);download('SAO-Workplace-tasks.csv',[h,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv')}}function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
 function renderSettings(){
   $('#settingsForm').innerHTML=`<div class="formgrid"><label>App Name<input id="set_name" value="${esc(db.settings.appName)}"></label><label>Owner Name<input id="set_owner" value="${esc(db.settings.ownerName)}"></label><label>Daily Naam Japa Target<input id="set_japa" type="number" value="${db.settings.dailyJapaTarget}"></label><label>Week Starts<select id="set_week"><option>Monday</option><option ${db.settings.weekStarts==='Sunday'?'selected':''}>Sunday</option></select></label><label>Appearance<select id="set_theme"><option ${db.settings.theme!=='Dark'?'selected':''}>Soft Blue</option><option ${db.settings.theme==='Dark'?'selected':''}>Dark</option></select></label></div><div class="actionrow"><button id="saveSettings">Save Settings</button></div>`;
@@ -1913,5 +1969,5 @@ function init(){
   const setViewportClass=()=>{document.documentElement.dataset.viewport=innerWidth<700?'mobile':innerWidth<1100?'tablet':'desktop'};
   setViewportClass(); addEventListener('resize',()=>{clearTimeout(window.__saoResize);window.__saoResize=setTimeout(setViewportClass,120)},{passive:true});
 applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
-return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,loadTravelTemplate,shareTravelTemplate,deleteTravelTemplate,searchLiveOption,shareStay,deleteStay,openTravelDoc,downloadTravelDoc,shareTravelDoc,deleteTravelDoc,deleteEmergencyContact,deleteTravelFinance,editHealthProvider,deleteHealthProvider,shareHealthProvider,editHealthContact,deleteHealthContact,editPatientReferral,deletePatientReferral,sharePatientReferral,printPatientReferral,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
+return{peEdit,peDelete,peShare,pePrint,init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,loadTravelTemplate,shareTravelTemplate,deleteTravelTemplate,searchLiveOption,shareStay,deleteStay,openTravelDoc,downloadTravelDoc,shareTravelDoc,deleteTravelDoc,deleteEmergencyContact,deleteTravelFinance,editHealthProvider,deleteHealthProvider,shareHealthProvider,editHealthContact,deleteHealthContact,editPatientReferral,deletePatientReferral,sharePatientReferral,printPatientReferral,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
 document.addEventListener('DOMContentLoaded',app.init);

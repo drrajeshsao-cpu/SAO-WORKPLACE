@@ -15,15 +15,15 @@
   <link rel="apple-touch-icon" href="icon-192.png">
   <title>SAO Workplace V6.2 • Final Stable</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css?v=6.2.0">
+  <link rel="stylesheet" href="styles.css?v=6.3.0">
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
     <div class="brand"><div class="logo future-logo integrated-logo"><img src="icon-192.png" alt="SAO Workplace"></div><div><strong>SAO Workplace</strong><span>Work • Clinic • Travel • Study • Life</span></div></div><div class="vision-chip">FINAL STABLE • 50 YEARS VISION IN AI</div>
       <div class="release-badge-row">
-        <span class="release-badge">Version V6.2</span>
-        <span class="release-badge updated">Updated 12 Aug 2026 • 19:48 IST</span>
+        <span class="release-badge">Version V6.3</span>
+        <span class="release-badge updated">Updated 12 Aug 2026 • 21:50 IST</span>
       </div>
     <nav id="nav">
       <button class="active" data-view="dashboard">⌂ Dashboard</button>
@@ -192,7 +192,58 @@
 
   <div class="travel-layout">
     <div class="card travel-editor-card">
-      <div class="cardhead">
+      
+<div class="card pro-event-switch">
+ <div><span class="eyebrow">TRAVEL + PROFESSIONAL EVENTS</span><h3>Planning Mode</h3><p class="muted">Travel remains separate. Use Professional Event for seminar, conference, CME, workshop, hands-on training or meeting.</p></div>
+ <div class="pro-mode-grid"><button id="proTravelMode" class="active">✈ Travel / Yatra / Tour</button><button id="proEventMode">🎓 Seminar / Workshop / CME / Meeting</button></div>
+</div>
+<section id="proEventPanel" hidden>
+ <div class="pro-event-hero"><div><span class="eyebrow">PROFESSIONAL EVENT INTELLIGENCE</span><h2>🎓 Seminar, Workshop, CME & Hands-on Training</h2><p>Medical or non-medical • formal or informal • registration, faculty, travel, brochure, certificate and learning archive.</p></div><div class="referral-stat-orb"><b id="peCount">0</b><span>Events</span></div></div>
+ <div class="event-tabs">
+  <button class="active" data-petab="profile">1 Profile</button><button data-petab="fees">2 Registration & Fees</button><button data-petab="faculty">3 Faculty & Agenda</button><button data-petab="logistics">4 Travel & Stay</button><button data-petab="docs">5 Brochure & Docs</button><button data-petab="review">6 Certificate & Review</button>
+ </div>
+ <div id="petab_profile" class="pe-pane card">
+  <input type="hidden" id="pe_id">
+  <div class="cardhead"><div><span class="eyebrow">EVENT MASTER PROFILE</span><h3>Event identity, type, timing, organizer & priority</h3></div></div>
+  <div class="formgrid">
+   <label>Domain<select id="pe_domain"><option>Medico</option><option>Non-medico</option></select></label>
+   <label>Formality<select id="pe_formality"><option>Formal</option><option>Informal</option></select></label>
+   <label>Event type<select id="pe_type"><option>Seminar</option><option>Conference</option><option>CME</option><option>Workshop</option><option>Hands-on Training</option><option>Masterclass</option><option>Meeting</option><option>Symposium</option><option>Webinar / Hybrid</option><option>Paper / Poster Presentation</option><option>Faculty Development</option><option>Other</option></select></label>
+   <label>Organization type<select id="pe_orgtype"><option>Government</option><option>Private</option><option>Medical College</option><option>University</option><option>Professional Association</option><option>Hospital</option><option>Society / Trust / NGO</option><option>Industry</option><option>Other</option></select></label>
+   <label>Workshop / Event name *<input id="pe_name"></label><label>Aim / Theme<input id="pe_theme"></label>
+   <label>Opening date<input id="pe_startdate" type="date"></label><label>Opening time<input id="pe_starttime" type="time"></label>
+   <label>Ending date<input id="pe_enddate" type="date"></label><label>Ending time<input id="pe_endtime" type="time"></label>
+   <label>Tithi<input id="pe_tithi" placeholder="Optional"></label><label>City<input id="pe_city"></label>
+   <label>Venue / Place<input id="pe_venue"></label><label>Address<input id="pe_address"></label>
+   <label>Google Maps / Location<input id="pe_map"></label><label>Organized by<input id="pe_organizer"></label>
+   <label>Co-organizer / Sponsor<input id="pe_coorganizer"></label><label>Contact person<input id="pe_contact"></label>
+   <label>Phone / WhatsApp<input id="pe_phone"></label><label>Email<input id="pe_email" type="email"></label>
+   <label>Website / Registration URL<input id="pe_url"></label><label>Booking status<select id="pe_status"><option>Considering</option><option>Shortlisted</option><option>Registration Open</option><option>Registered</option><option>Waitlisted</option><option>Confirmed</option><option>Attended</option><option>Completed</option><option>Cancelled</option></select></label>
+   <label>Priority<select id="pe_priority"><option>Must attend</option><option>High</option><option>Medium</option><option>Low</option><option>Optional</option></select></label><label>Going with<input id="pe_with"></label>
+  </div>
+  <label>Why attend / expected benefit<textarea id="pe_reason"></textarea></label>
+  <label>Other events on same date to compare<textarea id="pe_competing"></textarea></label>
+  <div class="score-box"><b>Priority score (0–5 each)</b><div class="formgrid">
+   <label>Clinical relevance<input id="pe_sr" type="number" min="0" max="5" value="0"></label><label>Learning value<input id="pe_sl" type="number" min="0" max="5" value="0"></label><label>Faculty quality<input id="pe_sf" type="number" min="0" max="5" value="0"></label><label>Hands-on value<input id="pe_sh" type="number" min="0" max="5" value="0"></label><label>Travel convenience<input id="pe_st" type="number" min="0" max="5" value="0"></label><label>Cost-value<input id="pe_sc" type="number" min="0" max="5" value="0"></label>
+  </div><div id="peScore">Priority score: 0 / 30</div></div>
+ </div>
+ <div id="petab_fees" class="pe-pane card" hidden><div class="cardhead"><h3>Registration, deadlines, category & payment</h3></div><div class="formgrid">
+  <label>Registration opens<input id="pe_regopen" type="date"></label><label>Early-bird deadline<input id="pe_early" type="date"></label><label>Regular last date<input id="pe_reglast" type="date"></label><label>Late registration deadline<input id="pe_latelast" type="date"></label>
+  <label>On-spot registration<select id="pe_onspot"><option>Unknown</option><option>Available</option><option>Not available</option></select></label>
+  <label>Participant category<select id="pe_category"><option>UG Student</option><option>Intern</option><option>PG Student</option><option>MD / MS</option><option>PhD / Research Scholar</option><option>Practitioner</option><option>Faculty / Teacher</option><option>Speaker</option><option>Delegate</option><option>Other</option></select></label>
+  <label>Base fee ₹<input id="pe_fee" type="number" min="0"></label><label>Late fee ₹<input id="pe_latefee" type="number" min="0"></label><label>Tax / GST ₹<input id="pe_tax" type="number" min="0"></label><label>Amount paid ₹<input id="pe_paid" type="number" min="0"></label>
+  <label>Payment mode<select id="pe_paymode"><option>Not paid</option><option>UPI</option><option>Cash</option><option>Card</option><option>Net Banking</option><option>Cheque</option><option>On the spot</option><option>Sponsored / Waived</option></select></label><label>Transaction / Receipt ID<input id="pe_payref"></label><label>Payment date<input id="pe_paydate" type="date"></label><label>Registration / Delegate ID<input id="pe_regid"></label><label>Batch / Seat<input id="pe_batch"></label><label>CME credit points<input id="pe_cme" type="number" step=".5"></label>
+ </div><label>UG/PG/Practitioner/Faculty/Member fee details<textarea id="pe_feenotes"></textarea></label><label>Cancellation / refund policy<textarea id="pe_refund"></textarea></label></div>
+ <div id="petab_faculty" class="pe-pane card" hidden><div class="cardhead"><h3>Master trainer, speakers, guests, agenda & academic participation</h3></div><div class="formgrid">
+  <label>Chief guest<input id="pe_chief"></label><label>Guest of honour<input id="pe_guest"></label><label>Master trainer<input id="pe_trainer"></label><label>Keynote speaker<input id="pe_keynote"></label>
+ </div><label>Other speakers / faculty<textarea id="pe_speakers" placeholder="Name • degree • specialty • institute • topic"></textarea></label><label>Day-wise agenda<textarea id="pe_agenda"></textarea></label><div class="formgrid"><label>Paper presentation<select id="pe_paper"><option>No</option><option>Possible</option><option>Submitted</option><option>Accepted</option><option>Presented</option></select></label><label>Poster presentation<select id="pe_poster"><option>No</option><option>Possible</option><option>Submitted</option><option>Accepted</option><option>Presented</option></select></label><label>Abstract deadline<input id="pe_abstract" type="date"></label><label>Submission status<select id="pe_submission"><option>Not applicable</option><option>Draft</option><option>Submitted</option><option>Under Review</option><option>Accepted</option><option>Rejected</option><option>Presented</option></select></label></div><label>Learning objectives<textarea id="pe_objectives"></textarea></label><label>Hands-on stations / procedures<textarea id="pe_handson"></textarea></label></div>
+ <div id="petab_logistics" class="pe-pane card" hidden><div class="cardhead"><h3>Route, connectivity, stay, food & delegate kit</h3></div><div class="formgrid"><label>Route / city connectivity<textarea id="pe_route" placeholder="Train / bus / flight options"></textarea></label><label>Nearest station / airport / bus stand<textarea id="pe_connect"></textarea></label><label>Distance from station/airport<input id="pe_distance"></label><label>Stay included<select id="pe_stayin"><option>Unknown</option><option>Yes</option><option>No</option><option>Optional package</option></select></label><label>Stay details<textarea id="pe_stay"></textarea></label><label>Local transport<textarea id="pe_local"></textarea></label></div><div class="meal-grid"><label><input id="pe_breakfast" type="checkbox">Breakfast</label><label><input id="pe_lunch" type="checkbox">Lunch</label><label><input id="pe_snacks" type="checkbox">Tea / Snacks</label><label><input id="pe_dinner" type="checkbox">Dinner</label><label><input id="pe_kit" type="checkbox">Delegate Kit</label><label><input id="pe_material" type="checkbox">Course Material</label></div><label>Food / dietary notes<textarea id="pe_foodnotes" placeholder="Pure veg / without onion-garlic / Jain / fasting etc."></textarea></label></div>
+ <div id="petab_docs" class="pe-pane card" hidden><div class="cardhead"><div><h3>Brochure & Document Vault</h3><p class="muted">Save brochure, receipt, ticket, abstract, presentation, certificate, agenda and badge. Digital PDF/text gets best-effort AutoRead suggestions; verify before applying.</p></div></div><div class="event-doc-row"><select id="pe_doctype"><option>Brochure</option><option>Registration Receipt</option><option>Payment Proof</option><option>Ticket / Booking</option><option>Abstract / Paper</option><option>Presentation</option><option>Certificate</option><option>Delegate ID / Badge</option><option>Agenda</option><option>Other</option></select><input id="pe_file" type="file" accept="application/pdf,image/*,.txt"><button id="pe_attach">📎 Save Document</button><button id="pe_autoread" class="ghost">✨ AutoRead Brochure</button></div><div id="pe_docstatus" class="travel-online-status"></div><div id="pe_doclist"></div><div id="pe_reviewbox" class="brochure-review" hidden><h4>Suggested extraction — verify manually</h4><textarea id="pe_suggestions" readonly></textarea><div class="actionrow"><button id="pe_apply">Apply Suggestions</button><button id="pe_discard" class="ghost">Discard</button></div></div></div>
+ <div id="petab_review" class="pe-pane card" hidden><div class="cardhead"><h3>Certificate, learning outcome & self-review</h3></div><div class="formgrid"><label>Attendance<select id="pe_attendance"><option>Not yet</option><option>Attended fully</option><option>Partially attended</option><option>Missed</option><option>Cancelled</option></select></label><label>Certificate status<select id="pe_certstatus"><option>Not expected</option><option>Pending</option><option>Received</option><option>Downloaded</option><option>Verified</option></select></label><label>Certificate number<input id="pe_certno"></label><label>Certificate date<input id="pe_certdate" type="date"></label><label>Usefulness 0–10<input id="pe_useful" type="number" min="0" max="10"></label><label>Hands-on confidence gain 0–10<input id="pe_skill" type="number" min="0" max="10"></label></div><label>Key learning points<textarea id="pe_learning"></textarea></label><label>Change in practice / study<textarea id="pe_change"></textarea></label><label>Important contacts / follow-up<textarea id="pe_followup"></textarea></label><label>Self feedback / what was missing<textarea id="pe_feedback"></textarea></label><label>Would attend/recommend again? Why?<textarea id="pe_recommend"></textarea></label></div>
+ <div class="event-savebar"><button id="pe_save">💾 Save Professional Event</button><button id="pe_share" class="ghost">↗ Share Summary</button><button id="pe_print" class="ghost">🖨 Print / Save PDF</button><button id="pe_clear" class="ghost">New / Clear</button></div>
+ <div class="card"><div class="cardhead"><div><span class="eyebrow">LIFETIME EVENT ARCHIVE</span><h3>Saved professional events</h3></div></div><div class="toolbar"><input id="pe_search" placeholder="Search event, city, organizer, trainer, theme…"><select id="pe_fdomain"><option value="">All domains</option><option>Medico</option><option>Non-medico</option></select><select id="pe_fstatus"><option value="">All status</option><option>Considering</option><option>Registered</option><option>Confirmed</option><option>Attended</option><option>Completed</option><option>Cancelled</option></select></div><div id="pe_archive"></div></div>
+</section>
+<div id="travelPrimary" class="cardhead">
         <div>
           <span class="eyebrow">NEW JOURNEY / SEMINAR / YATRA / TOUR</span>
           <h3 id="travelEditorTitle">Complete Trip Planner</h3>
@@ -613,7 +664,7 @@
 <template id="filesTpl"><div class="grid2"><div class="card"><h3>Files, Images, PDFs & Notes</h3><div class="formgrid"><label>Area<select id="fileCategory"></select></label><label>Linked Task / Project<select id="fileTask"><option value="">General / not linked</option></select></label><label>Note<input id="fileNote" placeholder="What is this file?"></label></div><label class="uploadbox">📎 Add Image / PDF / Document<input id="fileInput" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"></label><div id="pickedFiles"></div><button id="saveFiles">Save Files</button></div><div class="card"><div class="cardhead"><h3>Saved Files</h3><select id="fileFilter"><option value="">All Areas</option></select></div><div id="filesList"></div></div></div></template>
 <template id="backupTpl"><div class="card"><h3>Backup, Restore & Export</h3><p class="muted">Keep a backup before major changes or switching devices.</p><div class="actionrow"><button id="backupBtn">Download JSON Backup</button><label class="buttonlike">Restore JSON<input type="file" id="restoreInput" accept=".json" hidden></label><button class="ghost" id="csvBtn">Export Tasks CSV</button></div></div></template>
 <template id="settingsTpl"><div class="card"><div class="cardhead"><div><span class="eyebrow">FINAL STABLE CONFIGURATION</span><h3>Workplace Settings</h3></div><span class="stable-badge">V5 FINAL</span></div><div id="settingsForm"></div></div><div class="card"><h3>App Health & Installation</h3><div id="appHealth"></div><div class="actionrow"><button id="settingsInstallBtn" class="install-app-btn">Install / App Instructions</button><button id="testDataBtn" class="ghost">Run Data Health Check</button></div></div><div class="card"><h3>Reminder Permission</h3><p class="muted">In-app reminders work whenever the app is opened. Browser notifications can also appear while the app is active if permission is granted.</p><button id="notificationBtn">Enable Notifications</button><div id="notificationState" class="note"></div></div></template>
-<script src="app.js?v=6.2.0"></script>
-<script type="module" src="cloud-sync.js?v=6.2.0"></script>
+<script src="app.js?v=6.3.0"></script>
+<script type="module" src="cloud-sync.js?v=6.3.0"></script>
 </body>
 </html>

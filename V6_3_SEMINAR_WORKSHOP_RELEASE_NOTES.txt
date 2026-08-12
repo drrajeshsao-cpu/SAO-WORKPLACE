@@ -1,0 +1,18 @@
+SAO Workplace V6.3 — Seminar / Workshop / CME Intelligence
+Updated 12 Aug 2026 • 21:50 IST
+
+Adds:
+• Medico / Non-medico × Formal / Informal classification
+• Seminar / Conference / CME / Workshop / Hands-on / Meeting / Symposium / Hybrid etc.
+• Event name, aim/theme, tithi, opening-ending date/time, venue/address/map, organizer, government/private/college/university/association etc.
+• Booking status, companions, same-date competing-event comparison and 30-point priority score
+• Early/regular/late/on-spot registration, UG/PG/MD/PhD/practitioner/faculty categories, fees/payment/receipt/CME credits
+• Master trainer, speakers, guests, agenda, paper/poster/abstract
+• Train/bus/flight connectivity, stay, food, breakfast/lunch/snacks/dinner, kit/material
+• Brochure/document vault with best-effort digital PDF/text AutoRead suggestions + mandatory verification
+• Certificate, attendance, learning outcomes, practice change and self-feedback
+• Searchable lifetime event archive, share, print/save PDF
+• Existing Travel, Referral Network, Firebase login and cloud logic preserved
+
+GitHub commit:
+Add V6.3 seminar workshop CME hands-on planner registration brochure import certificate archive and professional event intelligence
