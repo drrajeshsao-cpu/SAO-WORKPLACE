@@ -211,9 +211,407 @@ function drawWellnessForm(){const d=$('#wellnessDate').value||today(),w=db.welln
 function saveWellness(date){const x={date,japa:+$('#w_japa').value||0,mala:+$('#w_mala').value||0,sadhana:+$('#w_sadhana').value||0,vrata:$('#w_vrata').value,exercise:+$('#w_exercise').value||0,yoga:+$('#w_yoga').value||0,sleep:+$('#w_sleep').value||0,diet:+$('#w_diet').value||0,donation:+$('#w_donation').value||0,donationNote:$('#w_donationNote').value,steps:+$('#w_steps').value||0,water:+$('#w_water').value||0,darshan:$('#w_darshan').value,notes:$('#w_notes').value};const i=db.wellness.findIndex(y=>y.date===date);if(i>=0)db.wellness[i]=x;else db.wellness.push(x);save();renderWellnessTotals();renderWellnessHistory();alert('Daily wellness / sadhana log saved.')}
 function renderWellnessTotals(){const month=($('#wellnessDate').value||today()).slice(0,7),a=db.wellness.filter(x=>x.date.startsWith(month));const sum=k=>a.reduce((s,x)=>s+(+x[k]||0),0),avg=k=>a.length?(sum(k)/a.length).toFixed(1):0;$('#wellnessTotals').innerHTML=`<div class="metric-grid"><div class="metric"><b>${sum('japa').toLocaleString()}</b><span>Total Naam Japa</span></div><div class="metric"><b>${sum('mala')}</b><span>Total Mala</span></div><div class="metric"><b>${a.filter(x=>x.vrata==='Yes').length}</b><span>Vrata / Ekadashi</span></div><div class="metric"><b>₹${sum('donation').toLocaleString()}</b><span>Dana</span></div><div class="metric"><b>${sum('exercise')}</b><span>Exercise min</span></div><div class="metric"><b>${avg('sleep')}</b><span>Avg Sleep h</span></div><div class="metric"><b>${sum('steps').toLocaleString()}</b><span>Steps</span></div><div class="metric"><b>${a.length}</b><span>Days Logged</span></div></div>`}
 function renderWellnessHistory(){$('#wellnessHistory').innerHTML=db.wellness.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(w=>`<div class="timeline-item"><b>${fmt(w.date)}</b><span>Japa ${w.japa||0} • Mala ${w.mala||0} • Exercise ${w.exercise||0} min • Sleep ${w.sleep||0}h ${w.vrata==='Yes'?'• Vrata':''}</span></div>`).join('')||'<p class="muted">No log yet.</p>'}
-function renderTravel(){fillOptions($('#travelStatusFilter'),TRAVEL_STATUSES,true,'All Status');$('#travelStatusFilter').onchange=drawTravel;$('#newTravelBtn').onclick=()=>editTravel();drawTravel()}
-function editTravel(id=''){const t=id?db.travel.find(x=>x.id===id):{};$('#travelEditor').innerHTML=`<div class="formgrid"><label>Event / Destination *<input id="tr_title" value="${esc(t.title||'')}"></label><label>Purpose<input id="tr_purpose" value="${esc(t.purpose||'')}"></label><label>Place / City<input id="tr_place" value="${esc(t.place||'')}"></label><label>Start Date<input id="tr_start" type="date" value="${t.startDate||''}"></label><label>Return Date<input id="tr_return" type="date" value="${t.returnDate||''}"></label><label>Status<select id="tr_status"></select></label><label>Travel Mode<select id="tr_mode"><option>Train</option><option>Flight</option><option>Bus</option><option>Car</option><option>Bike</option><option>Mixed</option></select></label><label>Ticket Status<input id="tr_ticket" value="${esc(t.ticketStatus||'')}"></label><label>With Whom<input id="tr_with" value="${esc(t.withWhom||'')}"></label><label>Estimated Cost ₹<input id="tr_cost" type="number" value="${t.cost||''}"></label><label>Nearby Places<textarea id="tr_nearby">${esc(t.nearby||'')}</textarea></label><label>Schedule / Timing<textarea id="tr_schedule">${esc(t.schedule||'')}</textarea></label></div><label>Why / Strategy / Notes<textarea id="tr_notes">${esc(t.notes||'')}</textarea></label><div class="actionrow"><button id="saveTravel">Save Travel Plan</button><button class="ghost" id="cancelTravel">Cancel</button></div>`;fillOptions($('#tr_status'),TRAVEL_STATUSES);$('#tr_status').value=t.status||'Idea';$('#tr_mode').value=t.mode||'Train';$('#saveTravel').onclick=()=>{const title=$('#tr_title').value.trim();if(!title){alert('Event / destination required.');return}const x={id:id||uid(),title,purpose:$('#tr_purpose').value,place:$('#tr_place').value,startDate:$('#tr_start').value,returnDate:$('#tr_return').value,status:$('#tr_status').value,mode:$('#tr_mode').value,ticketStatus:$('#tr_ticket').value,withWhom:$('#tr_with').value,cost:+$('#tr_cost').value||0,nearby:$('#tr_nearby').value,schedule:$('#tr_schedule').value,notes:$('#tr_notes').value};if(id)db.travel=db.travel.map(y=>y.id===id?x:y);else db.travel.push(x);save();$('#travelEditor').innerHTML='';drawTravel()};$('#cancelTravel').onclick=()=>$('#travelEditor').innerHTML=''}
-function drawTravel(){const st=$('#travelStatusFilter')?.value||'',arr=db.travel.filter(x=>!st||x.status===st).sort((a,b)=>(a.startDate||'9999').localeCompare(b.startDate||'9999'));$('#travelList').innerHTML=arr.map(t=>`<div class="task-card p-${t.status==='Cancelled'?'red':'green'}"><div class="task-head"><div><div class="task-title">${esc(t.title)}</div><div class="chips"><span class="chip blue">${esc(t.status)}</span><span class="chip">${esc(t.mode||'-')}</span></div></div><button onclick="app.editTravel('${t.id}')">Edit</button></div><div class="task-meta"><div>Place<b>${esc(t.place||'-')}</b></div><div>Start<b>${fmt(t.startDate)}</b></div><div>Return<b>${fmt(t.returnDate)}</b></div><div>Cost<b>₹${(t.cost||0).toLocaleString()}</b></div></div><p class="muted"><b>Tickets:</b> ${esc(t.ticketStatus||'-')} • <b>With:</b> ${esc(t.withWhom||'-')}</p>${t.nearby?`<p class="muted"><b>Nearby:</b> ${esc(t.nearby)}</p>`:''}</div>`).join('')||'<p class="muted">No travel or seminar plan.</p>'}
+
+const TRAVEL_MODES=['Train','Flight','Bus','Car','Bike / Motorcycle','Taxi / Cab','Auto / Rapido','Metro','Local Train','Walking','Mixed'];
+const TRAVEL_INTERESTS=[
+'Krishna / Vishnu / Rama Temple','Shiva / Jyotirlinga','Other Devi / Devata Temple','Famous Sadhu-Sant Ashram / Statue',
+'Ganga / Holy River','Yamuna','Narmada','Other Holy River','Ocean Darshan / Snan','Beach',
+'Hill Station / Viewpoint','Garden / Park','Historical Place','Famous Statue / Landmark','Museum / Culture',
+'Shopping / Market','Adventure','Outing / Night Stay','Outside Food','Walking','Bike Riding','Sunrise','Sunset','Pond / Lake','Other'
+];
+const TRAVEL_STAY_TYPES=['Hotel / Lodge','ISKCON Guest House','Other Ashram / Guest House','Dharamshala','Friend Home','Relative Home','Self Home','Hostel','Sleep During Train Travel','Sleep During Bus Travel','Sleep During Car Travel','Other'];
+const TRAVEL_FOOD_TYPES=['ISKCON Guest House Prasadam','ISKCON Govinda Restaurant','ISKCON Tiffin Service','ISKCON Online Delivery','ISKCON Thali on Train','Jain Restaurant','Jain Thali','Jain Online Delivery','Jain Thali on Train','Pure Veg — No Onion/Garlic','Pure Veg — Special Order No Onion/Garlic','Pure Veg — Self Adjustment','Self Cooking','Relative Home Food','Friend Home Food','Home Food / Packed Food','Fruits','Snacks','Milk / Light Food','Fasting / Vrata','Other'];
+const TRAVEL_SLEEP_TYPES=['Self Home','Hotel / Lodge','ISKCON Guest House','Other Guest House / Ashram','Friend Home','Relative Home','Dharamshala','Train','Bus','Car','Other Place'];
+
+
+function renderTravel(){
+  fillOptions($('#travelStatusFilter'),TRAVEL_STATUSES,true,'All Status');
+  $('#travelStatusFilter').onchange=drawTravel;
+  $('#newTravelBtn').onclick=()=>editTravel();
+  drawTravel(); renderTravelKpis();
+}
+function renderTravelKpis(){
+  const arr=db.travel||[];
+  const upcoming=arr.filter(t=>t.startDate && new Date(t.startDate+'T23:59:59')>=new Date() && t.status!=='Cancelled').length;
+  const active=arr.filter(t=>t.status==='In Progress').length;
+  const booked=arr.filter(t=>/booked|confirmed/i.test(t.ticketStatus||'')).length;
+  const completed=arr.filter(t=>t.status==='Completed').length;
+  const el=$('#travelKpis'); if(!el)return;
+  el.innerHTML=[
+    ['Total Plans',arr.length,'🗂'],['Upcoming',upcoming,'🧳'],['In Progress',active,'🛣'],['Ticket Ready',booked,'🎫'],['Completed',completed,'✅']
+  ].map(x=>`<div><span>${x[2]} ${x[0]}</span><b>${x[1]}</b></div>`).join('');
+}
+function tripDays(start,end){
+  if(!start||!end)return {days:0,nights:0};
+  const a=new Date(start+'T00:00:00'),b=new Date(end+'T00:00:00');
+  const diff=Math.round((b-a)/86400000);
+  return diff>=0?{days:diff+1,nights:diff}:{days:0,nights:0};
+}
+function travelModeOptions(selected='Train'){
+  return TRAVEL_MODES.map(x=>`<option ${x===selected?'selected':''}>${x}</option>`).join('');
+}
+function genericOptions(arr,selected=''){return arr.map(x=>`<option ${x===selected?'selected':''}>${esc(x)}</option>`).join('')}
+
+function interestChecks(selected=[]){
+  const set=new Set(Array.isArray(selected)?selected:String(selected||'').split('|').filter(Boolean));
+  return TRAVEL_INTERESTS.map((x,i)=>`<label class="travel-check"><input type="checkbox" class="tr_interest" value="${esc(x)}" ${set.has(x)?'checked':''}>${esc(x)}</label>`).join('');
+}
+function travelPlanTemplate(t={}){
+  const stayStart=t.stayStart||t.startDate||'', stayEnd=t.stayEnd||t.returnDate||'';
+  return `
+  <input id="tr_id" type="hidden" value="${esc(t.id||'')}">
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>1</span><div><b>Trip identity</b><small>Where, why, dates and companion</small></div></div>
+    <div class="formgrid">
+      <label>Event / Trip title *<input id="tr_title" value="${esc(t.title||'')}" placeholder="Raipur → Pune → Raipur"></label>
+      <label>Purpose<input id="tr_purpose" value="${esc(t.purpose||'')}" placeholder="Seminar / family / pilgrimage / work / leisure"></label>
+      <label>Origin city *<input id="tr_origin" value="${esc(t.origin||'Raipur')}" placeholder="Raipur"></label>
+      <label>Destination city *<input id="tr_place" value="${esc(t.place||'')}" placeholder="Pune"></label>
+      <label>Status<select id="tr_status"></select></label>
+      <label>With whom<input id="tr_with" value="${esc(t.withWhom||'')}" placeholder="Self / family / colleague"></label>
+    </div>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>2</span><div><b>Outward journey</b><small>Raipur → destination; multi-mode supported</small></div></div>
+    <div class="formgrid">
+      <label>Mode<select id="tr_mode">${travelModeOptions(t.mode||'Train')}</select></label>
+      <label>Departure date<input id="tr_start" type="date" value="${t.startDate||''}"></label>
+      <label>Departure time<input id="tr_depart_time" type="time" value="${t.departTime||''}"></label>
+      <label>Expected arrival date<input id="tr_arrival_date" type="date" value="${t.arrivalDate||t.startDate||''}"></label>
+      <label>Expected arrival time<input id="tr_arrival_time" type="time" value="${t.arrivalTime||''}"></label>
+      <label>Train / Flight / Bus / Vehicle no.<input id="tr_out_ref" value="${esc(t.outRef||'')}" placeholder="Train no., flight no., PNR, vehicle"></label>
+      <label>Boarding point<input id="tr_boarding" value="${esc(t.boarding||'')}" placeholder="Station / airport / pickup point"></label>
+      <label>Arrival point<input id="tr_arrival_point" value="${esc(t.arrivalPoint||'')}" placeholder="Station / airport / stop"></label>
+    </div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_route_search" class="ghost">🔎 Live Route / Schedule Search</button>
+    </div>
+  </div>
+
+  <div class="travel-section travel-stay-section">
+    <div class="travel-section-title"><span>3</span><div><b>Stay + Sleep Plan</b><small>Destination residence and nightly sleep preference</small></div></div>
+    <div class="formgrid">
+      <label>Stay from<input id="tr_stay_start" type="date" value="${stayStart}"></label>
+      <label>Stay until<input id="tr_stay_end" type="date" value="${stayEnd}"></label>
+      <label>Stay type<select id="tr_stay_type">${genericOptions(TRAVEL_STAY_TYPES,t.stayType||'ISKCON Guest House')}</select></label>
+      <label>Accommodation / Name<input id="tr_stay" value="${esc(t.stay||'')}" placeholder="Name of lodge / ISKCON / relative / guest house"></label>
+      <label>Area / locality<input id="tr_locality" value="${esc(t.locality||'')}" placeholder="e.g. Camp, Pune"></label>
+      <label>Primary sleeping place<select id="tr_sleep_type">${genericOptions(TRAVEL_SLEEP_TYPES,t.sleepType||'ISKCON Guest House')}</select></label>
+    </div>
+    <div id="tr_stay_summary" class="travel-stay-summary">Select stay dates to calculate duration.</div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_find_stay" class="ghost">🏨 Search Stay Near Destination</button>
+      <button type="button" id="tr_find_iskcon" class="ghost">🛕 Search ISKCON / Ashram Stay</button>
+    </div>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>4</span><div><b>Food & Fasting Plan</b><small>Default food preference for this trip; editable day-wise</small></div></div>
+    <div class="formgrid">
+      <label>Primary food preference<select id="tr_food_type">${genericOptions(TRAVEL_FOOD_TYPES,t.foodType||'Pure Veg — No Onion/Garlic')}</select></label>
+      <label>Backup food option<select id="tr_food_backup">${genericOptions(TRAVEL_FOOD_TYPES,t.foodBackup||'Fruits')}</select></label>
+      <label>Meal pattern<select id="tr_meal_pattern">${genericOptions(['2 meals','3 meals','Breakfast + Lunch + Snack + Dinner','Fasting / Parana based','Flexible as per travel','Other'],t.mealPattern||'Flexible as per travel')}</select></label>
+      <label>Special instruction<input id="tr_food_note" value="${esc(t.foodNote||'')}" placeholder="No onion/garlic, Jain, Ekadashi, packed food, etc."></label>
+    </div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_find_food" class="ghost">🥗 Search Preferred Food Nearby</button>
+      <button type="button" id="tr_find_govinda" class="ghost">🍛 Search ISKCON Govinda / Prasadam</button>
+    </div>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>5</span><div><b>Spiritual-first nearby discovery & exploration</b><small>Select categories → discover → review → add to trip</small></div></div>
+    <div class="formgrid">
+      <label>Primary local transport<select id="tr_local_mode">${travelModeOptions(t.localMode||'Taxi / Cab')}</select></label>
+      <label>Explore radius
+        <select id="tr_radius">
+          <option value="3000">3 km</option><option value="5000">5 km</option><option value="10000">10 km</option>
+          <option value="25000">25 km</option><option value="50000">50 km</option><option value="100000">100 km</option>
+        </select>
+      </label>
+      <label>Daily pace
+        <select id="tr_pace">
+          <option value="2">Relaxed — 2 places/day</option><option value="3" selected>Balanced — 3 places/day</option>
+          <option value="4">Active — 4 places/day</option><option value="5">Fast — 5 places/day</option>
+        </select>
+      </label>
+      <label>Preferred visit window
+        <select id="tr_window"><option>06:00–12:00</option><option>07:00–14:00</option><option>09:00–18:00</option><option>10:00–20:00</option><option>Sunrise-focused</option><option>Sunset-focused</option><option>Flexible</option></select>
+      </label>
+    </div>
+    <div class="travel-interest-grid">${interestChecks(t.interests||[])}</div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_discover" class="travel-ai-btn">✨ Discover Nearby Places</button>
+      <button type="button" id="tr_generate" class="travel-ai-btn secondary">🗓 Generate Day-wise Life Plan</button>
+      <button type="button" id="tr_maps" class="ghost">📍 Open Destination Map</button>
+    </div>
+    <div id="tr_online_status" class="travel-online-status">Public map discovery can suggest named places. Opening hours, fees and live availability must be verified before finalizing.</div>
+    <label>Nearby / shortlisted places<textarea id="tr_nearby" placeholder="Discovered or manually added places, one per line">${esc(t.nearby||'')}</textarea></label>
+    <div id="tr_discovery_cards" class="travel-discovery-cards"></div>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>6</span><div><b>Daily Flow Map</b><small>Date-wise waking, meals, travel, darshan/visit, rest and sleep</small></div></div>
+    <div class="travel-smart-actions">
+      <button type="button" id="tr_generate_visual" class="travel-ai-btn secondary">🪄 Build Visual Daily Flow</button>
+    </div>
+    <div id="tr_day_flow" class="travel-day-flow">${t.dayFlowHtml||''}</div>
+    <label>Editable day-wise itinerary<textarea id="tr_schedule" class="travel-itinerary-text" placeholder="Day 1..., Day 2...">${esc(t.schedule||'')}</textarea></label>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>7</span><div><b>Return journey</b><small>Destination → home</small></div></div>
+    <div class="formgrid">
+      <label>Return mode<select id="tr_return_mode">${travelModeOptions(t.returnMode||t.mode||'Train')}</select></label>
+      <label>Return departure date<input id="tr_return" type="date" value="${t.returnDate||''}"></label>
+      <label>Return departure time<input id="tr_return_time" type="time" value="${t.returnTime||''}"></label>
+      <label>Expected home arrival date<input id="tr_home_date" type="date" value="${t.homeDate||t.returnDate||''}"></label>
+      <label>Expected home arrival time<input id="tr_home_time" type="time" value="${t.homeTime||''}"></label>
+      <label>Return reference / PNR<input id="tr_return_ref" value="${esc(t.returnRef||'')}"></label>
+    </div>
+  </div>
+
+  <div class="travel-section">
+    <div class="travel-section-title"><span>8</span><div><b>Tickets, budget, live-data notes & final summary</b><small>Save what is confirmed and what still needs verification</small></div></div>
+    <div class="formgrid">
+      <label>Ticket status<input id="tr_ticket" value="${esc(t.ticketStatus||'')}" placeholder="Booked / Waiting / RAC / Not needed"></label>
+      <label>Estimated total cost ₹<input id="tr_cost" type="number" value="${t.cost||''}"></label>
+      <label>Travel fare / schedule note<input id="tr_live_note" value="${esc(t.liveNote||'')}" placeholder="e.g. Train 12851 ₹___; verify on booking provider"></label>
+      <label>Rules / booking / timing note<input id="tr_rules_note" value="${esc(t.rulesNote||'')}" placeholder="Temple closing, ticket rule, ID requirement, etc."></label>
+    </div>
+    <label>Why / Strategy / Notes<textarea id="tr_notes" placeholder="Purpose, important contacts, medicines, luggage, seminar timing, special needs...">${esc(t.notes||'')}</textarea></label>
+  </div>
+
+  <div class="travel-live-data-note">
+    <b>Live-data safety:</b> current train/flight/bus availability, fares, exact opening hours, ticket rules and seasonal restrictions can change. The planner can organize and launch targeted searches; confirm final details with the actual operator/venue before booking.
+  </div>
+
+  <div class="actionrow travel-save-row">
+    <button id="saveTravel">💾 Save Complete Travel Plan</button>
+    <button class="ghost" id="cancelTravel">Cancel</button>
+  </div>`;
+}
+function editTravel(id=''){
+  const t=id?db.travel.find(x=>x.id===id):{};
+  $('#travelEditor').innerHTML=travelPlanTemplate(t||{});
+  $('#travelEditorTitle').textContent=id?'Edit Complete Trip Plan':'Complete Trip Planner';
+  fillOptions($('#tr_status'),TRAVEL_STATUSES);
+  $('#tr_status').value=t?.status||'Idea';
+  $('#tr_radius').value=String(t?.radius||10000);
+  $('#tr_pace').value=String(t?.pace||3);
+  $('#tr_window').value=t?.visitWindow||'09:00–18:00';
+
+  const stayUpdate=()=>{
+    const r=tripDays($('#tr_stay_start').value,$('#tr_stay_end').value);
+    $('#tr_stay_summary').innerHTML=r.days?`🏨 <b>${r.days} day(s)</b> at destination • <b>${r.nights} night(s)</b>`:'Select valid stay dates to calculate duration.';
+  };
+  $('#tr_stay_start').onchange=stayUpdate; $('#tr_stay_end').onchange=stayUpdate; stayUpdate();
+
+  $('#tr_arrival_date').onchange=()=>{if(!$('#tr_stay_start').value)$('#tr_stay_start').value=$('#tr_arrival_date').value;stayUpdate()};
+  $('#tr_return').onchange=()=>{if(!$('#tr_stay_end').value)$('#tr_stay_end').value=$('#tr_return').value;if(!$('#tr_home_date').value)$('#tr_home_date').value=$('#tr_return').value;stayUpdate()};
+  $('#tr_discover').onclick=discoverNearbyPlaces;
+  $('#tr_generate').onclick=generateTravelItinerary;
+  $('#tr_maps').onclick=openTravelMap;
+  $('#tr_route_search').onclick=openLiveRouteSearch;
+  $('#tr_find_stay').onclick=()=>openTravelSearch('stay');
+  $('#tr_find_iskcon').onclick=()=>openTravelSearch('iskcon');
+  $('#tr_find_food').onclick=()=>openTravelSearch('food');
+  $('#tr_find_govinda').onclick=()=>openTravelSearch('govinda');
+  $('#tr_generate_visual').onclick=buildTravelDayFlow;
+
+  $('#saveTravel').onclick=()=>{
+    const title=$('#tr_title').value.trim(),place=$('#tr_place').value.trim(),origin=$('#tr_origin').value.trim();
+    if(!title||!place||!origin){alert('Trip title, origin and destination are required.');return}
+    const interests=[...document.querySelectorAll('.tr_interest:checked')].map(x=>x.value);
+    const x={
+      id:id||uid(),title,purpose:$('#tr_purpose').value,origin,place,startDate:$('#tr_start').value,departTime:$('#tr_depart_time').value,
+      arrivalDate:$('#tr_arrival_date').value,arrivalTime:$('#tr_arrival_time').value,outRef:$('#tr_out_ref').value,
+      boarding:$('#tr_boarding').value,arrivalPoint:$('#tr_arrival_point').value,status:$('#tr_status').value,mode:$('#tr_mode').value,
+      stayStart:$('#tr_stay_start').value,stayEnd:$('#tr_stay_end').value,stayType:$('#tr_stay_type').value,stay:$('#tr_stay').value,locality:$('#tr_locality').value,sleepType:$('#tr_sleep_type').value,foodType:$('#tr_food_type').value,foodBackup:$('#tr_food_backup').value,mealPattern:$('#tr_meal_pattern').value,foodNote:$('#tr_food_note').value,
+      localMode:$('#tr_local_mode').value,radius:+$('#tr_radius').value||10000,pace:+$('#tr_pace').value||3,visitWindow:$('#tr_window').value,
+      interests,ticketStatus:$('#tr_ticket').value,withWhom:$('#tr_with').value,cost:+$('#tr_cost').value||0,
+      nearby:$('#tr_nearby').value,schedule:$('#tr_schedule').value,returnMode:$('#tr_return_mode').value,returnDate:$('#tr_return').value,
+      returnTime:$('#tr_return_time').value,homeDate:$('#tr_home_date').value,homeTime:$('#tr_home_time').value,
+      returnRef:$('#tr_return_ref').value,liveNote:$('#tr_live_note').value,rulesNote:$('#tr_rules_note').value,dayFlowHtml:$('#tr_day_flow').innerHTML,notes:$('#tr_notes').value,updatedAt:new Date().toISOString(),createdAt:t?.createdAt||new Date().toISOString()
+    };
+    if(id)db.travel=db.travel.map(y=>y.id===id?x:y);else db.travel.push(x);
+    save();$('#travelEditor').innerHTML='';drawTravel();renderTravelKpis();alert('Complete travel plan saved.');
+  };
+  $('#cancelTravel').onclick=()=>$('#travelEditor').innerHTML='';
+}
+function selectedTravelInterests(){
+  return [...document.querySelectorAll('.tr_interest:checked')].map(x=>x.value);
+}
+function overpassFilters(interests){
+  const f=[];
+  const has=r=>interests.some(x=>r.test(x));
+  if(has(/Krishna|Vishnu|Rama/))f.push('["amenity"="place_of_worship"]["religion"="hindu"]');
+  if(has(/Shiva|Jyotirlinga/))f.push('["amenity"="place_of_worship"]["religion"="hindu"]');
+  if(has(/Devi|Devata/))f.push('["amenity"="place_of_worship"]["religion"="hindu"]');
+  if(has(/Ashram|Sadhu|Sant|Statue/))f.push('["amenity"="place_of_worship"]','["tourism"="artwork"]','["historic"="memorial"]');
+  if(has(/River|Ganga|Yamuna|Narmada/))f.push('["waterway"="river"]','["natural"="water"]');
+  if(has(/Ocean|Beach/))f.push('["natural"="beach"]','["natural"="coastline"]');
+  if(has(/Hill|Viewpoint|Sunrise|Sunset/))f.push('["tourism"="viewpoint"]','["natural"="peak"]');
+  if(has(/Garden|Park/))f.push('["leisure"="park"]','["leisure"="garden"]');
+  if(has(/Historical/))f.push('["historic"]');
+  if(has(/Landmark|Statue/))f.push('["tourism"="attraction"]','["tourism"="artwork"]');
+  if(has(/Museum|Culture/))f.push('["tourism"="museum"]','["tourism"="gallery"]');
+  if(has(/Shopping|Market/))f.push('["shop"]','["amenity"="marketplace"]');
+  if(has(/Adventure/))f.push('["sport"]','["leisure"]');
+  if(has(/Pond|Lake/))f.push('["natural"="water"]','["water"="lake"]','["water"="pond"]');
+  if(!f.length)f.push('["tourism"="attraction"]','["historic"]','["leisure"="park"]','["amenity"="place_of_worship"]');
+  return [...new Set(f)].slice(0,10);
+}
+function haversineKm(a,b,c,d){
+  const R=6371,rad=x=>x*Math.PI/180,dl=rad(c-a),dn=rad(d-b);
+  const h=Math.sin(dl/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(dn/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function guessPlaceCategory(tags={}){
+  if(tags.amenity==='place_of_worship') return tags.religion==='hindu'?'Temple / Ashram':'Place of Worship';
+  if(tags.historic) return 'Historical';
+  if(tags.tourism==='museum') return 'Museum';
+  if(tags.tourism==='viewpoint') return 'Viewpoint';
+  if(tags.natural==='beach') return 'Beach';
+  if(tags.leisure==='park'||tags.leisure==='garden') return 'Garden / Park';
+  if(tags.shop||tags.amenity==='marketplace') return 'Shopping';
+  if(tags.natural==='water'||tags.water||tags.waterway) return 'Water / River / Lake';
+  return tags.tourism||tags.natural||tags.leisure||'Attraction';
+}
+async function discoverNearbyPlaces(){
+  const city=$('#tr_place').value.trim(),locality=$('#tr_locality').value.trim();
+  if(!city){alert('Please enter destination city first.');return}
+  const status=$('#tr_online_status');status.textContent='🔎 Finding destination and nearby places…';
+  try{
+    const q=encodeURIComponent([locality,city,'India'].filter(Boolean).join(', '));
+    const geo=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${q}`,{headers:{'Accept':'application/json'}});
+    if(!geo.ok)throw new Error('Destination lookup failed');
+    const g=await geo.json(); if(!g.length)throw new Error('Destination not found');
+    const lat=+g[0].lat,lon=+g[0].lon,radius=+$('#tr_radius').value||10000;
+    const filters=overpassFilters(selectedTravelInterests());
+    const parts=filters.map(f=>`nwr(around:${radius},${lat},${lon})${f}["name"];`).join('');
+    const query=`[out:json][timeout:20];(${parts});out center tags 60;`;
+    const ov=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:'data='+encodeURIComponent(query)});
+    if(!ov.ok)throw new Error('Nearby place service unavailable');
+    const data=await ov.json();
+    const seen=new Set(),items=[];
+    for(const e of data.elements||[]){
+      const n=(e.tags?.name||'').trim(); if(!n||seen.has(n.toLowerCase()))continue;
+      seen.add(n.toLowerCase());
+      const plat=+(e.lat??e.center?.lat),plon=+(e.lon??e.center?.lon);
+      const dist=(Number.isFinite(plat)&&Number.isFinite(plon))?haversineKm(lat,lon,plat,plon):null;
+      items.push({name:n,category:guessPlaceCategory(e.tags||{}),distance:dist,opening:e.tags?.opening_hours||'',fee:e.tags?.fee||'',website:e.tags?.website||e.tags?.['contact:website']||'',religion:e.tags?.religion||'',denomination:e.tags?.denomination||''});
+      if(items.length>=24)break;
+    }
+    if(!items.length)throw new Error('No named places returned');
+    items.sort((a,b)=>(a.distance??999)-(b.distance??999));
+    $('#tr_nearby').value=items.map(x=>x.name).join('\n');
+    const cards=$('#tr_discovery_cards');
+    cards.innerHTML=items.map((x,i)=>`<div class="travel-place-card">
+      <div><b>${i+1}. ${esc(x.name)}</b><span>${esc(x.category)}${x.distance!=null?` • ~${x.distance.toFixed(1)} km`:''}</span></div>
+      <div class="travel-place-meta">
+        <span>🕒 ${esc(x.opening||'Hours: verify live')}</span>
+        <span>🎫 ${esc(x.fee?`Fee: ${x.fee}`:'Ticket/Fee: verify')}</span>
+        ${x.religion?`<span>🙏 ${esc(x.religion)}${x.denomination?` • ${esc(x.denomination)}`:''}</span>`:''}
+      </div>
+      <button class="ghost" type="button" onclick="app.openNamedPlace('${encodeURIComponent(x.name+' '+city)}')">Map / Details</button>
+    </div>`).join('');
+    status.innerHTML=`✅ Found <b>${items.length}</b> nearby place(s) around ${esc(city)}. Distances are approximate straight-line distance; verify route time, opening hours, tickets and rules before finalizing.`;
+  }catch(e){
+    status.innerHTML=`⚠ Automatic discovery could not complete (${esc(e.message||'network issue')}). Existing data is safe. Add places manually or use “Open Destination Map”.`;
+  }
+}
+function generateTravelItinerary(){
+  const start=$('#tr_stay_start').value,end=$('#tr_stay_end').value,city=$('#tr_place').value.trim();
+  if(!start||!end){alert('Please enter stay start and end dates first.');return}
+  const r=tripDays(start,end); if(!r.days){alert('Please check the stay dates.');return}
+  const raw=$('#tr_nearby').value.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+  const pace=+$('#tr_pace').value||3,windowTxt=$('#tr_window').value,local=$('#tr_local_mode').value;
+  const stay=$('#tr_stay_type').value,food=$('#tr_food_type').value,backup=$('#tr_food_backup').value,sleep=$('#tr_sleep_type').value,meal=$('#tr_meal_pattern').value;
+  const days=[];
+  for(let i=0;i<r.days;i++){
+    const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);
+    const spots=raw.slice(i*pace,(i+1)*pace);
+    const date=d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    let text=`Day ${i+1} • ${date} • ${city||'Destination'}\n`;
+    text+=`Stay: ${stay} • Sleep: ${sleep}\nFood: ${food} • Backup: ${backup} • Pattern: ${meal}\n`;
+    text+=`Preferred outing window: ${windowTxt} • Local movement: ${local}\n`;
+    if(i===0)text+=`Arrival / settle-in / bath-rest / local orientation as needed.\n`;
+    if(spots.length)spots.forEach((p,j)=>text+=`${j+1}. ${p} — verify route, opening hours, ticket/rules, darshan timing and local conditions.\n`);
+    else text+=`Flexible block: seminar / family / rest / sadhana / personal work.\n`;
+    if(i===r.days-1)text+=`Return buffer: packing, checkout, food/water preparation and departure.\n`;
+    days.push(text);
+  }
+  const remaining=raw.slice(r.days*pace);
+  if(remaining.length)days.push(`Optional / overflow places:\n- ${remaining.join('\n- ')}`);
+  $('#tr_schedule').value=days.join('\n');
+  buildTravelDayFlow(false);
+  $('#tr_online_status').innerHTML=`✅ Day-wise life plan generated for <b>${r.days} day(s)</b>. It includes stay, food, sleep and visit blocks. Verify all live details before booking.`;
+}
+function buildTravelDayFlow(showAlert=true){
+  const start=$('#tr_stay_start').value,end=$('#tr_stay_end').value,city=$('#tr_place').value.trim();
+  if(!start||!end){if(showAlert)alert('Enter stay dates first.');return}
+  const r=tripDays(start,end); if(!r.days)return;
+  const raw=$('#tr_nearby').value.split(/\n|,/).map(x=>x.trim()).filter(Boolean),pace=+$('#tr_pace').value||3;
+  const stay=$('#tr_stay_type').value,food=$('#tr_food_type').value,sleep=$('#tr_sleep_type').value,local=$('#tr_local_mode').value;
+  const rows=[];
+  for(let i=0;i<r.days;i++){
+    const d=new Date(start+'T00:00:00');d.setDate(d.getDate()+i);
+    const date=d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'});
+    const spots=raw.slice(i*pace,(i+1)*pace);
+    rows.push(`<div class="travel-day-card"><div class="travel-day-head"><b>Day ${i+1}</b><span>${date}</span></div>
+      <div class="travel-flowline">
+        <span>🌅 Wake / Morning</span><i>→</i><span>🙏 Sadhana / Ready</span><i>→</i><span>🥗 ${esc(food)}</span><i>→</i>
+        <span>🚕 ${esc(local)}</span><i>→</i><span>📍 ${esc(spots.join(' • ')||'Flexible / Rest')}</span><i>→</i>
+        <span>🏨 ${esc(stay)}</span><i>→</i><span>😴 ${esc(sleep)}</span>
+      </div></div>`);
+  }
+  $('#tr_day_flow').innerHTML=rows.join('');
+}
+function openTravelSearch(kind){
+  const city=$('#tr_place').value.trim(),locality=$('#tr_locality').value.trim();
+  if(!city){alert('Enter destination city first.');return}
+  let q='';
+  if(kind==='stay')q=`hotel lodge guest house ${locality} ${city}`;
+  if(kind==='iskcon')q=`ISKCON guest house ashram accommodation ${city}`;
+  if(kind==='food')q=`pure vegetarian restaurant no onion garlic Jain food ${locality} ${city}`;
+  if(kind==='govinda')q=`ISKCON Govinda restaurant prasadam tiffin ${city}`;
+  window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`,'_blank','noopener');
+}
+function openLiveRouteSearch(){
+  const a=$('#tr_origin').value.trim(),b=$('#tr_place').value.trim(),mode=$('#tr_mode').value;
+  if(!a||!b){alert('Enter origin and destination first.');return}
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(a+' to '+b+' '+mode+' schedule fare availability')}`,'_blank','noopener');
+}
+function openNamedPlace(q){window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank','noopener')}
+function openTravelMap(){
+  const city=$('#tr_place').value.trim(),locality=$('#tr_locality').value.trim();
+  if(!city){alert('Enter destination city first.');return}
+  const q=encodeURIComponent([locality,city].filter(Boolean).join(', '));
+  window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank','noopener');
+}
+function drawTravel(){
+  const st=$('#travelStatusFilter')?.value||'',
+    arr=(db.travel||[]).filter(x=>!st||x.status===st).sort((a,b)=>(a.startDate||'9999').localeCompare(b.startDate||'9999'));
+  $('#travelList').innerHTML=arr.map(t=>{
+    const stay=tripDays(t.stayStart||t.startDate,t.stayEnd||t.returnDate);
+    const route=`${t.origin||'-'} → ${t.place||'-'} → ${t.origin||'-'}`;
+    return `<div class="task-card travel-card p-${t.status==='Cancelled'?'red':'green'}">
+      <div class="task-head"><div><div class="task-title">${esc(t.title)}</div>
+      <div class="chips"><span class="chip blue">${esc(t.status)}</span><span class="chip">${esc(t.mode||'-')} out</span><span class="chip">${esc(t.returnMode||t.mode||'-')} return</span></div></div>
+      <button onclick="app.editTravel('${t.id}')">Open Planner</button></div>
+      <div class="travel-route-line">🧭 <b>${esc(route)}</b></div>
+      <div class="task-meta">
+        <div>Departure<b>${fmt(t.startDate)}</b></div><div>Stay<b>${stay.days?stay.days+' day(s) • '+stay.nights+' night(s)':'-'}</b></div>
+        <div>Return<b>${fmt(t.returnDate)}</b></div><div>Cost<b>₹${(t.cost||0).toLocaleString()}</b></div>
+      </div>
+      <p class="muted"><b>Tickets:</b> ${esc(t.ticketStatus||'-')} • <b>With:</b> ${esc(t.withWhom||'-')} • <b>Local:</b> ${esc(t.localMode||'-')}</p>
+      ${t.nearby?`<p class="muted"><b>Explore:</b> ${esc(t.nearby.split(/\n/).slice(0,4).join(' • '))}${t.nearby.split(/\n/).length>4?' …':''}</p>`:''}
+    </div>`;
+  }).join('')||'<p class="muted">No travel or seminar plan.</p>';
+}
 
 let interpretedTask=null;
 function localInterpretCommand(text){
@@ -504,5 +902,5 @@ function renderSettings(){
 }
 function checkReminders(){const due=db.tasks.filter(t=>!isDone(t)&&t.reminderDate===today());if(!due.length)return;const key='sao_reminder_seen_'+today();if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');if(window.Notification&&Notification.permission==='granted')new Notification('SAO Workplace Reminder',{body:`${due.length} task${due.length===1?'':'s'} need attention today.`})}
 function init(){applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
-return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
+return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openNamedPlace,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
 document.addEventListener('DOMContentLoaded',app.init);
