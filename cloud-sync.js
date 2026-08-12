@@ -65,7 +65,7 @@ function cleanForCloud(data){
   copy._cloud={
     schema:1,
     clientUpdatedAt:Date.now(),
-    appVersion:'6.0-eternal-travel-companion-cloud'
+    appVersion:'6.1-referral-network-cloud'
   };
   return copy;
 }
@@ -341,4 +341,16 @@ window.SAOCloudFiles={
     if(!currentUser) throw new Error('Sign in to cloud first.');
     return await getBlob(storageRef(storage,path));
   }
+};
+
+// V6.1 optional authenticated referral-file bridge.
+window.SAOCloudFiles = window.SAOCloudFiles || {};
+window.SAOCloudFiles.uploadClinicalFile = async function(localFileId,blob,meta={}){
+  if(!currentUser) throw new Error('Sign in to cloud first.');
+  const safeName=(meta.name||'clinical-file').replace(/[^a-zA-Z0-9._-]+/g,'_').slice(-120);
+  const record=(meta.recordId||'unlinked').replace(/[^a-zA-Z0-9_-]/g,'_');
+  const path=`users/${currentUser.uid}/referral-files/${record}/${localFileId}-${safeName}`;
+  const r=storageRef(storage,path);
+  await uploadBytes(r,blob,{contentType:blob.type||'application/octet-stream'});
+  return {path};
 };

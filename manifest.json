@@ -1,8 +1,8 @@
 {
-  "name": "SAO Workplace V6.0 — Eternal Travel Companion",
+  "name": "SAO Workplace V6.1 — Referral Network",
   "short_name": "SAO Workplace",
-  "description": "Long-term travel companion with route planning, reusable journeys, stay booking vault, travel document vault, emergency contacts, masked financial recovery and printable trip packs.",
-  "start_url": "./?v=6.0",
+  "description": "SAO Workplace with hospital and diagnostic provider directory, doctors/PRO/staff contacts, patient referral worklists, documents, follow-up and travel companion.",
+  "start_url": "./?v=6.1",
   "display": "standalone",
   "background_color": "#f4f9fc",
   "theme_color": "#eaf4fb",

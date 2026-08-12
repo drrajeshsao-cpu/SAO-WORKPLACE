@@ -1,0 +1,19 @@
+SAO WORKPLACE V6.1 — HOSPITAL & DIAGNOSTIC REFERRAL NETWORK
+Build: 2026-08-12 20:18 IST
+
+PASS
+- app.js syntax
+- cloud-sync.js syntax
+- Firebase structured sync preserved
+- Referral file optional Firebase Storage bridge
+- Contact Picker graceful fallback
+- CSV/VCF import
+- Hospital/Diagnostic provider master
+- Active/inactive staff
+- Patient referral worklist
+- Referral attachments
+- Share / Print / PDF
+- Mobile responsive CSS
+
+GITHUB COMMIT:
+Add V6.1 hospital diagnostic referral network contact import closed-loop referral tracking and document backup

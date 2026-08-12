@@ -195,3 +195,30 @@ Storage rules must separately permit only the authenticated matching uid.
 
 GITHUB COMMIT
 Build V6.0 Eternal Travel Companion with stay vault document recovery emergency pack and reusable journey foundation
+
+SAO WORKPLACE V6.1 — CLINICAL REFERRAL NETWORK
+Updated 12 Aug 2026 • 20:18 IST
+
+CONTACT PICKER FIX
+- Desktop/browser Contact Picker limitation is now handled gracefully.
+- Unsupported browsers show disabled Phone Picker instead of repeatedly failing.
+- CSV / VCF contact import added for Doctors / PRO / Staff directory.
+- Manual entry remains universal fallback.
+
+NEW REFERRAL NETWORK
+- Separate Hospital & Diagnostic Provider Directory.
+- Supports 100–200+ providers without fixed slot limitation.
+- Provider details: type, name, location/address, phone/WhatsApp, website, Google Maps, timing, emergency/admission number, beds, doctor count, owner/director, Ayushman, insurance/TPA, specialties, services, schemes, status and last verification.
+- Doctor / PRO / staff directory linked to each provider.
+- Active / Inactive staff status for staff changes.
+- Search by hospital, doctor, PRO, staff, specialty, service, location and referred patient.
+- Patient referral workflow: reason, urgency, date/time, selected provider, consultant, contacted staff, communication status, appointment/admission status, reminder, ward/bed, treatment/outcome and billing split.
+- Referral reminder can create a clinical follow-up task.
+- Referral/prescription PDF or image attachment saved locally with optional Firebase Storage backup.
+- Patient-facing provider and referral summary Share / Print / Save PDF.
+- Diagnostic network filters: Pathology, X-ray, CT, MRI, PET, Endoscopy, Biopsy, Culture.
+- Clinic / Office workspace contains direct shortcut to Referral Network.
+- Financial integrity note: patient billing/discount/reimbursement recording only; no improper referral inducement tracking.
+
+GITHUB COMMIT
+Add V6.1 hospital diagnostic referral network contact import closed-loop referral tracking and document backup
