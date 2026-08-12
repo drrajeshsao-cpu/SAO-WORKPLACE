@@ -1,5 +1,5 @@
-const C='sao-workplace-v6-3-professional-events';
-const A=['./','./index.html','./styles.css?v=6.3.0','./app.js?v=6.3.0','./cloud-sync.js?v=6.3.0','./manifest.json','./icon.svg','./icon-192.png','./icon-512.png','./vision-50-years.png'];
+const C='sao-workplace-v6-4-journey-purpose';
+const A=['./','./index.html','./styles.css?v=6.4.0','./app.js?v=6.4.0','./cloud-sync.js?v=6.4.0','./manifest.json','./icon.svg','./icon-192.png','./icon-512.png','./vision-50-years.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(A)).catch(()=>{}))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{

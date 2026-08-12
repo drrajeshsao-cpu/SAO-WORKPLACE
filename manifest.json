@@ -1,8 +1,8 @@
 {
-  "name": "SAO Workplace V6.3 \u2014 Seminar Workshop Intelligence",
+  "name": "SAO Workplace V6.4 \u2014 Journey Purpose Intelligence",
   "short_name": "SAO Workplace",
-  "description": "Travel plus structured seminar, conference, CME, workshop, hands-on training and meeting planner.",
-  "start_url": "./?v=6.3",
+  "description": "Travel, seminar/CME, exam/interview/joining/duty and family/festival/health special journey planning.",
+  "start_url": "./?v=6.4",
   "display": "standalone",
   "background_color": "#f5fafc",
   "theme_color": "#eaf4fb",

@@ -1,0 +1,16 @@
+SAO Workplace V6.4 — Journey Purpose Intelligence
+Updated 12 Aug 2026 • 22:41 IST
+
+Four planning modes:
+1 Travel / Yatra / Tour
+2 Seminar / Workshop / CME
+3 Exam / Interview / Joining / Duty
+4 Family / Festival / Health / Special
+
+Purpose mode includes exam, interview, hospital/college joining, teaching, invited lecture, trainer duty, inspection, official meeting, medical camp, doctor consultation, research/thesis, government work and Other.
+Family mode includes festival, marriage, function, celebration, home visit, pilgrimage, medical consultation/treatment, camp/service, condolence, social visit, relatives/friends and Other.
+
+Existing Firebase login/cloud sync preserved.
+
+GitHub commit:
+Add V6.4 journey purpose intelligence for exams interviews joining teaching inspection family festival health and special travel workflows
