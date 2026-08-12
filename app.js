@@ -222,6 +222,11 @@ const TRAVEL_INTERESTS=[
 const TRAVEL_STAY_TYPES=['Hotel / Lodge','ISKCON Guest House','Other Ashram / Guest House','Dharamshala','Friend Home','Relative Home','Self Home','Hostel','Sleep During Train Travel','Sleep During Bus Travel','Sleep During Car Travel','Other'];
 const TRAVEL_FOOD_TYPES=['ISKCON Guest House Prasadam','ISKCON Govinda Restaurant','ISKCON Tiffin Service','ISKCON Online Delivery','ISKCON Thali on Train','Jain Restaurant','Jain Thali','Jain Online Delivery','Jain Thali on Train','Pure Veg — No Onion/Garlic','Pure Veg — Special Order No Onion/Garlic','Pure Veg — Self Adjustment','Self Cooking','Relative Home Food','Friend Home Food','Home Food / Packed Food','Fruits','Snacks','Milk / Light Food','Fasting / Vrata','Other'];
 const TRAVEL_SLEEP_TYPES=['Self Home','Hotel / Lodge','ISKCON Guest House','Other Guest House / Ashram','Friend Home','Relative Home','Dharamshala','Train','Bus','Car','Other Place'];
+const TRAIN_CLASSES=['1A','2A','3A','3E','CC','EC','SL','2S','General','Other'];
+const TRAIN_BERTH_TYPES=['Lower','Middle','Upper','Side Lower','Side Upper','Chair Car Seat','Not allotted','Other'];
+const TRAIN_MEAL_TYPES=['Breakfast','Lunch','Evening Snack','Dinner'];
+const TRAIN_FOOD_SOURCES=['Home / Packed Food','Railway Pantry / On-board','IRCTC eCatering / Food on Track','ISKCON / Govinda / Prasadam','Jain Food / Jain Thali','Pure Veg No Onion-Garlic','Pure Veg Special Order','Fruits / Snacks','Fasting / Vrata','Station Vendor','Other'];
+
 
 
 function renderTravel(){
@@ -287,6 +292,62 @@ function travelPlanTemplate(t={}){
     </div>
     <div class="travel-smart-actions">
       <button type="button" id="tr_route_search" class="ghost">🔎 Live Route / Schedule Search</button>
+    </div>
+  </div>
+
+  <div class="travel-section train-intel-section">
+    <div class="travel-section-title"><span>2A</span><div><b>🚆 Train Journey Intelligence</b><small>Use when any major leg is by train — PNR, coach/seat, stoppages and meal-window planning</small></div></div>
+
+    <div class="formgrid">
+      <label>Train number<input id="tr_train_no" value="${esc(t.trainNo||'')}" placeholder="e.g. 12851"></label>
+      <label>Train name<input id="tr_train_name" value="${esc(t.trainName||'')}" placeholder="Train name"></label>
+      <label>PNR number<input id="tr_pnr" inputmode="numeric" maxlength="10" value="${esc(t.pnr||'')}" placeholder="10-digit PNR"></label>
+      <label>Date of journey<input id="tr_journey_date" type="date" value="${t.journeyDate||t.startDate||''}"></label>
+      <label>Class<select id="tr_train_class">${genericOptions(TRAIN_CLASSES,t.trainClass||'3A')}</select></label>
+      <label>Coach<input id="tr_coach" value="${esc(t.coach||'')}" placeholder="e.g. B2"></label>
+      <label>Seat / Berth no.<input id="tr_seat" value="${esc(t.seat||'')}" placeholder="e.g. 35"></label>
+      <label>Berth type<select id="tr_berth_type">${genericOptions(TRAIN_BERTH_TYPES,t.berthType||'Not allotted')}</select></label>
+      <label>Boarding station<input id="tr_train_board" value="${esc(t.trainBoard||t.boarding||'')}" placeholder="Raipur Jn"></label>
+      <label>Boarding code<input id="tr_train_board_code" value="${esc(t.trainBoardCode||'')}" placeholder="R / RPR"></label>
+      <label>Destination station<input id="tr_train_dest" value="${esc(t.trainDest||t.arrivalPoint||'')}" placeholder="Pune Jn"></label>
+      <label>Destination code<input id="tr_train_dest_code" value="${esc(t.trainDestCode||'')}" placeholder="PUNE"></label>
+    </div>
+
+    <div class="train-quick-links">
+      <button type="button" id="tr_pnr_check" class="ghost">🎫 Check PNR — Official Railway</button>
+      <button type="button" id="tr_train_schedule" class="ghost">🕒 Find Train Route / Stoppages</button>
+      <button type="button" id="tr_ecatering" class="ghost">🍱 IRCTC eCatering / Food on Track</button>
+      <button type="button" id="tr_iskcon_train_food" class="ghost">🙏 Search ISKCON Food on Train / Route</button>
+    </div>
+
+    <div class="train-subsection">
+      <div class="train-subhead">
+        <div><b>Station & Stoppage Timeline</b><small>Enter important stations manually from the verified timetable. Meal planner uses these times.</small></div>
+        <button type="button" id="tr_add_stop" class="ghost">＋ Add Station Stop</button>
+      </div>
+      <div class="train-stop-head">
+        <span>Date</span><span>Station / City</span><span>Code</span><span>Arrival</span><span>Departure</span><span>Halt min</span><span>Food / Note</span><span></span>
+      </div>
+      <div id="tr_train_stops" class="train-stop-list"></div>
+    </div>
+
+    <div class="train-subsection">
+      <div class="train-subhead"><div><b>Meal Timing Intelligence</b><small>Shows likely station / in-transit location near your preferred meal times.</small></div></div>
+      <div class="train-meal-time-grid">
+        <label>Breakfast<input id="tr_breakfast_time" type="time" value="${t.breakfastTime||'08:00'}"></label>
+        <label>Lunch<input id="tr_lunch_time" type="time" value="${t.lunchTime||'13:00'}"></label>
+        <label>Snack<input id="tr_snack_time" type="time" value="${t.snackTime||'17:00'}"></label>
+        <label>Dinner<input id="tr_dinner_time" type="time" value="${t.dinnerTime||'20:00'}"></label>
+        <label>Preferred source<select id="tr_train_food_source">${genericOptions(TRAIN_FOOD_SOURCES,t.trainFoodSource||'ISKCON / Govinda / Prasadam')}</select></label>
+      </div>
+      <div class="travel-smart-actions">
+        <button type="button" id="tr_build_meal_plan" class="travel-ai-btn secondary">🍽 Build Train Meal Plan</button>
+      </div>
+      <div id="tr_train_meal_plan" class="train-meal-plan"></div>
+    </div>
+
+    <div class="travel-live-data-note">
+      <b>Important:</b> PNR status, platform, delays, live stoppage times, pantry/eCatering availability and vendor menus can change. Keep the train number + PNR here, but verify final live details with Indian Railways / IRCTC before travel or ordering food.
     </div>
   </div>
 
@@ -415,11 +476,20 @@ function editTravel(id=''){
   $('#tr_generate').onclick=generateTravelItinerary;
   $('#tr_maps').onclick=openTravelMap;
   $('#tr_route_search').onclick=openLiveRouteSearch;
+  $('#tr_pnr_check').onclick=openOfficialPNR;
+  $('#tr_train_schedule').onclick=openTrainScheduleSearch;
+  $('#tr_ecatering').onclick=openIRCTCEcatering;
+  $('#tr_iskcon_train_food').onclick=openISKCONTrainFoodSearch;
+  $('#tr_add_stop').onclick=()=>addTrainStopRow();
+  $('#tr_build_meal_plan').onclick=buildTrainMealPlan;
   $('#tr_find_stay').onclick=()=>openTravelSearch('stay');
   $('#tr_find_iskcon').onclick=()=>openTravelSearch('iskcon');
   $('#tr_find_food').onclick=()=>openTravelSearch('food');
   $('#tr_find_govinda').onclick=()=>openTravelSearch('govinda');
   $('#tr_generate_visual').onclick=buildTravelDayFlow;
+  renderTrainStopRows(Array.isArray(t?.trainStops)?t.trainStops:[]);
+  if(t?.trainMealPlanHtml) $('#tr_train_meal_plan').innerHTML=t.trainMealPlanHtml;
+
 
   $('#saveTravel').onclick=()=>{
     const title=$('#tr_title').value.trim(),place=$('#tr_place').value.trim(),origin=$('#tr_origin').value.trim();
@@ -429,7 +499,12 @@ function editTravel(id=''){
       id:id||uid(),title,purpose:$('#tr_purpose').value,origin,place,startDate:$('#tr_start').value,departTime:$('#tr_depart_time').value,
       arrivalDate:$('#tr_arrival_date').value,arrivalTime:$('#tr_arrival_time').value,outRef:$('#tr_out_ref').value,
       boarding:$('#tr_boarding').value,arrivalPoint:$('#tr_arrival_point').value,status:$('#tr_status').value,mode:$('#tr_mode').value,
-      stayStart:$('#tr_stay_start').value,stayEnd:$('#tr_stay_end').value,stayType:$('#tr_stay_type').value,stay:$('#tr_stay').value,locality:$('#tr_locality').value,sleepType:$('#tr_sleep_type').value,foodType:$('#tr_food_type').value,foodBackup:$('#tr_food_backup').value,mealPattern:$('#tr_meal_pattern').value,foodNote:$('#tr_food_note').value,
+      trainNo:$('#tr_train_no').value.trim(),trainName:$('#tr_train_name').value.trim(),pnr:$('#tr_pnr').value.trim(),
+        journeyDate:$('#tr_journey_date').value,trainClass:$('#tr_train_class').value,coach:$('#tr_coach').value.trim(),seat:$('#tr_seat').value.trim(),berthType:$('#tr_berth_type').value,
+        trainBoard:$('#tr_train_board').value.trim(),trainBoardCode:$('#tr_train_board_code').value.trim(),trainDest:$('#tr_train_dest').value.trim(),trainDestCode:$('#tr_train_dest_code').value.trim(),
+        trainStops:collectTrainStops(),breakfastTime:$('#tr_breakfast_time').value,lunchTime:$('#tr_lunch_time').value,snackTime:$('#tr_snack_time').value,dinnerTime:$('#tr_dinner_time').value,
+        trainFoodSource:$('#tr_train_food_source').value,trainMealPlanHtml:$('#tr_train_meal_plan').innerHTML,
+        stayStart:$('#tr_stay_start').value,stayEnd:$('#tr_stay_end').value,stayType:$('#tr_stay_type').value,stay:$('#tr_stay').value,locality:$('#tr_locality').value,sleepType:$('#tr_sleep_type').value,foodType:$('#tr_food_type').value,foodBackup:$('#tr_food_backup').value,mealPattern:$('#tr_meal_pattern').value,foodNote:$('#tr_food_note').value,
       localMode:$('#tr_local_mode').value,radius:+$('#tr_radius').value||10000,pace:+$('#tr_pace').value||3,visitWindow:$('#tr_window').value,
       interests,ticketStatus:$('#tr_ticket').value,withWhom:$('#tr_with').value,cost:+$('#tr_cost').value||0,
       nearby:$('#tr_nearby').value,schedule:$('#tr_schedule').value,returnMode:$('#tr_return_mode').value,returnDate:$('#tr_return').value,
@@ -569,6 +644,114 @@ function buildTravelDayFlow(showAlert=true){
       </div></div>`);
   }
   $('#tr_day_flow').innerHTML=rows.join('');
+}
+function renderTrainStopRows(rows=[]){
+  const box=$('#tr_train_stops'); if(!box)return;
+  box.innerHTML='';
+  const base=rows.length?rows:[];
+  base.forEach(r=>addTrainStopRow(r));
+}
+function addTrainStopRow(r={}){
+  const box=$('#tr_train_stops'); if(!box)return;
+  const row=document.createElement('div'); row.className='train-stop-row';
+  row.innerHTML=`
+    <input class="ts-date" type="date" value="${r.date||''}">
+    <input class="ts-station" value="${esc(r.station||'')}" placeholder="Station / City">
+    <input class="ts-code" value="${esc(r.code||'')}" placeholder="Code">
+    <input class="ts-arrival" type="time" value="${r.arrival||''}">
+    <input class="ts-departure" type="time" value="${r.departure||''}">
+    <input class="ts-halt" type="number" min="0" value="${r.halt||''}" placeholder="min">
+    <input class="ts-food" value="${esc(r.food||'')}" placeholder="Food / delivery / note">
+    <button type="button" class="train-remove-stop" title="Remove">×</button>`;
+  row.querySelector('.train-remove-stop').onclick=()=>row.remove();
+  box.appendChild(row);
+}
+function collectTrainStops(){
+  return [...document.querySelectorAll('#tr_train_stops .train-stop-row')].map(r=>({
+    date:r.querySelector('.ts-date').value,
+    station:r.querySelector('.ts-station').value.trim(),
+    code:r.querySelector('.ts-code').value.trim(),
+    arrival:r.querySelector('.ts-arrival').value,
+    departure:r.querySelector('.ts-departure').value,
+    halt:r.querySelector('.ts-halt').value,
+    food:r.querySelector('.ts-food').value.trim()
+  })).filter(x=>x.date||x.station||x.arrival||x.departure);
+}
+function dtOf(date,time){
+  if(!date||!time)return null;
+  const d=new Date(`${date}T${time}:00`);
+  return Number.isNaN(d.getTime())?null:d;
+}
+function stationPointTime(s){
+  return dtOf(s.date,s.arrival)||dtOf(s.date,s.departure);
+}
+function nearestTrainContext(target,stops){
+  const withTime=stops.map(s=>({s,t:stationPointTime(s)})).filter(x=>x.t).sort((a,b)=>a.t-b.t);
+  if(!withTime.length)return {kind:'unknown'};
+  let best=null;
+  for(const x of withTime){
+    const diff=Math.abs(x.t-target);
+    if(!best||diff<best.diff)best={...x,diff};
+  }
+  if(best && best.diff<=60*60*1000)return {kind:'station',stop:best.s,diffMin:Math.round(best.diff/60000)};
+  let prev=null,next=null;
+  for(const x of withTime){if(x.t<=target)prev=x;if(x.t>target){next=x;break}}
+  if(prev&&next)return {kind:'between',prev:prev.s,next:next.s};
+  if(prev)return {kind:'after',prev:prev.s};
+  if(next)return {kind:'before',next:next.s};
+  return {kind:'unknown'};
+}
+function buildTrainMealPlan(){
+  const journey=$('#tr_journey_date').value||$('#tr_start').value;
+  const stops=collectTrainStops();
+  if(!journey){alert('Enter date of journey first.');return}
+  const meals=[
+    ['Breakfast',$('#tr_breakfast_time').value],
+    ['Lunch',$('#tr_lunch_time').value],
+    ['Evening Snack',$('#tr_snack_time').value],
+    ['Dinner',$('#tr_dinner_time').value]
+  ];
+  const source=$('#tr_train_food_source').value;
+  const cards=[];
+  meals.forEach(([name,time])=>{
+    if(!time)return;
+    const target=dtOf(journey,time); if(!target)return;
+    const c=nearestTrainContext(target,stops);
+    let where='Route context unavailable — add verified station times.';
+    let action='Keep packed food / pantry as fallback.';
+    if(c.kind==='station'){
+      const s=c.stop; where=`Near ${s.station||'station'}${s.code?` (${s.code})`:''} • ${c.diffMin} min from meal time`;
+      action=s.food||`Check IRCTC eCatering / station food availability for ${s.station||s.code||'this station'}.`;
+    }else if(c.kind==='between'){
+      where=`On train between ${c.prev.station||c.prev.code||'previous stop'} → ${c.next.station||c.next.code||'next stop'}`;
+      action=`Plan delivery at ${c.next.station||c.next.code||'next suitable stop'} if available; otherwise use on-board/packed food.`;
+    }else if(c.kind==='after'){
+      where=`After ${c.prev.station||c.prev.code||'last entered stop'} — add later stoppages for better prediction.`;
+    }else if(c.kind==='before'){
+      where=`Before ${c.next.station||c.next.code||'first entered stop'}.`;
+    }
+    cards.push(`<div class="train-meal-card"><div class="train-meal-title"><b>${name}</b><span>${time}</span></div>
+      <div class="train-meal-where">📍 ${esc(where)}</div>
+      <div class="train-meal-source">🍱 Preferred: ${esc(source)}</div>
+      <div class="train-meal-action">${esc(action)}</div></div>`);
+  });
+  $('#tr_train_meal_plan').innerHTML=cards.join('');
+}
+function openOfficialPNR(){
+  window.open('https://indianrail.gov.in/enquiry/PNR/PnrEnquiry.html?locale=en','_blank','noopener');
+}
+function openTrainScheduleSearch(){
+  const no=$('#tr_train_no').value.trim(),name=$('#tr_train_name').value.trim();
+  const q=[no,name,'Indian Railways train schedule route stoppages'].filter(Boolean).join(' ');
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener');
+}
+function openIRCTCEcatering(){
+  window.open('https://www.ecatering.irctc.co.in/','_blank','noopener');
+}
+function openISKCONTrainFoodSearch(){
+  const no=$('#tr_train_no').value.trim(),board=$('#tr_train_board').value.trim(),dest=$('#tr_train_dest').value.trim();
+  const q=['ISKCON Govinda prasadam food on train',no,board,dest].filter(Boolean).join(' ');
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener');
 }
 function openTravelSearch(kind){
   const city=$('#tr_place').value.trim(),locality=$('#tr_locality').value.trim();

@@ -192,3 +192,32 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .travel-day-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px;color:#24506e}.travel-day-head span{color:#6b7c88;font-size:12px}
 .travel-flowline{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.travel-flowline span{background:#fff;border:1px solid #dce6ed;border-radius:11px;padding:7px 9px;font-size:12px;font-weight:700}.travel-flowline i{font-style:normal;color:#8a9aa6}
 @media(max-width:820px){.travel-discovery-cards{grid-template-columns:1fr}.travel-place-card{grid-template-columns:1fr}.travel-place-card button,.travel-place-meta{grid-column:auto;grid-row:auto}.travel-flowline i{display:none}.travel-flowline span{flex:1 1 45%;text-align:center}}
+
+/* ===== V5.7 TRAIN JOURNEY INTELLIGENCE ===== */
+.train-intel-section{border-color:#bdd9e9;background:linear-gradient(135deg,#f5fbff,#fffdf6)}
+.train-quick-links{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.train-subsection{border:1px solid #d8e6ee;background:#fff;border-radius:15px;padding:12px;margin:12px 0}
+.train-subhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
+.train-subhead>div{display:flex;flex-direction:column;gap:3px}.train-subhead small{color:#6b7d8b}
+.train-stop-head,.train-stop-row{display:grid;grid-template-columns:130px 1.5fr 90px 105px 105px 90px 1.5fr 42px;gap:7px;align-items:center}
+.train-stop-head{font-size:11px;font-weight:800;text-transform:uppercase;color:#647888;padding:0 4px 6px}
+.train-stop-row{padding:7px 0;border-top:1px solid #edf2f5}.train-stop-row:first-child{border-top:0}
+.train-stop-row input{min-width:0;width:100%}
+.train-remove-stop{border:0;background:#fff0f0;color:#a33;border-radius:10px;font-size:20px;height:40px;cursor:pointer}
+.train-meal-time-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.train-meal-plan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.train-meal-card{border:1px solid #d8e7ef;border-radius:14px;background:linear-gradient(135deg,#fbfeff,#fffaf0);padding:12px;display:grid;gap:6px}
+.train-meal-title{display:flex;justify-content:space-between;gap:10px;color:#1d4f70}.train-meal-title span{font-weight:800}
+.train-meal-where{font-weight:700}.train-meal-source{color:#395f4d}.train-meal-action{font-size:12px;color:#667986}
+@media(max-width:1050px){
+  .train-stop-head{display:none}
+  .train-stop-row{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px;border:1px solid #e3edf3;border-radius:12px;margin:8px 0}
+  .train-remove-stop{grid-column:2;justify-self:end;width:44px}
+  .train-meal-time-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .train-stop-row{grid-template-columns:1fr}
+  .train-remove-stop{grid-column:auto;justify-self:stretch;width:100%}
+  .train-meal-time-grid,.train-meal-plan{grid-template-columns:1fr}
+  .train-quick-links>*{flex:1 1 100%}
+}
