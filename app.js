@@ -7,6 +7,9 @@ const STATUSES=['Idea / Capture','Start Today','Started Today','Work Started','W
 const HORIZONS=['Today','Tomorrow','2-3 Days','1 Week Later','1 Month Later','3 Months Later','6 Months Later','1 Year Later','Someday / No Date','Custom Date'];
 const SOURCE_TYPES=['Online Course','Offline Course','Book','Article / Journal','YouTube','Seminar','Webinar','Guru / Mentor','Friend / Colleague','Clinical Experience','My Notes PDF','My Notes Printout','Other'];
 const TRAVEL_STATUSES=['Idea','Planning','Ticket Pending','Ticket Booked','Confirmed','In Progress','Completed','Postponed','Cancelled'];
+const IDEA_STATUSES=['New / Captured','Under Review','Ready to Work','Working','Waiting','For Later','Postponed','Completed','Cancelled','Impossible'];
+const IDEA_AREAS=['App Development & AI','Clinic / Clinical','Study / Research','Home / Family','Health / Wellness','Spiritual / Sadhana','Business / Finance','Creative / Writing','Travel / Seminar','Other'];
+
 const defaultSettings={appName:'SAO Workplace for Office & Home',ownerName:'Dr Rajesh Sao',dailyJapaTarget:5000,weekStarts:'Monday',theme:'Soft Blue',lastBackupAt:'',finalStable:true};
 const WORKSPACES={
   home:{label:'Home',icon:'🏠',color:'home',categories:['Home','Family Responsibility','Friends / Social','Health & Fitness','Spiritual / Sadhana','Banking & Insurance','Finance / Purchase'],quickCategory:'Home',subtitle:'Family, personal responsibilities, health, finance and home planning.'},
@@ -15,14 +18,14 @@ const WORKSPACES={
   ai:{label:'App Development & AI',icon:'🤖',color:'ai',categories:['App Development & AI','App Development'],quickCategory:'App Development & AI',subtitle:'Apps, websites, AI experiments, GitHub work and technology projects.'}
 };
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{tasks:[],study:[],wellness:[],travel:[],settings:defaultSettings};
-db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
+db.tasks=db.tasks||[];db.study=db.study||[];db.wellness=db.wellness||[];db.travel=db.travel||[];db.ideas=db.ideas||[];db.settings={...defaultSettings,...(db.settings||{})};db.reflections=db.reflections||[];db.ideas=db.ideas||[];db.tasks=db.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>(s??'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 let currentView='dashboard';
 const normalizeDb=x=>{
   x=x||{};
-  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];
+  x.tasks=x.tasks||[];x.study=x.study||[];x.wellness=x.wellness||[];x.travel=x.travel||[];x.ideas=x.ideas||[];
   x.reflections=x.reflections||[];
   x.settings={...defaultSettings,...(x.settings||{})};
   x.tasks=x.tasks.map(t=>({estimatedMinutes:0,nextAction:'',waitingFor:'',waitingContact:'',repeat:'None',focus:false,progress:t.status==='Done'?100:0,...t}));
@@ -45,7 +48,7 @@ const isDone=t=>t.status==='Done';const priorityRank=p=>({Red:1,Orange:2,Yellow:
 function fillOptions(el,items,blank=false,blankText='Select'){el.innerHTML=(blank?`<option value="">${blankText}</option>`:'')+items.map(x=>{const v=typeof x==='string'?x:x.value,l=typeof x==='string'?x:x.label;return `<option value="${esc(v)}">${esc(l)}</option>`}).join('')}
 const titles={dashboard:['Dashboard','Your work, study, health, family and life responsibilities in one place.'],
   myday:['My Day','Focus on what truly needs attention today.'],tasks:['Tasks & Projects','Capture, prioritize, schedule and finish responsibilities.'],
-  board:['Status Board','A visual flow of ideas, active work, waiting and completion.'],study:['Study Planner','Plan what to learn, from where, when and how much.'],wellness:['Wellness & Sadhana','Track health habits, spiritual practice and seva.'],travel:['Travel & Seminar','Plan purpose, tickets, time, budget and nearby visits.'],review:['Review Center','Daily, weekly and monthly review of forgotten and blocked work.'],ai:['AI Insights','Smart local analysis, focus strategy and future-ready decision support.'],
+  board:['Status Board','A visual flow of ideas, active work, waiting and completion.'],ideas:['My Ideas & Creativity','Capture, develop, review and learn from every useful idea.'],study:['Study Planner','Plan what to learn, from where, when and how much.'],wellness:['Wellness & Sadhana','Track health habits, spiritual practice and seva.'],travel:['Travel & Seminar','Plan purpose, tickets, time, budget and nearby visits.'],review:['Review Center','Daily, weekly and monthly review of forgotten and blocked work.'],ai:['AI Insights','Smart local analysis, focus strategy and future-ready decision support.'],
   summary:['Master Summary','A single review of everything requiring your attention.'],files:['Files & Notes','Keep supporting documents linked to tasks and life areas.'],backup:['Backup / Restore','Protect your workplace data and move it between devices.'],settings:['Settings','Personal targets and app preferences.']};
 function showView(name){currentView=name;
   try{
@@ -55,7 +58,7 @@ function showView(name){currentView=name;
     const v=$('#view'), t=document.getElementById(name+'Tpl');
     if(!t){v.innerHTML='<div class="card"><h3>Section unavailable</h3><p class="muted">Please reload the latest app version.</p></div>';return}
     v.innerHTML='';v.appendChild(t.content.cloneNode(true));
-    const renderers={dashboard:renderDashboard,myday:renderMyDay,tasks:renderTasks,board:renderBoard,study:renderStudy,wellness:renderWellness,travel:renderTravel,review:renderReview,ai:renderAI,summary:renderSummary,files:renderFiles,backup:renderBackup,settings:renderSettings};
+    const renderers={dashboard:renderDashboard,myday:renderMyDay,tasks:renderTasks,board:renderBoard,ideas:renderIdeas,study:renderStudy,wellness:renderWellness,travel:renderTravel,review:renderReview,ai:renderAI,summary:renderSummary,files:renderFiles,backup:renderBackup,settings:renderSettings};
     if(renderers[name]) renderers[name]();
   }catch(err){
     console.error('View error',name,err);
@@ -100,7 +103,11 @@ function openWorkspace(key){
 function workspaceTaskRow(t){return `<div class="workspace-task-row"><div><b>${esc(t.title)}</b><span>${esc(t.category)} • ${esc(t.priority)} • ${esc(t.status)} • ${esc(t.horizon)}</span>${t.nextAction?`<small>Next: ${esc(t.nextAction)}</small>`:''}</div><div class="actionrow"><button class="ghost" onclick="app.editTask('${t.id}')">Edit</button><button class="ghost" onclick="app.markDone('${t.id}')">Done</button></div></div>`}
 function showWorkspaceTasks(key){const w=WORKSPACES[key];showView('tasks');setTimeout(()=>{const f=$('#taskCategoryFilter');if(f&&w.categories.length===1){f.value=w.categories[0];drawTasks()}else if($('#taskSearch')){$('#taskSearch').value=w.categories.join(' ');drawTasks()}},10)}
 
-function renderDashboard(){renderMainWorkspaceButtons();const open=db.tasks.filter(t=>!isDone(t)),attention=open.filter(dueAttention),overdue=open.filter(t=>t.dueDate&&t.dueDate<today()),dueToday=open.filter(t=>t.dueDate===today()||t.reminderDate===today()||t.horizon==='Today'),completed=db.tasks.filter(isDone).length,focus=open.filter(t=>t.focus).length,total=db.tasks.length||1;const focusScore=Math.max(0,Math.min(100,Math.round((completed/total)*45+Math.max(0,40-overdue.length*5)+Math.min(15,focus*5))));const hour=new Date().getHours(),greet=hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening';$('#futureGreeting').textContent=`${greet}, ${db.settings.ownerName||'Dr Rajesh Sao'}`;$('#dashKpis').innerHTML=[['Total Tasks',db.tasks.length,'neutral'],['In Progress',open.filter(t=>['Work Started','Started Today'].includes(t.status)).length,'blue'],['Today',dueToday.length,'cyan'],['Overdue',overdue.length,'red'],['Completed',completed,'green'],['Focus Score',focusScore+'%','violet']].map(x=>`<div class="future-kpi ${x[2]}"><span>${x[0]}</span><b>${x[1]}</b><small>${x[0]==='Overdue'?'Needs attention':x[0]==='Focus Score'?'Adaptive score':'Live planner data'}</small></div>`).join('');$('#todayList').innerHTML=attention.sort((a,b)=>priorityRank(a.priority)-priorityRank(b.priority)).slice(0,7).map(t=>`<div class="future-action-row"><span class="priority-dot ${t.priority.toLowerCase()}"></span><div><b>${esc(t.title)}</b><small>${esc(t.category)} • ${esc(t.status)}</small></div><span class="future-chip">${esc(t.priority)}</span></div>`).join('')||'<p class="muted">No urgent action right now.</p>';$('#horizonBoard').innerHTML=HORIZONS.slice(0,6).map(h=>{const n=open.filter(t=>t.horizon===h).length;return `<div class="future-horizon"><span>${esc(h)}</span><b>${n}</b><i style="--w:${Math.min(100,n*14)}%"></i></div>`}).join('');drawPriorityChart($('#priorityChart'),open);$('#areaOverview').innerHTML=`<div class="future-area-grid">${CATEGORIES.map(c=>{const n=open.filter(t=>t.category===c).length;return n?`<div><b>${n}</b><span>${esc(c)}</span></div>`:''}).join('')}</div>`;$('#studyQueue').innerHTML=db.study.filter(x=>x.status!=='Done').slice(0,5).map(s=>`<div class="future-list-row"><div><b>${esc(s.topic)}</b><span>${esc(s.sourceType)} • ${esc(s.status)}</span></div><small>${s.targetDate?fmt(s.targetDate):'No date'}</small></div>`).join('')||'<p class="muted">No study topic planned.</p>';const w=db.wellness.find(x=>x.date===today());$('#wellnessToday').innerHTML=w?`<div class="future-wellness-grid"><div><b>${w.japa||0}</b><span>Naam Japa</span></div><div><b>${w.exercise||0}m</b><span>Exercise</span></div><div><b>${w.sleep||0}h</b><span>Sleep</span></div><div><b>${w.water||0}L</b><span>Water</span></div></div>`:'<p class="muted">No wellness log today.</p>';$('#aiDashboardInsight').innerHTML=buildDashboardInsight(open,overdue);checkReminders()}
+function renderDashboard(){renderMainWorkspaceButtons();const open=db.tasks.filter(t=>!isDone(t)),attention=open.filter(dueAttention),overdue=open.filter(t=>t.dueDate&&t.dueDate<today()),dueToday=open.filter(t=>t.dueDate===today()||t.reminderDate===today()||t.horizon==='Today'),completed=db.tasks.filter(isDone).length,focus=open.filter(t=>t.focus).length,total=db.tasks.length||1;const focusScore=Math.max(0,Math.min(100,Math.round((completed/total)*45+Math.max(0,40-overdue.length*5)+Math.min(15,focus*5))));const hour=new Date().getHours(),greet=hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening';$('#futureGreeting').textContent=`${greet}, ${db.settings.ownerName||'Dr Rajesh Sao'}`;$('#dashKpis').innerHTML=[['Total Tasks',db.tasks.length,'neutral'],['In Progress',open.filter(t=>['Work Started','Started Today'].includes(t.status)).length,'blue'],['Today',dueToday.length,'cyan'],['Overdue',overdue.length,'red'],['Completed',completed,'green'],['Focus Score',focusScore+'%','violet']].map(x=>`<div class="future-kpi ${x[2]}"><span>${x[0]}</span><b>${x[1]}</b><small>${x[0]==='Overdue'?'Needs attention':x[0]==='Focus Score'?'Adaptive score':'Live planner data'}</small></div>`).join('');$('#todayList').innerHTML=attention.sort((a,b)=>priorityRank(a.priority)-priorityRank(b.priority)).slice(0,7).map(t=>`<div class="future-action-row"><span class="priority-dot ${t.priority.toLowerCase()}"></span><div><b>${esc(t.title)}</b><small>${esc(t.category)} • ${esc(t.status)}</small></div><span class="future-chip">${esc(t.priority)}</span></div>`).join('')||'<p class="muted">No urgent action right now.</p>';$('#horizonBoard').innerHTML=HORIZONS.slice(0,6).map(h=>{const n=open.filter(t=>t.horizon===h).length;return `<div class="future-horizon"><span>${esc(h)}</span><b>${n}</b><i style="--w:${Math.min(100,n*14)}%"></i></div>`}).join('');drawPriorityChart($('#priorityChart'),open);$('#areaOverview').innerHTML=`<div class="future-area-grid">${CATEGORIES.map(c=>{const n=open.filter(t=>t.category===c).length;return n?`<div><b>${n}</b><span>${esc(c)}</span></div>`:''}).join('')}</div>`;$('#studyQueue').innerHTML=db.study.filter(x=>x.status!=='Done').slice(0,5).map(s=>`<div class="future-list-row"><div><b>${esc(s.topic)}</b><span>${esc(s.sourceType)} • ${esc(s.status)}</span></div><small>${s.targetDate?fmt(s.targetDate):'No date'}</small></div>`).join('')||'<p class="muted">No study topic planned.</p>';const w=db.wellness.find(x=>x.date===today());$('#wellnessToday').innerHTML=w?`<div class="future-wellness-grid"><div><b>${w.japa||0}</b><span>Naam Japa</span></div><div><b>${w.exercise||0}m</b><span>Exercise</span></div><div><b>${w.sleep||0}h</b><span>Sleep</span></div><div><b>${w.water||0}L</b><span>Water</span></div></div>`:'<p class="muted">No wellness log today.</p>';$('#aiDashboardInsight').innerHTML=buildDashboardInsight(open,overdue);
+  const ideas=db.ideas||[], ideaOpen=ideas.filter(i=>!['Completed','Cancelled','Impossible'].includes(i.status));
+  const ideaEl=$('#ideaDashStats');
+  if(ideaEl) ideaEl.innerHTML=`<span><b>${ideas.length}</b>Total</span><span><b>${ideaOpen.length}</b>Open</span><span><b>${ideas.filter(i=>i.status==='Working').length}</b>Working</span><span><b>${ideas.filter(i=>i.status==='Completed').length}</b>Done</span>`;
+  checkReminders()}
 function buildDashboardInsight(open,overdue){const red=open.filter(t=>t.priority==='Red'),waiting=open.filter(t=>['Waiting','Need Help to Run'].includes(t.status)),study=open.filter(t=>['Student / Study','Research'].includes(t.category)),msg=[];if(red.length)msg.push(`<li><b>${red.length} critical item${red.length>1?'s':''}</b> should be reviewed first.</li>`);if(overdue.length)msg.push(`<li><b>${overdue.length} overdue</b> — reschedule, delegate or close them.</li>`);if(waiting.length)msg.push(`<li><b>${waiting.length} blocked/waiting</b> items may need one call or message.</li>`);if(study.length)msg.push(`<li><b>${study.length} study/research tasks</b> are active; protect focus time.</li>`);if(!msg.length)msg.push('<li>Your workload is currently balanced. Keep Today intentionally small.</li>');return `<ul class="ai-insight-list">${msg.slice(0,4).join('')}</ul>`}
 
 function renderMyDay(){
@@ -326,6 +333,150 @@ function renderAppHealth(){
   el.innerHTML=`<div class="health-grid"><div class="health-item ${h.localOk?'ok':'bad'}"><b>${h.localOk?'Healthy':'Problem'}</b><span>Local Data Storage</span></div><div class="health-item"><b>${h.tasks}</b><span>Tasks</span></div><div class="health-item"><b>${h.study}</b><span>Study Topics</span></div><div class="health-item"><b>${h.wellness}</b><span>Wellness Logs</span></div><div class="health-item"><b>${h.travel}</b><span>Travel Plans</span></div><div class="health-item ${installed?'ok':'warn'}"><b>${installed?'Installed':'Browser'}</b><span>App Mode</span></div><div class="health-item ${h.lastBackup?'ok':'warn'}"><b>${h.lastBackup?fmt(h.lastBackup.slice(0,10)):'Not Yet'}</b><span>Last Backup</span></div></div>`;
 }
 function applyTheme(){document.body.classList.toggle('dark-mode',db.settings.theme==='Dark')}
+
+function ideaDefaults(){
+  return {id:'',title:'',area:'App Development & AI',type:'New Idea',priority:'Medium',status:'New / Captured',
+    horizon:'This Month',progress:0,reviewDate:'',reviewInterval:'1 Week',details:'',why:'',nextAction:'',
+    reason:'',result:'',wentWell:'',gap:'',improve:'',rating:'Not rated',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+}
+function daysAgoIso(days){const d=new Date();d.setDate(d.getDate()-days);return d.toISOString()}
+function quickIdea(){
+  showView('ideas');
+  setTimeout(()=>{document.getElementById('ideaTitle')?.focus()},80);
+}
+function renderIdeas(){
+  db.ideas=db.ideas||[];
+  fillOptions($('#ideaStatusFilter'),IDEA_STATUSES,true,'All Status');
+  fillOptions($('#ideaAreaFilter'),IDEA_AREAS,true,'All Areas');
+  $('#newIdeaBtn').onclick=()=>{clearIdeaForm();$('#ideaTitle').focus()};
+  $('#saveIdeaBtn').onclick=saveIdea;
+  $('#clearIdeaBtn').onclick=clearIdeaForm;
+  $('#ideaSearch').oninput=drawIdeas;
+  $('#ideaStatusFilter').onchange=drawIdeas;
+  $('#ideaAreaFilter').onchange=drawIdeas;
+  $('#ideaStatementRefresh').onclick=drawIdeaStatement;
+  $('#ideaStatementPeriod').onchange=drawIdeaStatement;
+  $('#ideaPrintBtn').onclick=printIdeaStatement;
+  $('#ideaShareBtn').onclick=shareIdeaStatement;
+  $('#ideaCsvBtn').onclick=exportIdeasCsv;
+  clearIdeaForm();
+  drawIdeas();drawIdeaStatement();renderIdeaKpis();
+}
+function renderIdeaKpis(){
+  const a=db.ideas||[];
+  const values=[
+    ['Total Ideas',a.length,'violet'],
+    ['Working',a.filter(i=>i.status==='Working').length,'blue'],
+    ['For Later',a.filter(i=>i.status==='For Later').length,'cyan'],
+    ['Postponed',a.filter(i=>i.status==='Postponed').length,'neutral'],
+    ['Completed',a.filter(i=>i.status==='Completed').length,'green'],
+    ['Cancelled / Impossible',a.filter(i=>['Cancelled','Impossible'].includes(i.status)).length,'red']
+  ];
+  const el=$('#ideaKpis'); if(el)el.innerHTML=values.map(x=>`<div class="future-kpi ${x[2]}"><span>${x[0]}</span><b>${x[1]}</b><small>Idea register</small></div>`).join('');
+}
+function clearIdeaForm(){
+  const d=ideaDefaults();
+  const map={ideaId:'id',ideaTitle:'title',ideaArea:'area',ideaType:'type',ideaPriority:'priority',ideaStatus:'status',
+    ideaHorizon:'horizon',ideaProgress:'progress',ideaReviewDate:'reviewDate',ideaReviewInterval:'reviewInterval',
+    ideaDetails:'details',ideaWhy:'why',ideaNext:'nextAction',ideaReason:'reason',ideaResult:'result',
+    ideaWentWell:'wentWell',ideaGap:'gap',ideaImprove:'improve',ideaRating:'rating'};
+  Object.entries(map).forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.value=d[k]??''});
+  if($('#ideaEditorTitle'))$('#ideaEditorTitle').textContent='New Idea';
+}
+function readIdeaForm(){
+  const get=id=>document.getElementById(id)?.value||'';
+  return {
+    id:get('ideaId')||uid(),title:get('ideaTitle').trim(),area:get('ideaArea'),type:get('ideaType'),
+    priority:get('ideaPriority'),status:get('ideaStatus'),horizon:get('ideaHorizon'),
+    progress:Math.max(0,Math.min(100,+get('ideaProgress')||0)),reviewDate:get('ideaReviewDate'),
+    reviewInterval:get('ideaReviewInterval'),details:get('ideaDetails'),why:get('ideaWhy'),
+    nextAction:get('ideaNext'),reason:get('ideaReason'),result:get('ideaResult'),wentWell:get('ideaWentWell'),
+    gap:get('ideaGap'),improve:get('ideaImprove'),rating:get('ideaRating')
+  };
+}
+function saveIdea(){
+  const x=readIdeaForm();
+  if(!x.title){alert('Please write the idea/title first.');$('#ideaTitle')?.focus();return}
+  const existing=db.ideas.find(i=>i.id===x.id);
+  if(existing){
+    Object.assign(existing,x,{updatedAt:new Date().toISOString()});
+  }else{
+    db.ideas.push({...ideaDefaults(),...x,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+  }
+  if(x.status==='Completed' && x.progress<100){
+    const i=db.ideas.find(i=>i.id===x.id);if(i)i.progress=100;
+  }
+  save();renderIdeaKpis();drawIdeas();drawIdeaStatement();clearIdeaForm();
+  alert('Idea saved in My Ideas & Creativity.');
+}
+function editIdea(id){
+  const x=db.ideas.find(i=>i.id===id);if(!x)return;
+  const map={ideaId:'id',ideaTitle:'title',ideaArea:'area',ideaType:'type',ideaPriority:'priority',ideaStatus:'status',
+    ideaHorizon:'horizon',ideaProgress:'progress',ideaReviewDate:'reviewDate',ideaReviewInterval:'reviewInterval',
+    ideaDetails:'details',ideaWhy:'why',ideaNext:'nextAction',ideaReason:'reason',ideaResult:'result',
+    ideaWentWell:'wentWell',ideaGap:'gap',ideaImprove:'improve',ideaRating:'rating'};
+  Object.entries(map).forEach(([elid,k])=>{const el=document.getElementById(elid);if(el)el.value=x[k]??''});
+  $('#ideaEditorTitle').textContent='Edit Idea';
+  document.querySelector('.idea-editor-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function deleteIdea(id){
+  if(!confirm('Delete this idea permanently?'))return;
+  db.ideas=db.ideas.filter(i=>i.id!==id);save();renderIdeaKpis();drawIdeas();drawIdeaStatement();
+}
+function ideaStatusClass(s){
+  if(s==='Completed')return'idea-done';if(['Cancelled','Impossible'].includes(s))return'idea-stop';
+  if(s==='Working')return'idea-working';if(['Postponed','For Later','Waiting'].includes(s))return'idea-later';return'idea-new';
+}
+function drawIdeas(){
+  const q=($('#ideaSearch')?.value||'').toLowerCase(),status=$('#ideaStatusFilter')?.value||'',area=$('#ideaAreaFilter')?.value||'';
+  const arr=(db.ideas||[]).filter(i=>(!q||[i.title,i.details,i.why,i.nextAction,i.result].join(' ').toLowerCase().includes(q))&&(!status||i.status===status)&&(!area||i.area===area)).sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
+  $('#ideaList').innerHTML=arr.length?arr.map(i=>`<div class="idea-card ${ideaStatusClass(i.status)}">
+    <div class="idea-card-head"><div><b>${esc(i.title)}</b><span>${esc(i.type)} • ${esc(i.area)}</span></div><span class="idea-status-pill">${esc(i.status)}</span></div>
+    <div class="idea-progress"><i style="width:${Math.max(0,Math.min(100,+i.progress||0))}%"></i></div>
+    <div class="idea-meta"><span>Priority: ${esc(i.priority)}</span><span>Progress: ${i.progress||0}%</span><span>Review: ${i.reviewDate?fmt(i.reviewDate):'Not set'}</span></div>
+    ${i.nextAction?`<p><b>Next:</b> ${esc(i.nextAction)}</p>`:''}
+    ${i.reason?`<p class="muted"><b>Reason:</b> ${esc(i.reason)}</p>`:''}
+    <div class="actionrow"><button onclick="app.editIdea('${i.id}')">Open / Review</button><button class="ghost" onclick="app.deleteIdea('${i.id}')">Delete</button></div>
+  </div>`).join(''):'<p class="muted">No idea saved yet. Use “Capture New Idea” the moment something comes to mind.</p>';
+}
+function ideaPeriodItems(){
+  const v=$('#ideaStatementPeriod')?.value||'30';
+  if(v==='all')return [...(db.ideas||[])];
+  const cutoff=Date.now()-(+v)*86400000;
+  return (db.ideas||[]).filter(i=>new Date(i.createdAt||i.updatedAt||0).getTime()>=cutoff);
+}
+function drawIdeaStatement(){
+  const arr=ideaPeriodItems().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const stats={working:arr.filter(i=>i.status==='Working').length,pending:arr.filter(i=>!['Completed','Cancelled','Impossible'].includes(i.status)).length,done:arr.filter(i=>i.status==='Completed').length,later:arr.filter(i=>i.status==='For Later').length,post:arr.filter(i=>i.status==='Postponed').length,cancel:arr.filter(i=>i.status==='Cancelled').length,impossible:arr.filter(i=>i.status==='Impossible').length};
+  const el=$('#ideaStatement');if(!el)return;
+  el.innerHTML=`<div class="idea-statement-summary">
+    <span><b>${arr.length}</b>Ideas</span><span><b>${stats.working}</b>Working</span><span><b>${stats.pending}</b>Open</span><span><b>${stats.done}</b>Completed</span>
+    <span><b>${stats.later}</b>Later</span><span><b>${stats.post}</b>Postponed</span><span><b>${stats.cancel}</b>Cancelled</span><span><b>${stats.impossible}</b>Impossible</span>
+  </div>
+  <div class="idea-table-wrap"><table class="summary-table idea-statement-table"><thead><tr><th>Date</th><th>Idea</th><th>Area</th><th>Status</th><th>Progress</th><th>Result / Feedback</th></tr></thead>
+  <tbody>${arr.map(i=>`<tr><td>${new Date(i.createdAt).toLocaleDateString('en-IN')}</td><td><b>${esc(i.title)}</b><br><small>${esc(i.type)}</small></td><td>${esc(i.area)}</td><td>${esc(i.status)}</td><td>${i.progress||0}%</td><td>${esc(i.result||i.improve||i.reason||'-')}</td></tr>`).join('')||'<tr><td colspan="6">No ideas in this period.</td></tr>'}</tbody></table></div>`;
+}
+function ideaStatementText(){
+  const arr=ideaPeriodItems();
+  const period=$('#ideaStatementPeriod')?.selectedOptions?.[0]?.textContent||'Selected period';
+  return `SAO Workplace — My Ideas & Creativity\n${period}\n\n`+arr.map((i,n)=>`${n+1}. ${i.title}\nArea: ${i.area}\nStatus: ${i.status}\nProgress: ${i.progress||0}%\nNext: ${i.nextAction||'-'}\nResult: ${i.result||'-'}\nImprovement: ${i.improve||'-'}\n`).join('\n');
+}
+function printIdeaStatement(){
+  document.body.classList.add('printing-ideas');
+  window.print();
+  setTimeout(()=>document.body.classList.remove('printing-ideas'),800);
+}
+async function shareIdeaStatement(){
+  const text=ideaStatementText();
+  if(navigator.share)await navigator.share({title:'SAO Workplace — Ideas Progress Statement',text});
+  else{await navigator.clipboard.writeText(text);alert('Ideas statement copied.')}
+}
+function exportIdeasCsv(){
+  const h=['Created','Idea','Area','Type','Priority','Status','Horizon','Progress','Review Date','Review Interval','Details','Why Useful','Next Action','Reason','Result','Went Well','Gap','Improvement','Rating'];
+  const rows=ideaPeriodItems().map(i=>[i.createdAt,i.title,i.area,i.type,i.priority,i.status,i.horizon,i.progress,i.reviewDate,i.reviewInterval,i.details,i.why,i.nextAction,i.reason,i.result,i.wentWell,i.gap,i.improve,i.rating]);
+  download('SAO-Workplace-Ideas-'+today()+'.csv',[h,...rows].map(r=>r.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');
+}
+
 function renderAI(){
   const open=db.tasks.filter(t=>!isDone(t)),overdue=open.filter(t=>t.dueDate&&t.dueDate<today()),red=open.filter(t=>t.priority==='Red'),waiting=open.filter(t=>['Waiting','Need Help to Run','Need More Suggestion'].includes(t.status)),longTerm=open.filter(t=>['3 Months Later','6 Months Later','1 Year Later','Someday / No Date'].includes(t.horizon)),todayWork=open.filter(t=>t.horizon==='Today'||t.dueDate===today()||t.reminderDate===today()),mins=todayWork.reduce((s,t)=>s+(+t.estimatedMinutes||0),0);
   $('#aiKpis').innerHTML=[['Critical',red.length,'red'],['Overdue',overdue.length,'orange'],['Waiting',waiting.length,'blue'],['Long-term',longTerm.length,'violet'],['Today Load',mins+'m','cyan'],['Open Work',open.length,'green']].map(x=>`<div class="future-kpi ${x[2]}"><span>${x[0]}</span><b>${x[1]}</b><small>Live planner analysis</small></div>`).join('');
@@ -353,5 +504,5 @@ function renderSettings(){
 }
 function checkReminders(){const due=db.tasks.filter(t=>!isDone(t)&&t.reminderDate===today());if(!due.length)return;const key='sao_reminder_seen_'+today();if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');if(window.Notification&&Notification.permission==='granted')new Notification('SAO Workplace Reminder',{body:`${due.length} task${due.length===1?'':'s'} need attention today.`})}
 function init(){applyTheme();registerPWA();openFileDB().catch(()=>{});$$('#nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));$('#quickAddBtn').onclick=openQuickAdd;$('#installAppBtn').onclick=installApp;$('#voiceQuickBtn').onclick=()=>{showView('ai');setTimeout(()=>startVoiceCapture('#aiCommandInput'),100)};$('#closeModal').onclick=closeQuick;$('#cancelQuick').onclick=closeQuick;$('#saveQuick').onclick=saveQuick;$('#globalSearch').onkeydown=e=>{if(e.key==='Enter'){showView('tasks');$('#taskSearch').value=e.target.value;drawTasks()}};document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickAdd()}});showView('dashboard')}
-return{init,showView,openQuickAdd,openWorkspace,editTask,markDone,shareTask,deleteTask,editStudy,editTravel,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
+return{init,showView,openQuickAdd,quickIdea,openWorkspace,editTask,markDone,shareTask,deleteTask,editIdea,deleteIdea,editStudy,editTravel,openFile,downloadFile,removeFile,reschedule,startVoiceCapture,installApp,getCloudSnapshot,applyCloudSnapshot};})();window.app = app;
 document.addEventListener('DOMContentLoaded',app.init);

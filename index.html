@@ -12,11 +12,16 @@
 <div class="app">
   <aside class="sidebar">
     <div class="brand"><div class="logo future-logo"><span>S</span></div><div><strong>SAO Workplace</strong><span>Office • Home • Life</span></div></div><div class="vision-chip">FINAL STABLE • 50 YEARS VISION IN AI</div>
+      <div class="release-badge-row">
+        <span class="release-badge">Version V5.4</span>
+        <span class="release-badge updated">Updated 12 Aug 2026 • 17:10 IST</span>
+      </div>
     <nav id="nav">
       <button class="active" data-view="dashboard">⌂ Dashboard</button>
       <button data-view="myday">☀ My Day</button>
       <button data-view="tasks">✓ Tasks & Projects</button>
       <button data-view="board">▦ Status Board</button>
+      <button data-view="ideas">✨ My Ideas & Creativity</button>
       <button data-view="study">📚 Study Planner</button>
       <button data-view="wellness">🧘 Wellness & Sadhana</button>
       <button data-view="travel">✈ Travel & Seminar</button>
@@ -65,7 +70,20 @@
 
 <div id="modal" class="modal"><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">QUICK CAPTURE</span><h3>Write it before you forget it</h3></div><button id="closeModal" class="ghost">✕</button></div><div class="formgrid"><label>What do you need to remember?<input id="q_title" placeholder="e.g. Renew insurance policy"></label><label>Area<select id="q_category"></select></label><label>Priority<select id="q_priority"></select></label><label>When to start?<select id="q_horizon"></select></label><label>Reminder Date<input id="q_reminder" type="date"></label><label>Status<select id="q_status"></select></label><label>Est. Minutes<input id="q_minutes" type="number" min="0" step="5" placeholder="30"></label><label>Next Action<input id="q_next" placeholder="First concrete step"></label></div><label>Notes<textarea id="q_notes" placeholder="Why, context, next action, whom to ask, etc."></textarea></label><div class="actionrow"><button id="saveQuick">Save to Workplace</button><button class="ghost" id="cancelQuick">Cancel</button></div></div></div>
 
-<template id="dashboardTpl"><section class="future-command-hero"><div class="future-intro"><span class="eyebrow future-eyebrow">SAO WORKPLACE • 50 YEARS VISION IN AI</span><h2 id="futureGreeting">Good Morning</h2><p>Human-centered intelligent planning for work, clinic, study, family, wellbeing and creation — designed to evolve with you for decades.</p><div class="future-badges"><span>Adaptive</span><span>Private-first</span><span>Cross-device synced</span><span>AI-expandable</span></div></div><div class="future-orb-card"><div class="future-orb">AI</div><b>SAO Intelligence Layer</b><span>Smart summaries • focus • risk • next action</span></div></section><div id="dashKpis" class="future-kpis"></div><div class="card future-workspaces-card"><div class="cardhead"><div><span class="eyebrow future-eyebrow">FOUR INTELLIGENT WORKSPACES</span><h3>Focused Workspaces</h3></div><button class="ghost future-ghost" onclick="app.showView('myday')">Open My Day</button></div><div id="mainWorkspaceButtons" class="main-workspace-grid future-workspace-grid"></div></div><div class="future-dashboard-grid"><div class="card future-card"><div class="cardhead"><div><h3>My Day</h3><p class="muted">Priority-ordered actions needing attention now.</p></div><button class="ghost future-ghost" onclick="app.showView('myday')">View All</button></div><div id="todayList"></div></div><div class="card future-card"><h3>Priority Distribution</h3><canvas id="priorityChart" width="700" height="320"></canvas></div><div class="card future-card ai-insight-card"><div class="ai-card-head"><span class="ai-dot">AI</span><div><h3>SAO Smart Insights</h3><p class="muted">Local decision support from your planner data.</p></div></div><div id="aiDashboardInsight"></div><button class="future-ai-button" onclick="app.showView('ai')">Open Full Insights</button></div></div><div class="future-dashboard-grid lower-grid"><div class="card future-card"><h3>Upcoming Horizon</h3><div id="horizonBoard"></div></div><div class="card future-card"><div class="cardhead"><h3>Study Queue</h3><button class="ghost future-ghost" onclick="app.showView('study')">Study</button></div><div id="studyQueue"></div></div><div class="card future-card"><div class="cardhead"><h3>Wellness & Sadhana</h3><button class="ghost future-ghost" onclick="app.showView('wellness')">Tracker</button></div><div id="wellnessToday"></div></div><div class="card future-card"><h3>Area Intelligence</h3><div id="areaOverview"></div></div></div><div class="future-vision-strip"><div><b>AI Smart Insights</b><span>Active • local analysis</span></div><div><b>Natural Language</b><span>Active • local task capture</span></div><div><b>Voice Capture</b><span>Active where browser supports</span></div><div><b>Installable PWA</b><span>Offline-ready app shell</span></div><div><b>Privacy First</b><span>Local-first planner data</span></div><div><b>Firebase Cloud Sync</b><span>Active • real-time structured planner data</span></div></div></template>
+<template id="dashboardTpl"><section class="future-command-hero"><div class="future-intro"><span class="eyebrow future-eyebrow">SAO WORKPLACE • 50 YEARS VISION IN AI</span><h2 id="futureGreeting">Good Morning</h2><p>Human-centered intelligent planning for work, clinic, study, family, wellbeing and creation — designed to evolve with you for decades.</p><div class="future-badges"><span>Adaptive</span><span>Private-first</span><span>Cross-device synced</span><span>AI-expandable</span></div></div><div class="future-orb-card"><div class="future-orb">AI</div><b>SAO Intelligence Layer</b><span>Smart summaries • focus • risk • next action</span></div></section><section class="idea-magic-strip">
+  <div class="idea-magic-icon">✨</div>
+  <div class="idea-magic-copy">
+    <span class="eyebrow">MY IDEAS • CREATIVITY • INSTANT CAPTURE</span>
+    <h3>Catch the idea before it disappears.</h3>
+    <p>Save a thought in seconds, then classify, review, develop, postpone, cancel or complete it with a permanent learning record.</p>
+  </div>
+  <div class="idea-magic-actions">
+    <button class="idea-primary" onclick="app.quickIdea()">🪄 Add Idea Now</button>
+    <button class="ghost" onclick="app.showView('ideas')">Open Idea Studio</button>
+  </div>
+  <div id="ideaDashStats" class="idea-mini-stats"></div>
+</section>
+<div id="dashKpis" class="future-kpis"></div><div class="card future-workspaces-card"><div class="cardhead"><div><span class="eyebrow future-eyebrow">FOUR INTELLIGENT WORKSPACES</span><h3>Focused Workspaces</h3></div><button class="ghost future-ghost" onclick="app.showView('myday')">Open My Day</button></div><div id="mainWorkspaceButtons" class="main-workspace-grid future-workspace-grid"></div></div><div class="future-dashboard-grid"><div class="card future-card"><div class="cardhead"><div><h3>My Day</h3><p class="muted">Priority-ordered actions needing attention now.</p></div><button class="ghost future-ghost" onclick="app.showView('myday')">View All</button></div><div id="todayList"></div></div><div class="card future-card"><h3>Priority Distribution</h3><canvas id="priorityChart" width="700" height="320"></canvas></div><div class="card future-card ai-insight-card"><div class="ai-card-head"><span class="ai-dot">AI</span><div><h3>SAO Smart Insights</h3><p class="muted">Local decision support from your planner data.</p></div></div><div id="aiDashboardInsight"></div><button class="future-ai-button" onclick="app.showView('ai')">Open Full Insights</button></div></div><div class="future-dashboard-grid lower-grid"><div class="card future-card"><h3>Upcoming Horizon</h3><div id="horizonBoard"></div></div><div class="card future-card"><div class="cardhead"><h3>Study Queue</h3><button class="ghost future-ghost" onclick="app.showView('study')">Study</button></div><div id="studyQueue"></div></div><div class="card future-card"><div class="cardhead"><h3>Wellness & Sadhana</h3><button class="ghost future-ghost" onclick="app.showView('wellness')">Tracker</button></div><div id="wellnessToday"></div></div><div class="card future-card"><h3>Area Intelligence</h3><div id="areaOverview"></div></div></div><div class="future-vision-strip"><div><b>AI Smart Insights</b><span>Active • local analysis</span></div><div><b>Natural Language</b><span>Active • local task capture</span></div><div><b>Voice Capture</b><span>Active where browser supports</span></div><div><b>Installable PWA</b><span>Offline-ready app shell</span></div><div><b>Privacy First</b><span>Local-first planner data</span></div><div><b>Firebase Cloud Sync</b><span>Active • real-time structured planner data</span></div></div></template>
 
 
 <template id="workspaceTpl">
@@ -82,6 +100,157 @@
 <template id="studyTpl"><div class="grid2"><div class="card"><div class="cardhead"><div><span class="eyebrow">LEARN • REVIEW • MASTER</span><h3>Study Planner</h3><p class="muted">Plan topics, sources, slots and completion.</p></div><button id="newStudyBtn">+ Add Study Topic</button></div><div id="studyEditor"></div></div><div class="card"><div class="cardhead"><h3>Study Queue</h3><select id="studyStatusFilter"><option value="">All Status</option></select></div><div id="studyList"></div></div></div></template>
 <template id="wellnessTpl"><div class="card"><div class="cardhead"><div><span class="eyebrow">BODY • MIND • SADHANA • SEVA</span><h3>Wellness & Spiritual Tracker</h3><p class="muted">Daily habits, Radha Naam japa, mala, pooja, vrata, yoga, exercise, sleep, diet and dana.</p></div><input id="wellnessDate" type="date"></div><div id="wellnessForm"></div></div><div class="grid2"><div class="card"><h3>Monthly Totals</h3><div id="wellnessTotals"></div></div><div class="card"><h3>Recent Logs</h3><div id="wellnessHistory"></div></div></div></template>
 <template id="travelTpl"><div class="grid2"><div class="card"><div class="cardhead"><div><span class="eyebrow">SEMINAR • YATRA • TOUR</span><h3>Travel & Seminar Planner</h3><p class="muted">Purpose, tickets, companions, nearby places, timing and budget.</p></div><button id="newTravelBtn">+ New Plan</button></div><div id="travelEditor"></div></div><div class="card"><div class="cardhead"><h3>Upcoming Plans</h3><select id="travelStatusFilter"><option value="">All Status</option></select></div><div id="travelList"></div></div></div></template>
+
+
+<template id="ideasTpl">
+  <section class="ideas-hero">
+    <div class="idea-starfield" aria-hidden="true">✦ ✨ ✧ 💡 ✨ ✦</div>
+    <div>
+      <span class="eyebrow">SAO IDEA STUDIO • CAPTURE → DEVELOP → REVIEW → LEARN</span>
+      <h2>✨ My Ideas & Creativity</h2>
+      <p>A permanent home for spontaneous ideas, innovations, clinical concepts, app ideas, study ideas and life improvements—so useful thoughts are not lost.</p>
+      <div class="idea-status-legend">
+        <span>💡 New</span><span>🛠 Working</span><span>⏳ Later</span><span>⏸ Postponed</span>
+        <span>✅ Completed</span><span>🚫 Cancelled</span><span>🧱 Impossible</span>
+      </div>
+    </div>
+    <button id="newIdeaBtn" class="idea-primary">🪄 Capture New Idea</button>
+  </section>
+
+  <div id="ideaKpis" class="future-kpis"></div>
+
+  <div class="ideas-layout">
+    <div class="card idea-editor-card">
+      <div class="cardhead">
+        <div><span class="eyebrow">INSTANT CAPTURE + STRUCTURED DEVELOPMENT</span><h3 id="ideaEditorTitle">New Idea</h3></div>
+        <span class="magic-badge">✨ Creative Vault</span>
+      </div>
+      <input id="ideaId" type="hidden">
+      <div class="formgrid">
+        <label>Idea / title *
+          <input id="ideaTitle" placeholder="Write the idea before it disappears…">
+        </label>
+        <label>Idea area
+          <select id="ideaArea">
+            <option>App Development & AI</option><option>Clinic / Clinical</option><option>Study / Research</option>
+            <option>Home / Family</option><option>Health / Wellness</option><option>Spiritual / Sadhana</option>
+            <option>Business / Finance</option><option>Creative / Writing</option><option>Travel / Seminar</option><option>Other</option>
+          </select>
+        </label>
+        <label>Type
+          <select id="ideaType">
+            <option>New Idea</option><option>Improvement</option><option>Problem Solution</option><option>Innovation</option>
+            <option>Research Question</option><option>Clinical Idea</option><option>App / Software Idea</option>
+            <option>Content / Writing</option><option>Life Improvement</option><option>Future Dream</option>
+          </select>
+        </label>
+        <label>Importance
+          <select id="ideaPriority">
+            <option>Critical</option><option>High</option><option selected>Medium</option><option>Low</option>
+          </select>
+        </label>
+        <label>Status
+          <select id="ideaStatus">
+            <option>New / Captured</option><option>Under Review</option><option>Ready to Work</option><option>Working</option>
+            <option>Waiting</option><option>For Later</option><option>Postponed</option><option>Completed</option>
+            <option>Cancelled</option><option>Impossible</option>
+          </select>
+        </label>
+        <label>Target horizon
+          <select id="ideaHorizon">
+            <option>Today</option><option>This Week</option><option>This Month</option><option>Next 3 Months</option>
+            <option>Next 6 Months</option><option>This Year</option><option>Next Year</option><option>Someday</option>
+          </select>
+        </label>
+        <label>Progress %
+          <input id="ideaProgress" type="number" min="0" max="100" value="0">
+        </label>
+        <label>Next review date
+          <input id="ideaReviewDate" type="date">
+        </label>
+        <label>Review interval
+          <select id="ideaReviewInterval">
+            <option>3 Days</option><option selected>1 Week</option><option>2 Weeks</option><option>1 Month</option>
+            <option>2 Months</option><option>3 Months</option><option>6 Months</option><option>1 Year</option><option>Manual</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Idea details / imagination
+        <textarea id="ideaDetails" placeholder="What exactly came to mind? What problem does it solve? What would the ideal result look like?"></textarea>
+      </label>
+      <div class="formgrid">
+        <label>Why is this useful?
+          <textarea id="ideaWhy" placeholder="Clinical value, time saving, learning, family benefit, productivity, etc."></textarea>
+        </label>
+        <label>Next action
+          <textarea id="ideaNext" placeholder="Smallest practical next step."></textarea>
+        </label>
+      </div>
+      <label>Reason if postponed / cancelled / impossible
+        <textarea id="ideaReason" placeholder="Time, cost, technology limitation, low value, dependency, risk, changed priority…"></textarea>
+      </label>
+
+      <details class="idea-feedback-box">
+        <summary><b>📘 Output, Results & Self-Feedback</b> — fill during or after work</summary>
+        <div class="formgrid">
+          <label>Output / result achieved
+            <textarea id="ideaResult" placeholder="What was actually created or achieved?"></textarea>
+          </label>
+          <label>What went well?
+            <textarea id="ideaWentWell"></textarea>
+          </label>
+          <label>What was missing / weak?
+            <textarea id="ideaGap"></textarea>
+          </label>
+          <label>Next-time improvement
+            <textarea id="ideaImprove" placeholder="What should be changed next time, and why?"></textarea>
+          </label>
+        </div>
+        <label>Overall self-rating
+          <select id="ideaRating"><option>Not rated</option><option>Excellent</option><option>Very Good</option><option>Good</option><option>Average</option><option>Poor</option></select>
+        </label>
+      </details>
+
+      <div class="actionrow">
+        <button id="saveIdeaBtn" class="idea-primary">💾 Save Idea</button>
+        <button id="clearIdeaBtn" class="ghost">Clear</button>
+      </div>
+    </div>
+
+    <div class="card idea-list-card">
+      <div class="cardhead">
+        <div><span class="eyebrow">IDEA PIPELINE</span><h3>Idea Register</h3></div>
+        <input id="ideaSearch" placeholder="Search ideas…">
+      </div>
+      <div class="idea-filters">
+        <select id="ideaStatusFilter"><option value="">All Status</option></select>
+        <select id="ideaAreaFilter"><option value="">All Areas</option></select>
+      </div>
+      <div id="ideaList"></div>
+    </div>
+  </div>
+
+  <div class="card idea-statement-card">
+    <div class="cardhead">
+      <div><span class="eyebrow">BANK-STATEMENT STYLE IDEA HISTORY</span><h3>Ideas Progress Statement</h3><p class="muted">Review a defined period, print/save PDF, share, or export CSV.</p></div>
+      <span class="magic-badge">📊 Tracking</span>
+    </div>
+    <div class="statement-toolbar">
+      <select id="ideaStatementPeriod">
+        <option value="1">Last 1 Day</option><option value="7">Last 1 Week</option><option value="14">Last 2 Weeks</option>
+        <option value="21">Last 3 Weeks</option><option value="30" selected>Last 1 Month</option><option value="60">Last 2 Months</option>
+        <option value="90">Last 3 Months</option><option value="180">Last 6 Months</option><option value="270">Last 9 Months</option>
+        <option value="365">Last 1 Year</option><option value="all">All Time</option>
+      </select>
+      <button id="ideaStatementRefresh">Generate Statement</button>
+      <button id="ideaPrintBtn" class="ghost">🖨 Print / Save PDF</button>
+      <button id="ideaShareBtn" class="ghost">↗ Share</button>
+      <button id="ideaCsvBtn" class="ghost">⬇ CSV</button>
+    </div>
+    <div id="ideaStatement"></div>
+  </div>
+</template>
 
 <template id="aiTpl">
   <section class="ai-soft-hero">
@@ -160,7 +329,7 @@
 <template id="filesTpl"><div class="grid2"><div class="card"><h3>Files, Images, PDFs & Notes</h3><div class="formgrid"><label>Area<select id="fileCategory"></select></label><label>Linked Task / Project<select id="fileTask"><option value="">General / not linked</option></select></label><label>Note<input id="fileNote" placeholder="What is this file?"></label></div><label class="uploadbox">📎 Add Image / PDF / Document<input id="fileInput" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"></label><div id="pickedFiles"></div><button id="saveFiles">Save Files</button></div><div class="card"><div class="cardhead"><h3>Saved Files</h3><select id="fileFilter"><option value="">All Areas</option></select></div><div id="filesList"></div></div></div></template>
 <template id="backupTpl"><div class="card"><h3>Backup, Restore & Export</h3><p class="muted">Keep a backup before major changes or switching devices.</p><div class="actionrow"><button id="backupBtn">Download JSON Backup</button><label class="buttonlike">Restore JSON<input type="file" id="restoreInput" accept=".json" hidden></label><button class="ghost" id="csvBtn">Export Tasks CSV</button></div></div></template>
 <template id="settingsTpl"><div class="card"><div class="cardhead"><div><span class="eyebrow">FINAL STABLE CONFIGURATION</span><h3>Workplace Settings</h3></div><span class="stable-badge">V5 FINAL</span></div><div id="settingsForm"></div></div><div class="card"><h3>App Health & Installation</h3><div id="appHealth"></div><div class="actionrow"><button id="settingsInstallBtn" class="install-app-btn">Install / App Instructions</button><button id="testDataBtn" class="ghost">Run Data Health Check</button></div></div><div class="card"><h3>Reminder Permission</h3><p class="muted">In-app reminders work whenever the app is opened. Browser notifications can also appear while the app is active if permission is granted.</p><button id="notificationBtn">Enable Notifications</button><div id="notificationState" class="note"></div></div></template>
-<script src="app.js?v=5.3.0"></script>
-<script type="module" src="cloud-sync.js?v=5.3.0"></script>
+<script src="app.js?v=5.4.0"></script>
+<script type="module" src="cloud-sync.js?v=5.4.0"></script>
 </body>
 </html>

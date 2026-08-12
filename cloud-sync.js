@@ -61,7 +61,7 @@ function cleanForCloud(data){
   copy._cloud={
     schema:1,
     clientUpdatedAt:Date.now(),
-    appVersion:'5.1-cloud'
+    appVersion:'5.4-ideas-cloud'
   };
   return copy;
 }
@@ -90,7 +90,7 @@ function withTimeout(promise, ms, label='Operation'){
 }
 function hasMeaningfulLocalData(data){
   if(!data || typeof data!=='object') return false;
-  return (data.tasks?.length||0)+(data.study?.length||0)+(data.wellness?.length||0)+(data.travel?.length||0) > 0;
+  return (data.tasks?.length||0)+(data.study?.length||0)+(data.wellness?.length||0)+(data.travel?.length||0)+(data.ideas?.length||0) > 0;
 }
 async function uploadNow(reason='save'){
   if(!currentUser || applyingRemote || !navigator.onLine)return;
